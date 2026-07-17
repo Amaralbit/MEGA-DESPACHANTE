@@ -46,7 +46,7 @@
               <label>CPF ou CNPJ *<input name="cpfCnpj" inputmode="numeric" data-mask="cpf-cnpj" required placeholder="000.000.000-00" /></label>
               <label>RG / Identidade *<input name="identidade" required placeholder="Número do documento" /></label>
               <label>Órgão expedidor *<input name="orgao" required placeholder="Ex.: SSP/GO" /></label>
-              <label>CEP *<input name="cep" inputmode="numeric" data-mask="cep" required placeholder="00000-000" /></label>
+              <label>CEP *<input name="cep" inputmode="numeric" autocomplete="postal-code" data-mask="cep" required placeholder="00000-000" /><small class="cep-feedback" id="cep-feedback" aria-live="polite"></small></label>
               <label class="field-double">Endereço *<input name="endereco" required placeholder="Rua, avenida, alameda..." /></label>
               <label>Número *<input name="numero" required placeholder="Número" /></label>
               <label>Complemento<input name="complemento" placeholder="Apto., sala, lote..." /></label>

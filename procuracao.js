@@ -19,6 +19,39 @@ if (procuracaoForm) {
     });
   });
 
+  const cepInput = procuracaoForm.elements.cep;
+  const cepFeedback = document.getElementById('cep-feedback');
+  let lastCepLookup = '';
+  const setCepFeedback = (message, isError = false) => {
+    cepFeedback.textContent = message;
+    cepFeedback.classList.toggle('error', isError);
+  };
+  const lookupCep = async () => {
+    const cep = onlyNumbers(cepInput.value);
+    if (cep.length !== 8 || cep === lastCepLookup) return;
+    setCepFeedback('Buscando endereço...');
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      if (!response.ok) throw new Error('CEP inválido');
+      const address = await response.json();
+      if (address.erro) throw new Error('CEP não encontrado');
+      procuracaoForm.elements.endereco.value = address.logradouro || '';
+      procuracaoForm.elements.bairro.value = address.bairro || '';
+      procuracaoForm.elements.cidade.value = address.localidade || '';
+      procuracaoForm.elements.estado.value = address.uf || '';
+      lastCepLookup = cep;
+      setCepFeedback('Endereço preenchido. Confira os dados antes de gerar.');
+      procuracaoForm.elements.numero.focus();
+    } catch (error) {
+      lastCepLookup = '';
+      setCepFeedback('Não foi possível encontrar este CEP. Preencha o endereço manualmente.', true);
+    }
+  };
+  cepInput.addEventListener('blur', lookupCep);
+  cepInput.addEventListener('input', () => {
+    if (onlyNumbers(cepInput.value).length === 8) lookupCep();
+  });
+
   const escapeHtml = (value) => String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
   const valueOf = (data, key) => escapeHtml(data.get(key));
   const formattedDate = (value) => {
