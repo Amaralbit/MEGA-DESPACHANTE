@@ -18,7 +18,9 @@ nav.querySelectorAll('a').forEach((link) => link.addEventListener('click', () =>
   toggle.setAttribute('aria-label', 'Abrir menu');
 }));
 
-document.getElementById('contact-form').addEventListener('submit', (event) => {
+const contactForm = document.getElementById('contact-form');
+
+contactForm?.addEventListener('submit', (event) => {
   event.preventDefault();
   const data = new FormData(event.currentTarget);
   const subject = data.get('assunto');
