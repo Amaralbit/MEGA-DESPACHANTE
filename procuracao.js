@@ -32,6 +32,8 @@ if (procuracaoForm) {
 
     const data = new FormData(procuracaoForm);
     const outorgante = valueOf(data, 'outorgante');
+    const date = formattedDate(data.get('dataAssinatura'));
+    const city = valueOf(data, 'cidadeAssinatura');
     const address = `${valueOf(data, 'endereco')}, ${valueOf(data, 'numero')}${data.get('complemento') ? ` - ${valueOf(data, 'complemento')}` : ''}, ${valueOf(data, 'bairro')}, ${valueOf(data, 'cidade')}/${valueOf(data, 'estado')} - CEP ${valueOf(data, 'cep')}`;
     const vehicle = `${valueOf(data, 'marca')} ${valueOf(data, 'modelo')}, ano fabricação/modelo ${valueOf(data, 'anoFabricacao')}/${valueOf(data, 'anoModelo')}, cor ${valueOf(data, 'cor')}, placa ${valueOf(data, 'placa')}, chassi ${valueOf(data, 'chassi')}`;
     const preview = window.open('', '_blank', 'width=920,height=760');
@@ -40,7 +42,38 @@ if (procuracaoForm) {
       return;
     }
 
-    preview.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Procuração para veículo</title><style>body{font-family:Arial,sans-serif;color:#161616;margin:0;background:#eee}.document{box-sizing:border-box;width:210mm;min-height:297mm;margin:12px auto;background:#fff;padding:20mm 19mm;font-size:12pt;line-height:1.65}.logo{color:#b42313;font-weight:800;letter-spacing:1px;font-size:13px;margin-bottom:24px}.title{text-align:center;font-size:17px;font-weight:700;margin:6px 0 30px;text-transform:uppercase}.text{text-align:justify}.text p{margin:0 0 17px}.signature{margin-top:58px;text-align:center}.signature-line{width:330px;border-top:1px solid #222;margin:0 auto 7px}.declaration{width:140mm;box-sizing:border-box;border:1px solid #444;margin:42px auto 0;padding:14px 18px 10px;text-align:center;font-size:9.5pt;line-height:1.34}.declaration h2{font-size:10.5pt;margin:0 0 14px}.declaration p{margin:0}.declaration strong{display:block;margin-top:2px}.declaration .dispatch-signature{width:270px;border-top:1px solid #222;margin:60px auto 5px}.declaration .dispatch-name{font-size:10.5pt;font-weight:700}.details{margin-top:28px;border-top:1px solid #ccc;padding-top:13px;font-size:9.5pt;color:#444}.details strong{color:#111}@media print{body{background:#fff}.document{margin:0;width:auto;min-height:0;box-shadow:none}.print-hint{display:none}}.print-hint{position:fixed;right:18px;top:18px;background:#b42313;color:#fff;border:0;padding:12px 16px;cursor:pointer;font-weight:700}</style></head><body><button class="print-hint" onclick="window.print()">Imprimir / Salvar PDF</button><article class="document"><div class="logo">MEGA DESPACHANTE</div><h1 class="title">Procuração para veículo</h1><div class="text"><p><strong>OUTORGANTE:</strong> ${outorgante}, inscrito(a) no CPF/CNPJ sob nº ${valueOf(data, 'cpfCnpj')}, portador(a) do documento de identidade nº ${valueOf(data, 'identidade')} - ${valueOf(data, 'orgao')}, residente e domiciliado(a) em ${address}.</p><p>Pelo presente instrumento particular de procuração, nomeio e constituo como meu bastante procurador <strong>${valueOf(data, 'despachante')}</strong>, código ${valueOf(data, 'codigoDespachante')}, com endereço em ${valueOf(data, 'enderecoDespachante')}, ${valueOf(data, 'cidadeDespachante')}/${valueOf(data, 'estadoDespachante')}, a quem confiro poderes para me representar perante o DETRAN/GO e demais órgãos públicos competentes, praticando os atos necessários relacionados aos serviços de despachante e regularização documental do veículo abaixo identificado.</p><p><strong>VEÍCULO:</strong> ${vehicle}.</p><p><strong>FINALIDADE:</strong> ${valueOf(data, 'servico')}.</p><p>Esta procuração é outorgada para os fins acima descritos, responsabilizando-me pela veracidade das informações prestadas.</p></div><div class="signature"><p>${valueOf(data, 'cidadeAssinatura')}, ${formattedDate(data.get('dataAssinatura'))}.</p><br><br><div class="signature-line"></div><strong>${outorgante}</strong><br>Outorgante</div><section class="declaration"><h2>DECLARAÇÃO</h2><p>Declaramos, sob a pena da lei, que a assinatura aposta na Procuração é de próprio punho do outorgante, feita em nossa presença, onde desde já assumimos a responsabilidade civil e criminal.</p><strong>${valueOf(data, 'cidadeAssinatura')}, ${formattedDate(data.get('dataAssinatura'))}</strong><div class="dispatch-signature"></div><div class="dispatch-name">DESPACHANTE MEGA</div></section><div class="details"><strong>Dados da MEGA Despachante:</strong> Código ${valueOf(data, 'codigoDespachante')} · ${valueOf(data, 'enderecoDespachante')} · ${valueOf(data, 'cidadeDespachante')}/${valueOf(data, 'estadoDespachante')}</div></article></body></html>`);
+    preview.document.write(`<!doctype html>
+      <html lang="pt-BR"><head><meta charset="UTF-8"><title>Procuração para veículo</title>
+      <style>
+        @page { size: A4 portrait; margin: 0; }
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; color: #161616; margin: 0; background: #eee; }
+        .document { width: 210mm; min-height: 297mm; margin: 10px auto; background: #fff; padding: 13mm 15mm; font-size: 9.6pt; line-height: 1.36; }
+        .logo { color: #b42313; font-weight: 800; letter-spacing: 1px; font-size: 10pt; margin-bottom: 10px; }
+        .title { text-align: center; font-size: 14pt; font-weight: 700; margin: 2px 0 16px; text-transform: uppercase; }
+        .text { text-align: justify; }.text p { margin: 0 0 9px; }
+        .signature { margin-top: 24px; text-align: center; }.signature p { margin: 0; }
+        .signature-line { width: 310px; border-top: 1px solid #222; margin: 25px auto 5px; }
+        .declaration { width: 140mm; border: 1px solid #444; margin: 23px auto 0; padding: 10px 16px 8px; text-align: center; font-size: 8.4pt; line-height: 1.25; }
+        .declaration h2 { font-size: 9.5pt; margin: 0 0 8px; }.declaration p { margin: 0; }.declaration strong { display: block; margin-top: 2px; }
+        .declaration .dispatch-signature { width: 270px; border-top: 1px solid #222; margin: 32px auto 4px; }.declaration .dispatch-name { font-size: 9.5pt; font-weight: 700; }
+        .details { margin-top: 14px; border-top: 1px solid #ccc; padding-top: 8px; font-size: 8pt; color: #444; }.details strong { color: #111; }
+        .print-hint { position: fixed; right: 18px; top: 18px; background: #b42313; color: #fff; border: 0; padding: 12px 16px; cursor: pointer; font-weight: 700; }
+        @media print { body { background: #fff; }.document { width: 210mm; min-height: 297mm; margin: 0; }.print-hint { display: none; } }
+      </style></head><body>
+      <button class="print-hint" onclick="window.print()">Imprimir / Salvar PDF</button>
+      <article class="document">
+        <div class="logo">MEGA DESPACHANTE</div><h1 class="title">Procuração para veículo</h1>
+        <div class="text">
+          <p><strong>OUTORGANTE:</strong> ${outorgante}, inscrito(a) no CPF/CNPJ sob nº ${valueOf(data, 'cpfCnpj')}, portador(a) do documento de identidade nº ${valueOf(data, 'identidade')} - ${valueOf(data, 'orgao')}, residente e domiciliado(a) em ${address}.</p>
+          <p>Pelo presente instrumento particular de procuração, nomeio e constituo como meu bastante procurador <strong>${valueOf(data, 'despachante')}</strong>, código ${valueOf(data, 'codigoDespachante')}, com endereço em ${valueOf(data, 'enderecoDespachante')}, ${valueOf(data, 'cidadeDespachante')}/${valueOf(data, 'estadoDespachante')}, a quem confiro poderes para me representar perante o DETRAN/GO e demais órgãos públicos competentes, praticando os atos necessários relacionados aos serviços de despachante e regularização documental do veículo abaixo identificado.</p>
+          <p><strong>VEÍCULO:</strong> ${vehicle}.</p><p><strong>FINALIDADE:</strong> ${valueOf(data, 'servico')}.</p>
+          <p>Esta procuração é outorgada para os fins acima descritos, responsabilizando-me pela veracidade das informações prestadas.</p>
+        </div>
+        <div class="signature"><p>${city}, ${date}.</p><div class="signature-line"></div><strong>${outorgante}</strong><br>Outorgante</div>
+        <section class="declaration"><h2>DECLARAÇÃO</h2><p>Declaramos, sob a pena da lei, que a assinatura aposta na Procuração é de próprio punho do outorgante, feita em nossa presença, onde desde já assumimos a responsabilidade civil e criminal.</p><strong>${city}, ${date}</strong><div class="dispatch-signature"></div><div class="dispatch-name">DESPACHANTE MEGA</div></section>
+        <div class="details"><strong>Dados da MEGA Despachante:</strong> Código ${valueOf(data, 'codigoDespachante')} · ${valueOf(data, 'enderecoDespachante')} · ${valueOf(data, 'cidadeDespachante')}/${valueOf(data, 'estadoDespachante')}</div>
+      </article></body></html>`);
     preview.document.close();
   });
 }
