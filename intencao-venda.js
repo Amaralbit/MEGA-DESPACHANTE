@@ -1,4 +1,4 @@
-const intencaoVendaForm = document.getElementById('intencao-venda-form');
+    const intencaoVendaForm = document.getElementById('intencao-venda-form');
 
 if (intencaoVendaForm) {
   const onlyNumbers = (value) => value.replace(/\D/g, '');
