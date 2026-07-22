@@ -66,7 +66,17 @@
 
             <div class="form-intro"><span>03</span><div><strong>Serviço e veículo</strong><small>Informe os dados que serão usados na procuração</small></div></div>
             <div class="fields-grid">
-              <label class="field-wide">Descrição do serviço<input name="servico" value="Serviços de despachante e regularização veicular" /></label>
+              <label class="field-wide">Serviço *
+                <select name="servico" required>
+                  <option value="" selected disabled>Selecione o serviço</option>
+                  <option value="Intenção de venda">Intenção de venda</option>
+                  <option value="Transferência de propriedade e/ou município">Transferência de propriedade e/ou município</option>
+                  <option value="Inclusão de veículo novo">Inclusão de veículo novo</option>
+                  <option value="Remarcação de motor e chassi">Remarcação de motor e chassi</option>
+                  <option value="Retirada de veículo apreendido">Retirada de veículo apreendido</option>
+                  <option value="Transferência de UF e propriedade">Transferência de UF e propriedade</option>
+                </select>
+              </label>
               <label>Marca *<input name="marca" required placeholder="Ex.: Chevrolet" /></label>
               <label>Modelo *<input name="modelo" required placeholder="Ex.: Onix" /></label>
               <label>Ano de fabricação *<input name="anoFabricacao" inputmode="numeric" maxlength="4" required placeholder="AAAA" /></label>
