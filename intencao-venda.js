@@ -84,15 +84,15 @@ if (intencaoVendaForm) {
         @page { size: A4 portrait; margin: 0; }
         * { box-sizing: border-box; }
         body { margin: 0; background: #eee; color: #151515; font-family: Arial, sans-serif; }
-        .document { position: relative; width: 210mm; min-height: 297mm; margin: 10px auto; padding: 10mm 14mm; background: #fff; font-size: 8.55pt; line-height: 1.23; }
+        .document { position: relative; width: 210mm; min-height: 297mm; margin: 10px auto; padding: 10mm 14mm; background: #fff; font-size: 8.9pt; line-height: 1.2; }
         .logo-symbol { position: absolute; top: 9mm; right: 14mm; width: 18mm; height: 18mm; object-fit: contain; }
         .heading { margin: 0 24mm 8px; text-align: center; text-transform: uppercase; font-size: 14pt; line-height: 1.14; }.heading span { display: block; margin-top: 3px; font-size: 12pt; text-decoration: underline; }
-        p { margin: 0 0 6px; text-align: justify; }.lead { margin-bottom: 7px; }
-        .vehicle { margin: 7px 0; padding: 5px 7px; border-top: 1px solid #777; border-bottom: 1px solid #777; font-size: 8.2pt; }.vehicle div { margin: 2px 0; }
+        p { margin: 0 0 5px; text-align: justify; }.lead { margin-bottom: 6px; }
+        .vehicle { margin: 6px 0; padding: 5px 7px; border-top: 1px solid #777; border-bottom: 1px solid #777; font-size: 8.45pt; }.vehicle div { margin: 2px 0; }
         .buyer-title { margin: 9px 0 6px; text-align: center; font-size: 12pt; text-decoration: underline; }
-        .buyer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 16px; margin: 6px 0 9px; font-size: 8.25pt; }.buyer-grid .wide { grid-column: 1 / -1; }.buyer-grid div { border-bottom: 1px solid #555; min-height: 15px; }.buyer-grid b { font-size: 7.8pt; }
-        .closing { display: grid; grid-template-columns: 1fr 44mm; gap: 11mm; align-items: end; margin-top: 10px; }.signature { text-align: center; }.signature p { text-align: left; margin-bottom: 20px; }.signature-line { border-top: 1px solid #222; margin-bottom: 4px; }
-        .declaration { border-left: 1px solid #777; padding-left: 7px; font-size: 7pt; line-height: 1.16; }.declaration strong { display: block; text-align: center; margin-bottom: 4px; font-size: 7.6pt; }.declaration .dispatch-line { border-top: 1px solid #222; margin: 20px 0 3px; }.declaration .dispatch-name { text-align: center; font-weight: 700; }
+        .buyer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 16px; margin: 6px 0 8px; font-size: 8.45pt; }.buyer-grid .wide { grid-column: 1 / -1; }.buyer-grid div { border-bottom: 1px solid #555; min-height: 15px; }.buyer-grid b { font-size: 7.95pt; }
+        .closing { margin-top: 8px; }.signature { width: 112mm; margin: 0 auto; text-align: center; }.signature p { text-align: left; margin-bottom: 18px; }.signature-line { border-top: 1px solid #222; margin-bottom: 4px; }
+        .declaration { width: 120mm; margin: 10px auto 0; padding-top: 5px; border-top: 1px solid #777; font-size: 7.2pt; line-height: 1.16; text-align: center; }.declaration strong { display: block; margin-bottom: 4px; font-size: 7.8pt; }.declaration .dispatch-line { border-top: 1px solid #222; margin: 13px 0 3px; }.declaration .dispatch-name { font-weight: 700; }
         .print-hint { position: fixed; top: 18px; right: 18px; border: 0; background: #b42313; color: #fff; padding: 12px 16px; font-weight: 700; cursor: pointer; }
         @media print { body { background: #fff; }.document { width: 210mm; min-height: 297mm; margin: 0; }.print-hint { display: none; } }
       </style></head><body>
