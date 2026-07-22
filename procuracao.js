@@ -69,7 +69,7 @@ if (procuracaoForm) {
     const city = valueOf(data, 'cidadeAssinatura');
     const address = `${valueOf(data, 'endereco')}, ${valueOf(data, 'numero')}${data.get('complemento') ? ` - ${valueOf(data, 'complemento')}` : ''}, ${valueOf(data, 'bairro')}, ${valueOf(data, 'cidade')}/${valueOf(data, 'estado')} - CEP ${valueOf(data, 'cep')}`;
     const vehicle = `${valueOf(data, 'marca')} ${valueOf(data, 'modelo')}, ano fabricação/modelo ${valueOf(data, 'anoFabricacao')}/${valueOf(data, 'anoModelo')}, cor ${valueOf(data, 'cor')}, placa ${valueOf(data, 'placa')}, chassi ${valueOf(data, 'chassi')}`;
-    const logoUrl = new URL('assets/logo-mega-transparent.png', window.location.href).href;
+    const logoUrl = new URL('assets/logo-mega-chroma.png', window.location.href).href;
     const preview = window.open('', '_blank', 'width=920,height=760');
     if (!preview) {
       window.alert('Não foi possível abrir a visualização. Libere pop-ups para gerar o PDF.');
@@ -84,7 +84,7 @@ if (procuracaoForm) {
         body { font-family: Arial, sans-serif; color: #161616; margin: 0; background: #eee; }
         .document { position: relative; width: 210mm; min-height: 297mm; margin: 10px auto; background: #fff; padding: 13mm 15mm; font-size: 9.6pt; line-height: 1.36; }
         .logo { color: #b42313; font-weight: 800; letter-spacing: 1px; font-size: 10pt; margin-bottom: 10px; }
-        .logo-symbol { position: absolute; top: 10mm; right: 15mm; width: 20mm; height: 20mm; object-fit: contain; }
+        .logo-symbol { position: absolute; top: 10mm; right: 15mm; width: 18mm; height: 18mm; object-fit: contain; }
         .title { text-align: center; font-size: 14pt; font-weight: 700; margin: 2px 0 16px; text-transform: uppercase; }
         .text { text-align: justify; }.text p { margin: 0 0 9px; }
         .signature { margin-top: 24px; text-align: center; }.signature p { margin: 0; }
