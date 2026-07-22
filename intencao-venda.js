@@ -66,7 +66,11 @@ if (intencaoVendaForm) {
 
     const data = new FormData(intencaoVendaForm);
     const date = formatDate(data.get('dataAssinatura'));
-    const vendorAddress = `${valueOf(data, 'enderecoVendedor')}, ${valueOf(data, 'numeroVendedor')}${data.get('complementoVendedor') ? ` - ${valueOf(data, 'complementoVendedor')}` : ''}, Qd. ${valueOf(data, 'quadraVendedor')}, Lt. ${valueOf(data, 'loteVendedor')}, ${valueOf(data, 'bairroVendedor')}, ${valueOf(data, 'cidadeVendedor')}/${valueOf(data, 'estadoVendedor')} - CEP ${valueOf(data, 'cepVendedor')}`;
+    const quadraLote = [
+      data.get('quadraVendedor') && `Qd. ${valueOf(data, 'quadraVendedor')}`,
+      data.get('loteVendedor') && `Lt. ${valueOf(data, 'loteVendedor')}`,
+    ].filter(Boolean).join(', ');
+    const vendorAddress = `${valueOf(data, 'enderecoVendedor')}, ${valueOf(data, 'numeroVendedor')}${data.get('complementoVendedor') ? ` - ${valueOf(data, 'complementoVendedor')}` : ''}, ${quadraLote ? `${quadraLote}, ` : ''}${valueOf(data, 'bairroVendedor')}, ${valueOf(data, 'cidadeVendedor')}/${valueOf(data, 'estadoVendedor')} - CEP ${valueOf(data, 'cepVendedor')}`;
     const logoUrl = new URL('assets/logo-mega-transparent.png', window.location.href).href;
     const preview = window.open('', '_blank', 'width=920,height=760');
     if (!preview) {
