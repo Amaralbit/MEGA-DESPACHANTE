@@ -69,7 +69,7 @@ if (procuracaoForm) {
     const city = valueOf(data, 'cidadeAssinatura');
     const address = `${valueOf(data, 'endereco')}, ${valueOf(data, 'numero')}${data.get('complemento') ? ` - ${valueOf(data, 'complemento')}` : ''}, ${valueOf(data, 'bairro')}, ${valueOf(data, 'cidade')}/${valueOf(data, 'estado')} - CEP ${valueOf(data, 'cep')}`;
     const vehicle = `${valueOf(data, 'marca')} ${valueOf(data, 'modelo')}, ano fabricação/modelo ${valueOf(data, 'anoFabricacao')}/${valueOf(data, 'anoModelo')}, cor ${valueOf(data, 'cor')}, placa ${valueOf(data, 'placa')}, chassi ${valueOf(data, 'chassi')}`;
-    const logoUrl = new URL('assets/logo-mega-chroma.png', window.location.href).href;
+    const logoUrl = new URL('assets/logo-mega-transparent.png', window.location.href).href;
     const preview = window.open('', '_blank', 'width=920,height=760');
     if (!preview) {
       window.alert('Não foi possível abrir a visualização. Libere pop-ups para gerar o PDF.');
