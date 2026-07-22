@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Gere sua procuração particular para serviços veiculares." />
+    <title>Procuração particular | Formulários</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="icon" type="image/png" href="assets/logo-mega-transparent.png" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="forms-page procura-page">
+    <header class="site-header"><div class="container nav-wrap"><a class="brand" href="index.html" aria-label="Início"><span class="brand-mark">FORM</span><span class="brand-name">FORMULÁRIOS</span></a><button class="menu-toggle" aria-label="Abrir menu" aria-expanded="false"><span></span><span></span><span></span></button><nav class="nav-links" aria-label="Navegação principal"><a href="index.html#servicos">Serviços</a><a class="active" href="formularios.html">Formulários</a><a href="index.html#sobre">A MEGA</a><a href="index.html#localizacao">Localização</a><a class="nav-cta" href="index.html#contato">Fale conosco <span>→</span></a></nav></div></header>
+    <main>
+      <section class="procura-header"><div class="container"><a class="back-link" href="formularios.html">← Voltar para Formulários</a><p class="eyebrow"><span></span> FORMULÁRIO DIGITAL</p><h1>Procuração<br />particular</h1><p>Preencha os dados do outorgante, procurador e veículo. O documento gerado seguirá o modelo do DETRAN/GO.</p></div></section>
+      <section class="procura-content section"><div class="procura-layout container">
+        <aside class="procura-aside"><strong>Antes de começar</strong><ol><li>Confira cuidadosamente os dados de outorgante e procurador.</li><li>Informe os dados corretos do veículo.</li><li>Gere o PDF, imprima e reconheça firma quando necessário.</li></ol><p>E-mail e telefones são opcionais.</p></aside>
+        <form class="procuracao-form" id="procuracao-particular-form">
+          <div class="form-intro"><span>01</span><div><strong>Dados do outorgante</strong><small>Quem concede os poderes</small></div></div>
+          <div class="fields-grid">
+            <label class="field-wide">Nome completo ou razão social *<input name="outorganteNome" autocomplete="name" required placeholder="Nome completo" /></label>
+            <label>CPF ou CNPJ *<input name="outorganteCpfCnpj" inputmode="numeric" data-mask="cpf-cnpj" required placeholder="000.000.000-00" /></label>
+            <label>RG / Identidade *<input name="outorganteRg" required placeholder="Número do documento" /></label>
+            <label>Órgão expedidor *<input name="outorganteOrgao" required placeholder="Ex.: SSP/GO" /></label>
+            <label>CEP *<input name="outorganteCep" inputmode="numeric" data-mask="cep" required placeholder="00000-000" /><small class="cep-feedback" id="cep-outorgante-feedback" aria-live="polite"></small></label>
+            <label class="field-double">Rua / Avenida *<input name="outorganteEndereco" required placeholder="Rua, avenida, alameda..." /></label>
+            <label>Setor / Bairro *<input name="outorganteBairro" required placeholder="Setor ou bairro" /></label>
+            <label>Cidade *<input name="outorganteCidade" required placeholder="Cidade" /></label>
+            <label>Estado *<input name="outorganteEstado" maxlength="2" required placeholder="UF" /></label>
+            <label>E-mail<input name="outorganteEmail" type="email" placeholder="voce@email.com" /></label>
+            <label>Telefone<input name="outorganteTelefone" inputmode="tel" data-mask="telefone" placeholder="(62) 99999-9999" /></label>
+          </div>
+          <div class="form-intro"><span>02</span><div><strong>Dados do procurador</strong><small>Quem receberá os poderes</small></div></div>
+          <div class="fields-grid">
+            <label class="field-wide">Nome completo ou razão social *<input name="procuradorNome" required placeholder="Nome completo" /></label>
+            <label>CPF ou CNPJ *<input name="procuradorCpfCnpj" inputmode="numeric" data-mask="cpf-cnpj" required placeholder="000.000.000-00" /></label>
+            <label>RG / Identidade *<input name="procuradorRg" required placeholder="Número do documento" /></label>
+            <label>Órgão expedidor *<input name="procuradorOrgao" required placeholder="Ex.: SSP/GO" /></label>
+            <label>CEP *<input name="procuradorCep" inputmode="numeric" data-mask="cep" required placeholder="00000-000" /><small class="cep-feedback" id="cep-procurador-feedback" aria-live="polite"></small></label>
+            <label class="field-double">Rua / Avenida *<input name="procuradorEndereco" required placeholder="Rua, avenida, alameda..." /></label>
+            <label>Setor / Bairro *<input name="procuradorBairro" required placeholder="Setor ou bairro" /></label>
+            <label>Cidade *<input name="procuradorCidade" required placeholder="Cidade" /></label>
+            <label>Estado *<input name="procuradorEstado" maxlength="2" required placeholder="UF" /></label>
+            <label>E-mail<input name="procuradorEmail" type="email" placeholder="procurador@email.com" /></label>
+            <label>Telefone<input name="procuradorTelefone" inputmode="tel" data-mask="telefone" placeholder="(62) 99999-9999" /></label>
+          </div>
+          <div class="form-intro"><span>03</span><div><strong>Dados do veículo</strong><small>Informações incluídas na procuração</small></div></div>
+          <div class="fields-grid">
+            <label>Placa *<input name="placa" data-mask="placa" maxlength="8" required placeholder="ABC1D23" /></label>
+            <label class="field-double">Chassi *<input name="chassi" maxlength="17" required placeholder="17 caracteres" /></label>
+            <label>Ano de fabricação *<input name="anoFabricacao" inputmode="numeric" maxlength="4" required placeholder="AAAA" /></label>
+          </div>
+          <div class="form-intro"><span>04</span><div><strong>Local e data</strong><small>Data que aparecerá no documento</small></div></div>
+          <div class="fields-grid final-fields"><label class="field-double">Cidade *<input name="cidadeAssinatura" value="Goiânia" required /></label><label>Data *<input name="dataAssinatura" type="date" required /></label></div>
+          <div class="form-check"><input id="confirmacao-particular" type="checkbox" required /><label for="confirmacao-particular">Confirmo que os dados informados são verdadeiros e que assinarei a procuração gerada.</label></div>
+          <div class="form-actions"><button class="button button-primary" type="submit">Gerar PDF para imprimir <span>→</span></button><p>O documento será aberto em uma nova janela. Selecione “Salvar como PDF” no diálogo de impressão.</p></div>
+        </form>
+      </div></section>
+    </main>
+    <footer><div class="container footer-inner"><a class="brand footer-brand" href="formularios.html"><span class="brand-mark">FORM</span><span class="brand-name">FORMULÁRIOS</span></a><p>Documentos para serviços veiculares.</p><p>© <span id="year"></span></p></div></footer>
+    <script src="script.js"></script><script src="procuracao-particular.js"></script>
+  </body>
+</html>
