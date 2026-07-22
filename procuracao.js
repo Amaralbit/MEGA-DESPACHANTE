@@ -93,7 +93,7 @@ if (procuracaoForm) {
         .declaration h2 { font-size: 9.5pt; margin: 0 0 8px; }.declaration p { margin: 0; }.declaration strong { display: block; margin-top: 2px; }
         .declaration .dispatch-signature { width: 270px; border-top: 1px solid #222; margin: 32px auto 4px; }.declaration .dispatch-name { font-size: 9.5pt; font-weight: 700; }
         .details { margin-top: 14px; border-top: 1px solid #ccc; padding-top: 8px; font-size: 8pt; color: #444; }.details strong { color: #111; }
-        .print-hint { position: fixed; right: 18px; top: 18px; background: #b42313; color: #fff; border: 0; padding: 12px 16px; cursor: pointer; font-weight: 700; }
+        .print-hint { position: fixed; z-index: 10; right: 18px; top: 18px; background: #b42313; color: #fff; border: 0; padding: 12px 16px; cursor: pointer; font-weight: 700; }
         @media print { body { background: #fff; }.document { width: 210mm; min-height: 297mm; margin: 0; }.print-hint { display: none; } }
       </style></head><body>
       <button class="print-hint" onclick="window.print()">Imprimir / Salvar PDF</button>

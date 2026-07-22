@@ -93,7 +93,7 @@ if (intencaoVendaForm) {
         .buyer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 16px; margin: 6px 0 8px; font-size: 8.45pt; }.buyer-grid .wide { grid-column: 1 / -1; }.buyer-grid div { border-bottom: 1px solid #555; min-height: 15px; }.buyer-grid b { font-size: 7.95pt; }
         .closing { margin-top: 8px; }.signature { width: 112mm; margin: 0 auto; text-align: center; }.signature p { text-align: left; margin-bottom: 18px; }.signature-line { border-top: 1px solid #222; margin-bottom: 4px; }
         .declaration { width: 120mm; margin: 10px auto 0; padding-top: 5px; border-top: 1px solid #777; font-size: 7.2pt; line-height: 1.16; text-align: center; }.declaration strong { display: block; margin-bottom: 4px; font-size: 7.8pt; }.declaration .dispatch-line { border-top: 1px solid #222; margin: 13px 0 3px; }.declaration .dispatch-name { font-weight: 700; }
-        .print-hint { position: fixed; top: 18px; right: 18px; border: 0; background: #b42313; color: #fff; padding: 12px 16px; font-weight: 700; cursor: pointer; }
+        .print-hint { position: fixed; z-index: 10; top: 18px; right: 18px; border: 0; background: #b42313; color: #fff; padding: 12px 16px; font-weight: 700; cursor: pointer; }
         @media print { body { background: #fff; }.document { width: 210mm; min-height: 297mm; margin: 0; }.print-hint { display: none; } }
       </style></head><body>
       <button class="print-hint" onclick="window.print()">Imprimir / Salvar PDF</button>
