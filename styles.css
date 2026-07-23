@@ -49,5 +49,7 @@
 /* Frase principal com efeito de digitação */
 .hero-title-prefix,.hero-typing-line{display:block}.hero-typing-line{min-height:1.98em}.hero-typing{display:inline}.typing-caret{display:inline-block;width:.075em;height:.82em;margin-left:.08em;background:currentColor;vertical-align:-.03em;animation:typing-caret-blink .85s steps(1,end) infinite}@keyframes typing-caret-blink{50%{opacity:0}}@media(prefers-reduced-motion:reduce){.typing-caret{animation:none}}
 
-/* Ajustes individuais das logos de concessionárias */
-.partner-logo{overflow:visible}.partner-logo img{width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain;transform:none!important}.partner-logo--citroen img{max-width:100%;max-height:100%}
+/* Encaixe seguro das logos de concessionárias */
+.partner-logo{position:relative;overflow:hidden}.partner-logo img{position:absolute;inset:18px 23px;display:block;width:calc(100% - 46px)!important;height:calc(100% - 36px)!important;max-width:none!important;max-height:none!important;object-fit:contain;object-position:center;transform:none!important}.partner-logo--citroen img{object-position:center}
+@media(max-width:800px){.partner-logo img{inset:15px 19px;width:calc(100% - 38px)!important;height:calc(100% - 30px)!important}}
+@media(max-width:520px){.partner-logo img{inset:13px 16px;width:calc(100% - 32px)!important;height:calc(100% - 26px)!important}}
