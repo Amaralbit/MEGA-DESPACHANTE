@@ -60,6 +60,36 @@ if (revealItems.length && !reduceMotion && 'IntersectionObserver' in window) {
   revealItems.forEach((item) => item.classList.add('is-visible'));
 }
 
+const heroTyping = document.querySelector('[data-hero-typing]');
+
+if (heroTyping && !reduceMotion) {
+  const messages = ['Sua vida mais leve.', 'Seu tempo mais livre.', 'Seu caminho mais simples.'];
+  let messageIndex = 0;
+  let characterIndex = messages[messageIndex].length;
+  let erasing = false;
+
+  const updateHeroTyping = () => {
+    const message = messages[messageIndex];
+    heroTyping.textContent = message.slice(0, characterIndex);
+
+    let delay = erasing ? 42 : 68;
+
+    if (!erasing && characterIndex === message.length) {
+      erasing = true;
+      delay = 2200;
+    } else if (erasing && characterIndex === 0) {
+      erasing = false;
+      messageIndex = (messageIndex + 1) % messages.length;
+      delay = 380;
+    }
+
+    characterIndex += erasing ? -1 : 1;
+    window.setTimeout(updateHeroTyping, delay);
+  };
+
+  window.setTimeout(updateHeroTyping, 1300);
+}
+
 const heroPhoto = document.querySelector('.hero-photo');
 
 if (heroPhoto && !reduceMotion && window.matchMedia('(hover: hover)').matches) {
