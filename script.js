@@ -59,3 +59,20 @@ if (revealItems.length && !reduceMotion && 'IntersectionObserver' in window) {
 } else {
   revealItems.forEach((item) => item.classList.add('is-visible'));
 }
+
+const heroPhoto = document.querySelector('.hero-photo');
+
+if (heroPhoto && !reduceMotion && window.matchMedia('(hover: hover)').matches) {
+  heroPhoto.addEventListener('pointermove', (event) => {
+    const bounds = heroPhoto.getBoundingClientRect();
+    const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+    const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+    heroPhoto.style.setProperty('--photo-tilt-x', `${(-y * 3).toFixed(2)}deg`);
+    heroPhoto.style.setProperty('--photo-tilt-y', `${(x * 3).toFixed(2)}deg`);
+  });
+
+  heroPhoto.addEventListener('pointerleave', () => {
+    heroPhoto.style.setProperty('--photo-tilt-x', '0deg');
+    heroPhoto.style.setProperty('--photo-tilt-y', '0deg');
+  });
+}
