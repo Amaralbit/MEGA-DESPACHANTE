@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Gere seu requerimento para regravação de chassi com a MEGA Despachante." />
+    <title>Regravação de chassi | MEGA Despachante</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="icon" type="image/png" href="assets/logo-mega-transparent.png" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="forms-page procura-page">
+    <header class="site-header"><div class="container nav-wrap"><a class="brand" href="index.html" aria-label="MEGA Despachante, início"><span class="brand-mark">MEGA</span><span class="brand-name">DESPACHANTE</span></a><button class="menu-toggle" aria-label="Abrir menu" aria-expanded="false"><span></span><span></span><span></span></button><nav class="nav-links" aria-label="Navegação principal"><a href="index.html#servicos">Serviços</a><a class="active" href="formularios.html">Formulários</a><a href="index.html#sobre">A MEGA</a><a href="index.html#localizacao">Localização</a><a class="nav-cta" href="index.html#contato">Fale conosco <span>→</span></a></nav></div></header>
+    <main>
+      <section class="procura-header"><div class="container"><a class="back-link" href="formularios.html">← Voltar para Formulários</a><p class="eyebrow"><span></span> FORMULÁRIO DIGITAL</p><h1>Regravação<br />de chassi</h1><p>Informe os dados do proprietário, do veículo e o motivo da solicitação para gerar o requerimento pronto para assinatura.</p></div></section>
+      <section class="procura-content section"><div class="procura-layout container">
+        <aside class="procura-aside"><strong>Antes de começar</strong><ol><li>Preencha os dados conforme os documentos do proprietário.</li><li>Confira cuidadosamente a placa, o chassi e a marca/modelo.</li><li>Descreva o motivo da regravação de forma clara e completa.</li></ol><p>O PDF segue o modelo anexado, sem logos do Detran, Governo de Goiás ou qualquer outra instituição.</p></aside>
+        <form class="procuracao-form" id="requerimento-regravacao-form">
+          <div class="form-intro"><span>01</span><div><strong>Proprietário</strong><small>Identificação de quem faz o requerimento</small></div></div>
+          <div class="fields-grid"><label class="field-wide">Nome completo ou razão social *<input name="requerente" autocomplete="name" required placeholder="Nome completo" /></label><label>CPF ou CNPJ *<input name="cpfCnpj" inputmode="numeric" data-mask="cpf-cnpj" required placeholder="000.000.000-00" /></label><label>RG *<input name="rg" required placeholder="Número do documento" /></label><label class="field-wide">Órgão expedidor *<input name="orgaoExpedidor" required placeholder="Ex.: SSP/GO" /></label><label class="field-wide">Proprietário(a) do veículo *<input name="proprietarioVeiculo" required placeholder="Nome completo ou razão social" /></label></div>
+          <div class="form-intro"><span>02</span><div><strong>Endereço</strong><small>Endereço do proprietário</small></div></div>
+          <div class="fields-grid"><label class="field-double">Rua, avenida etc. *<input name="logradouro" required placeholder="Rua, avenida, alameda..." /></label><label>Bairro / setor *<input name="bairro" required placeholder="Bairro ou setor" /></label><label>Cidade *<input name="municipio" required placeholder="Cidade" /></label><label>UF *<input name="uf" maxlength="2" required placeholder="UF" /></label><label>CEP *<input name="cep" inputmode="numeric" autocomplete="postal-code" data-mask="cep" required placeholder="00000-000" /><small class="cep-feedback" id="cep-feedback" aria-live="polite"></small></label><label>Telefone *<input name="telefone" inputmode="tel" data-mask="telefone" autocomplete="tel" required placeholder="(62) 99999-9999" /></label></div>
+          <div class="form-intro"><span>03</span><div><strong>Veículo e motivo</strong><small>Dados do veículo e justificativa da solicitação</small></div></div>
+          <div class="fields-grid"><label>Placa *<input name="placa" data-mask="placa" maxlength="8" required placeholder="ABC1D23" /></label><label>Marca / modelo *<input name="marcaModelo" required placeholder="Ex.: Chevrolet Onix" /></label><label class="field-wide">Chassi *<input name="chassi" maxlength="17" required placeholder="17 caracteres" /></label><label class="field-wide">Motivo(s) para a regravação do chassi *<textarea name="motivos" required placeholder="Descreva o motivo da regravação solicitada."></textarea></label></div>
+          <div class="form-intro"><span>04</span><div><strong>Local e data</strong><small>Informações que aparecerão no documento</small></div></div>
+          <div class="fields-grid final-fields"><label class="field-double">Cidade *<input name="cidadeAssinatura" value="Goiânia" required /></label><label>Data *<input name="dataAssinatura" type="date" required /></label></div>
+          <div class="form-check"><input id="confirmacao-regravacao" type="checkbox" required /><label for="confirmacao-regravacao">Confirmo que os dados informados são verdadeiros e que assinarei o requerimento gerado.</label></div><div class="form-actions"><button class="button button-primary" type="submit">Gerar PDF para imprimir <span>→</span></button><p>O documento será aberto em uma nova janela. Selecione “Salvar como PDF” no diálogo de impressão.</p></div>
+        </form>
+      </div></section>
+    </main>
+    <footer><div class="container footer-inner"><a class="brand footer-brand" href="index.html"><span class="brand-mark">MEGA</span><span class="brand-name">DESPACHANTE</span></a><p>Documentação veicular com segurança e tranquilidade.</p><p>© <span id="year"></span> MEGA Despachante</p></div></footer>
+    <a class="floating-whatsapp" href="https://wa.me/556299712947?text=Ol%C3%A1%20vim%20pelo%20site%2C%20e%20gostaria%20de%20ajuda" target="_blank" rel="noreferrer" aria-label="Conversar no WhatsApp"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M27.1 4.8A15.5 15.5 0 0 0 3.4 23.4L2 30l6.8-1.8A15.5 15.5 0 1 0 27.1 4.8Zm-11 22.6a12.7 12.7 0 0 1-6.4-1.7l-.5-.3-4 1.1 1.1-3.9-.3-.5A12.7 12.7 0 1 1 16 27.4Z" /></svg><span>Fale conosco</span></a>
+    <script src="script.js"></script><script src="requerimento-regravacao-chassi.js"></script>
+  </body>
+</html>
