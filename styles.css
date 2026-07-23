@@ -48,3 +48,6 @@
 
 /* Frase principal com efeito de digitação */
 .hero-title-prefix,.hero-typing-line{display:block}.hero-typing-line{min-height:1.98em}.hero-typing{display:inline}.typing-caret{display:inline-block;width:.075em;height:.82em;margin-left:.08em;background:currentColor;vertical-align:-.03em;animation:typing-caret-blink .85s steps(1,end) infinite}@keyframes typing-caret-blink{50%{opacity:0}}@media(prefers-reduced-motion:reduce){.typing-caret{animation:none}}
+
+/* Ajustes individuais das logos de concessionárias */
+.partner-logo--citroen img{width:128%;height:128%;transform:translateY(1px);transform-origin:center}.partner-logo--ram img{transform:scale(.84)}.partner-logo--royal-enfield img{transform:scale(.8)}
