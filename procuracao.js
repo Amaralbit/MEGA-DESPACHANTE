@@ -67,6 +67,8 @@ if (procuracaoForm) {
     const outorgante = valueOf(data, 'outorgante');
     const date = formattedDate(data.get('dataAssinatura'));
     const city = valueOf(data, 'cidadeAssinatura');
+    const powers = valueOf(data, 'servico');
+    const validity = data.get('validade') ? ` Esta procuração terá validade de <strong>${valueOf(data, 'validade')}</strong>.` : '';
     const address = `${valueOf(data, 'endereco')}, ${valueOf(data, 'numero')}${data.get('complemento') ? ` - ${valueOf(data, 'complemento')}` : ''}, ${valueOf(data, 'bairro')}, ${valueOf(data, 'cidade')}/${valueOf(data, 'estado')} - CEP ${valueOf(data, 'cep')}`;
     const vehicle = `${valueOf(data, 'marca')} ${valueOf(data, 'modelo')}, ano fabricação/modelo ${valueOf(data, 'anoFabricacao')}/${valueOf(data, 'anoModelo')}, cor ${valueOf(data, 'cor')}, placa ${valueOf(data, 'placa')}, chassi ${valueOf(data, 'chassi')}`;
     const logoUrl = new URL('assets/logo-mega-transparent.png', window.location.href).href;
@@ -83,7 +85,6 @@ if (procuracaoForm) {
         * { box-sizing: border-box; }
         body { font-family: Arial, sans-serif; color: #161616; margin: 0; background: #eee; }
         .document { position: relative; width: 210mm; min-height: 297mm; margin: 10px auto; background: #fff; padding: 13mm 15mm; font-size: 9.6pt; line-height: 1.36; }
-        .logo { color: #b42313; font-weight: 800; letter-spacing: 1px; font-size: 10pt; margin-bottom: 10px; }
         .logo-symbol { position: absolute; top: 10mm; right: 15mm; width: 18mm; height: 18mm; object-fit: contain; }
         .title { text-align: center; font-size: 14pt; font-weight: 700; margin: 2px 0 16px; text-transform: uppercase; }
         .text { text-align: justify; }.text p { margin: 0 0 9px; }
@@ -99,12 +100,13 @@ if (procuracaoForm) {
       <button class="print-hint" onclick="window.print()">Imprimir / Salvar PDF</button>
       <article class="document">
         <img class="logo-symbol" src="${logoUrl}" alt="MEGA Despachante">
-        <div class="logo">MEGA DESPACHANTE</div><h1 class="title">Procuração para veículo</h1>
+        <h1 class="title">Procuração para veículo</h1>
         <div class="text">
           <p><strong>OUTORGANTE:</strong> ${outorgante}, inscrito(a) no CPF/CNPJ sob nº ${valueOf(data, 'cpfCnpj')}, portador(a) do documento de identidade nº ${valueOf(data, 'identidade')} - ${valueOf(data, 'orgao')}, residente e domiciliado(a) em ${address}.</p>
-          <p>Pelo presente instrumento particular de procuração, nomeio e constituo como meu bastante procurador <strong>${valueOf(data, 'despachante')}</strong>, código ${valueOf(data, 'codigoDespachante')}, com endereço em ${valueOf(data, 'enderecoDespachante')}, ${valueOf(data, 'cidadeDespachante')}/${valueOf(data, 'estadoDespachante')}, a quem confiro poderes para me representar perante o DETRAN/GO e demais órgãos públicos competentes, praticando os atos necessários relacionados aos serviços de despachante e regularização documental do veículo abaixo identificado.</p>
-          <p><strong>VEÍCULO:</strong> ${vehicle}.</p><p><strong>FINALIDADE:</strong> podendo para tanto assinar o de acordo como adquirente do ATPV, receber e entregar CNH apreendida na comissão de apreensão e pontuação deste órgão. Podendo ainda, requerer e assinar o que necessário for, liberar veículos apreendidos, fazer pagamentos, receber e dar quitações, alegar, concordar, discordar, prestar declarações e informações, desistir, enfim, praticar quaisquer outros atos que se fizerem necessários para o fiel cumprimento deste mandato, bem como repassar informações e dados entre os órgãos e parceiros acima nominados sobre os serviços solicitados e/ou realizados, não havendo proibições de qualquer natureza em relação à Lei Geral de Proteção de Dados (LGPD), o que desde já fica dado por firme e valioso, e dando poderes também para <strong>${valueOf(data, 'servico')}</strong>.</p>
-          <p>Esta procuração é outorgada para os fins acima descritos, responsabilizando-me pela veracidade das informações prestadas.</p>
+          <p>Pelo presente instrumento particular de procuração, nomeio e constituo como meu procurador <strong>${valueOf(data, 'despachante')}</strong>, código ${valueOf(data, 'codigoDespachante')}, com endereço em ${valueOf(data, 'enderecoDespachante')}, ${valueOf(data, 'cidadeDespachante')}/${valueOf(data, 'estadoDespachante')}, a quem são conferidos exclusivamente os poderes abaixo descritos.</p>
+          <p><strong>VEÍCULO:</strong> ${vehicle}.</p>
+          <p><strong>PODERES:</strong> Dando poderes para <strong>${powers}</strong>.${validity}</p>
+          <p>Esta procuração é outorgada exclusivamente para os poderes acima descritos, responsabilizando-me pela veracidade das informações prestadas.</p>
         </div>
         <div class="signature"><p>${city}, ${date}.</p><div class="signature-line"></div><strong>${outorgante}</strong><br>Outorgante</div>
         <section class="declaration"><h2>DECLARAÇÃO</h2><p>Declaramos, sob a pena da lei, que a assinatura aposta na Procuração é de próprio punho do outorgante, feita em nossa presença, onde desde já assumimos a responsabilidade civil e criminal.</p><strong>${city}, ${date}</strong><div class="dispatch-signature"></div><div class="dispatch-name">DESPACHANTE MEGA</div></section>
