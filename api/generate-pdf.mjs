@@ -51,9 +51,16 @@ const allowedOrigins = () => (process.env.ALLOWED_ORIGINS || 'https://amaralbit.
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+export const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  if (allowedOrigins().includes(origin)) return true;
+  if (origin === 'null') return true;
+  return /^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?$/i.test(origin);
+};
+
 const setCorsHeaders = (req, res) => {
   const origin = req.headers.origin;
-  if (origin && allowedOrigins().includes(origin)) {
+  if (origin && isAllowedOrigin(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Vary', 'Origin');
   }
@@ -195,7 +202,8 @@ export default async function handler(req, res) {
   setCorsHeaders(req, res);
 
   const origin = req.headers.origin;
-  if (origin && !allowedOrigins().includes(origin)) {
+  if (!isAllowedOrigin(origin)) {
+    console.warn('[generate-pdf] Origem recusada', { origin });
     return sendJson(res, 403, { error: 'Origem não autorizada.' });
   }
   if (req.method === 'OPTIONS') {

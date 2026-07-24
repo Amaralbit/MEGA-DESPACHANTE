@@ -296,7 +296,9 @@ const generateProtectedPdf = async ({ html, documentType, fileName }) => {
       return;
     } catch (generationError) {
       setProtectedPdfBusy(false);
-      feedback = generationError.message;
+      feedback = generationError instanceof TypeError && generationError.message === 'Failed to fetch'
+        ? 'Não foi possível conectar ao gerador seguro. Atualize a página e tente novamente.'
+        : generationError.message;
       dialog.querySelector('#protected-pdf-password').select();
     }
   }

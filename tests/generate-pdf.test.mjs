@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { prepareSignedHtml } from '../api/generate-pdf.mjs';
+import { isAllowedOrigin, prepareSignedHtml } from '../api/generate-pdf.mjs';
 
 const validHtml = (title) => `<!doctype html>
 <html lang="pt-BR">
@@ -45,4 +45,12 @@ test('rejeita scripts e mais de uma área de assinatura', () => {
     }),
     /assinatura protegida|elementos não permitidos/,
   );
+});
+
+test('aceita o site oficial e ambientes locais, mas rejeita sites externos', () => {
+  assert.equal(isAllowedOrigin('https://amaralbit.github.io'), true);
+  assert.equal(isAllowedOrigin('http://localhost:5500'), true);
+  assert.equal(isAllowedOrigin('http://127.0.0.1:8080'), true);
+  assert.equal(isAllowedOrigin('null'), true);
+  assert.equal(isAllowedOrigin('https://site-nao-autorizado.example'), false);
 });
