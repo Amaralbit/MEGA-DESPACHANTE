@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { stat } from 'node:fs/promises';
 import { isAllowedOrigin, prepareSignedHtml } from '../api/generate-pdf.mjs';
 
 const validHtml = (title) => `<!doctype html>
@@ -21,6 +22,8 @@ test('injeta a assinatura e remove o botão de impressão', () => {
   assert.match(result.html, /https:\/\/example\.com\/assinatura\.png/);
   assert.doesNotMatch(result.html, /print-hint/);
   assert.doesNotMatch(result.html, /onclick/);
+  assert.match(result.html, /logo-mega-pdf\.png/);
+  assert.doesNotMatch(result.html, /logo-mega-transparent\.png/);
   assert.equal(result.fileName, 'procuracao-veiculo.pdf');
 });
 
@@ -32,6 +35,24 @@ test('rejeita documento que não corresponde ao tipo informado', () => {
     }),
     /não corresponde/,
   );
+});
+
+test('usa os ativos otimizados por padrão na geração do PDF', () => {
+  const result = prepareSignedHtml({
+    html: validHtml('Procuração para veículo'),
+    documentType: 'procuracao-veiculo',
+  });
+  assert.match(result.html, /assinatura-sergio-pdf\.png/);
+  assert.match(result.html, /logo-mega-pdf\.png/);
+  assert.doesNotMatch(result.html, /assinatura-sergio\.png/);
+  assert.doesNotMatch(result.html, /logo-mega-transparent\.png/);
+});
+
+test('mantém os ativos de impressão abaixo de 100 KB cada', async () => {
+  const signature = await stat('assets/assinatura-sergio-pdf.png');
+  const logo = await stat('assets/logo-mega-pdf.png');
+  assert.ok(signature.size < 100_000);
+  assert.ok(logo.size < 100_000);
 });
 
 test('rejeita scripts e mais de uma área de assinatura', () => {

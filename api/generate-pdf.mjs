@@ -2,8 +2,9 @@ import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 
 const MAX_HTML_LENGTH = 250_000;
-const DEFAULT_SIGNATURE_URL = 'https://amaralbit.github.io/MEGA-DESPACHANTE/assets/assinatura-sergio.png';
 const PUBLIC_ASSET_BASE = 'https://amaralbit.github.io/MEGA-DESPACHANTE/assets/';
+const DEFAULT_SIGNATURE_URL = `${PUBLIC_ASSET_BASE}assinatura-sergio-pdf.png`;
+const PDF_LOGO_URL = `${PUBLIC_ASSET_BASE}logo-mega-pdf.png`;
 
 const documentRules = {
   'procuracao-veiculo': {
@@ -84,7 +85,7 @@ const parseBody = (body) => {
 
 const normalizeAssetUrls = (html) => html.replace(
   /(?:file:\/\/\/[^"'()\s>]*\/)?assets\/logo-mega-transparent\.png/gi,
-  `${PUBLIC_ASSET_BASE}logo-mega-transparent.png`,
+  PDF_LOGO_URL,
 );
 
 export const prepareSignedHtml = ({ html, documentType, signatureUrl = DEFAULT_SIGNATURE_URL }) => {
@@ -109,7 +110,7 @@ export const prepareSignedHtml = ({ html, documentType, signatureUrl = DEFAULT_S
     .replace(/\son[a-z]+\s*=\s*(?:"[^"]*"|'[^']*')/gi, '')
     .replace(/<img\b([^>]*?)src=(?:"[^"]*"|'[^']*')([^>]*)>/gi, (image, before, after) => {
       if (/logo-symbol/i.test(image)) {
-        return `<img${before}src="${PUBLIC_ASSET_BASE}logo-mega-transparent.png"${after}>`;
+        return `<img${before}src="${PDF_LOGO_URL}"${after}>`;
       }
       return '';
     })
@@ -147,7 +148,7 @@ const renderPdf = async (html, signatureUrl) => {
     page.on('request', (request) => {
       const url = request.url();
       const allowed = url === signatureUrl
-        || url === `${PUBLIC_ASSET_BASE}logo-mega-transparent.png`
+        || url === PDF_LOGO_URL
         || url.startsWith('data:');
       if (allowed) request.continue();
       else request.abort();
