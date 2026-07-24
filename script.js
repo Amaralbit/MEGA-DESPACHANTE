@@ -106,3 +106,22 @@ if (heroPhoto && !reduceMotion && window.matchMedia('(hover: hover)').matches) {
     heroPhoto.style.setProperty('--photo-tilt-y', '0deg');
   });
 }
+
+window.MEGA_DECLARATION_CSS = `
+  .mega-declaration { width: 100%; margin: 8px auto 0; border: 1px solid #555; padding: 8px 14px 7px; text-align: center; font-size: 8pt; line-height: 1.22; break-inside: avoid; }
+  .mega-declaration h2 { margin: 0 0 7px; font-size: 10pt; }
+  .mega-declaration p { margin: 0; text-align: center; }
+  .mega-declaration strong { display: block; margin-top: 4px; }
+  .mega-declaration-line { width: 90mm; margin: 48px auto 4px; border-top: 1px solid #222; }
+  .mega-declaration-name { font-size: 9pt; font-weight: 700; }
+`;
+
+window.renderMegaDeclaration = (city, date) => `
+  <section class="mega-declaration">
+    <h2>DECLARAÇÃO</h2>
+    <p>Declaramos, sob a pena da lei, que a assinatura aposta na Procuração é de próprio punho do outorgante, feita em nossa presença, onde desde já assumimos a responsabilidade civil e criminal.</p>
+    <strong>${city}, ${date}</strong>
+    <div class="mega-declaration-line"></div>
+    <div class="mega-declaration-name">DESPACHANTE MEGA</div>
+  </section>
+`;

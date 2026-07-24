@@ -72,7 +72,6 @@ if (procuracaoForm) {
     const address = `${valueOf(data, 'endereco')}, ${valueOf(data, 'numero')}${data.get('complemento') ? ` - ${valueOf(data, 'complemento')}` : ''}, ${valueOf(data, 'bairro')}, ${valueOf(data, 'cidade')}/${valueOf(data, 'estado')} - CEP ${valueOf(data, 'cep')}`;
     const vehicle = `${valueOf(data, 'marca')} ${valueOf(data, 'modelo')}, ano fabricação/modelo ${valueOf(data, 'anoFabricacao')}/${valueOf(data, 'anoModelo')}, cor ${valueOf(data, 'cor')}, placa ${valueOf(data, 'placa')}, chassi ${valueOf(data, 'chassi')}`;
     const logoUrl = new URL('assets/logo-mega-transparent.png', window.location.href).href;
-    const stampUrl = new URL('assets/carimbo-mega-assinado.jpg', window.location.href).href;
     const preview = window.open('', '_blank', 'width=920,height=760');
     if (!preview) {
       window.alert('Não foi possível abrir a visualização. Libere pop-ups para gerar o PDF.');
@@ -91,7 +90,7 @@ if (procuracaoForm) {
         .text { text-align: justify; }.text p { margin: 0 0 9px; }
         .signature { margin-top: 24px; text-align: center; }.signature p { margin: 0; }
         .signature-line { width: 310px; border-top: 1px solid #222; margin: 25px auto 5px; }
-        .mega-stamp { display: block; width: 82mm; height: auto; margin: 12px auto 0; }
+        ${window.MEGA_DECLARATION_CSS}
         .details { margin-top: 14px; border-top: 1px solid #ccc; padding-top: 8px; font-size: 8pt; color: #444; }.details strong { color: #111; }
         .print-hint { position: fixed; z-index: 10; right: 18px; top: 18px; background: #b42313; color: #fff; border: 0; padding: 12px 16px; cursor: pointer; font-weight: 700; }
         @media print { body { background: #fff; }.document { width: 210mm; min-height: 297mm; margin: 0; }.print-hint { display: none; } }
@@ -108,7 +107,7 @@ if (procuracaoForm) {
           <p>Esta procuração é outorgada exclusivamente para os poderes acima descritos, responsabilizando-me pela veracidade das informações prestadas.</p>
         </div>
         <div class="signature"><p>${city}, ${date}.</p><div class="signature-line"></div><strong>${outorgante}</strong><br>Outorgante</div>
-        <img class="mega-stamp" src="${stampUrl}" alt="Carimbo assinado da MEGA Despachante">
+        ${window.renderMegaDeclaration(city, date)}
         <div class="details"><strong>Dados da MEGA Despachante:</strong> Código ${valueOf(data, 'codigoDespachante')} · ${valueOf(data, 'enderecoDespachante')} · ${valueOf(data, 'cidadeDespachante')}/${valueOf(data, 'estadoDespachante')}</div>
       </article></body></html>`);
     preview.document.close();
