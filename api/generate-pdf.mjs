@@ -1,10 +1,7 @@
-import crypto from 'node:crypto';
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 
 const MAX_HTML_LENGTH = 250_000;
-const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
-const MAX_FAILED_ATTEMPTS = 5;
 const DEFAULT_SIGNATURE_URL = 'https://amaralbit.github.io/MEGA-DESPACHANTE/assets/assinatura-sergio.png';
 const PUBLIC_ASSET_BASE = 'https://amaralbit.github.io/MEGA-DESPACHANTE/assets/';
 
@@ -43,9 +40,6 @@ const documentRules = {
   },
 };
 
-const failedAttempts = globalThis.__megaPdfFailedAttempts || new Map();
-globalThis.__megaPdfFailedAttempts = failedAttempts;
-
 const DEFAULT_ALLOWED_ORIGINS = [
   'https://amaralbit.github.io',
   'https://mega-despachante.vercel.app',
@@ -80,27 +74,6 @@ const sendJson = (res, status, payload) => {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.end(JSON.stringify(payload));
-};
-
-const requestIp = (req) => String(req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown')
-  .split(',')[0]
-  .trim();
-
-const rateLimitState = (ip) => {
-  const now = Date.now();
-  const current = failedAttempts.get(ip);
-  if (!current || now - current.startedAt >= RATE_LIMIT_WINDOW_MS) {
-    const fresh = { count: 0, startedAt: now };
-    failedAttempts.set(ip, fresh);
-    return fresh;
-  }
-  return current;
-};
-
-const passwordMatches = (provided, expected) => {
-  const providedDigest = crypto.createHash('sha256').update(String(provided || ''), 'utf8').digest();
-  const expectedDigest = crypto.createHash('sha256').update(String(expected || ''), 'utf8').digest();
-  return crypto.timingSafeEqual(providedDigest, expectedDigest);
 };
 
 const parseBody = (body) => {
@@ -216,25 +189,11 @@ export default async function handler(req, res) {
     return res.end();
   }
   if (req.method === 'GET') {
-    return sendJson(res, 200, {
-      ok: true,
-      configured: Boolean(process.env.PDF_ACCESS_PASSWORD),
-    });
+    return sendJson(res, 200, { ok: true });
   }
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'GET,POST,OPTIONS');
     return sendJson(res, 405, { error: 'Método não permitido.' });
-  }
-
-  const expectedPassword = process.env.PDF_ACCESS_PASSWORD;
-  if (!expectedPassword) {
-    return sendJson(res, 503, { error: 'O gerador seguro ainda não foi configurado.' });
-  }
-
-  const ip = requestIp(req);
-  const attempts = rateLimitState(ip);
-  if (attempts.count >= MAX_FAILED_ATTEMPTS) {
-    return sendJson(res, 429, { error: 'Muitas tentativas. Aguarde alguns minutos.' });
   }
 
   let payload;
@@ -243,13 +202,6 @@ export default async function handler(req, res) {
   } catch {
     return sendJson(res, 400, { error: 'Requisição inválida.' });
   }
-
-  if (!passwordMatches(payload.password, expectedPassword)) {
-    attempts.count += 1;
-    failedAttempts.set(ip, attempts);
-    return sendJson(res, 401, { error: 'Senha incorreta.' });
-  }
-  failedAttempts.delete(ip);
 
   const signatureUrl = process.env.PDF_SIGNATURE_URL || DEFAULT_SIGNATURE_URL;
   let prepared;

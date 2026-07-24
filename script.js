@@ -133,174 +133,43 @@ const protectedPdfApiUrl = window.location.hostname === 'localhost' || window.lo
   ? 'http://localhost:3000/api/generate-pdf'
   : 'https://mega-despachante-seguro.vercel.app/api/generate-pdf';
 
-const protectedPdfState = {
-  resolver: null,
-  busy: false,
-};
-
-const ensureProtectedPdfDialog = () => {
-  let dialog = document.getElementById('protected-pdf-dialog');
-  if (dialog) return dialog;
-
-  dialog = document.createElement('div');
-  dialog.id = 'protected-pdf-dialog';
-  dialog.className = 'protected-pdf-dialog';
-  dialog.hidden = true;
-  dialog.innerHTML = `
-    <div class="protected-pdf-backdrop"></div>
-    <section class="protected-pdf-card" role="dialog" aria-modal="true" aria-labelledby="protected-pdf-title">
-      <button class="protected-pdf-close" type="button" aria-label="Cancelar geração do PDF">×</button>
-      <span class="protected-pdf-kicker">Documento protegido</span>
-      <h2 id="protected-pdf-title">Autorizar assinatura</h2>
-      <p>Informe a senha da MEGA para gerar este PDF com a assinatura do responsável.</p>
-      <form class="protected-pdf-form">
-        <label for="protected-pdf-password">Senha de autorização</label>
-        <div class="protected-pdf-input-wrap">
-          <input id="protected-pdf-password" name="password" type="password" autocomplete="current-password" required>
-          <button class="protected-pdf-toggle" type="button" aria-label="Mostrar senha">Mostrar</button>
-        </div>
-        <p class="protected-pdf-error" role="alert" aria-live="polite"></p>
-        <button class="protected-pdf-submit" type="submit">
-          <span>Gerar PDF assinado</span>
-          <span class="protected-pdf-spinner" aria-hidden="true"></span>
-        </button>
-      </form>
-    </section>
-  `;
-  document.body.appendChild(dialog);
-
-  const form = dialog.querySelector('.protected-pdf-form');
-  const passwordInput = dialog.querySelector('#protected-pdf-password');
-  const error = dialog.querySelector('.protected-pdf-error');
-  const toggle = dialog.querySelector('.protected-pdf-toggle');
-
-  const close = (value = null) => {
-    if (protectedPdfState.busy) return;
-    dialog.hidden = true;
-    document.body.classList.remove('protected-pdf-open');
-    passwordInput.value = '';
-    passwordInput.type = 'password';
-    toggle.textContent = 'Mostrar';
-    toggle.setAttribute('aria-label', 'Mostrar senha');
-    error.textContent = '';
-    protectedPdfState.resolver?.(value);
-    protectedPdfState.resolver = null;
-  };
-
-  dialog.querySelector('.protected-pdf-close').addEventListener('click', () => close());
-  dialog.querySelector('.protected-pdf-backdrop').addEventListener('click', () => close());
-  toggle.addEventListener('click', () => {
-    const showing = passwordInput.type === 'text';
-    passwordInput.type = showing ? 'password' : 'text';
-    toggle.textContent = showing ? 'Mostrar' : 'Ocultar';
-    toggle.setAttribute('aria-label', showing ? 'Mostrar senha' : 'Ocultar senha');
-    passwordInput.focus();
-  });
-  form.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const password = passwordInput.value;
-    if (!password) {
-      error.textContent = 'Digite a senha para continuar.';
-      passwordInput.focus();
-      return;
-    }
-    protectedPdfState.resolver?.(password);
-    protectedPdfState.resolver = null;
-  });
-
-  return dialog;
-};
-
-const requestProtectedPdfPassword = (message = '') => {
-  const dialog = ensureProtectedPdfDialog();
-  const passwordInput = dialog.querySelector('#protected-pdf-password');
-  const error = dialog.querySelector('.protected-pdf-error');
-  error.textContent = message;
-  dialog.hidden = false;
-  document.body.classList.add('protected-pdf-open');
-  window.setTimeout(() => passwordInput.focus(), 20);
-  return new Promise((resolve) => {
-    protectedPdfState.resolver = resolve;
-  });
-};
-
-const setProtectedPdfBusy = (busy) => {
-  const dialog = ensureProtectedPdfDialog();
-  protectedPdfState.busy = busy;
-  dialog.classList.toggle('is-loading', busy);
-  dialog.querySelector('#protected-pdf-password').disabled = busy;
-  dialog.querySelector('.protected-pdf-toggle').disabled = busy;
-  dialog.querySelector('.protected-pdf-close').disabled = busy;
-  dialog.querySelector('.protected-pdf-submit').disabled = busy;
-};
-
-const closeProtectedPdfDialog = () => {
-  const dialog = ensureProtectedPdfDialog();
-  dialog.hidden = true;
-  document.body.classList.remove('protected-pdf-open');
-  const passwordInput = dialog.querySelector('#protected-pdf-password');
-  passwordInput.value = '';
-  passwordInput.type = 'password';
-  dialog.querySelector('.protected-pdf-toggle').textContent = 'Mostrar';
-  dialog.querySelector('.protected-pdf-error').textContent = '';
-  setProtectedPdfBusy(false);
-};
-
 const protectedPdfErrorMessage = (status, fallback) => {
-  if (status === 401) return 'Senha incorreta. Confira e tente novamente.';
-  if (status === 429) return 'Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.';
-  if (status === 503) return 'O gerador seguro ainda não foi configurado. Fale com o responsável pelo site.';
   return fallback || 'Não foi possível gerar o PDF agora. Tente novamente.';
 };
 
 const generateProtectedPdf = async ({ html, documentType, fileName }) => {
-  const dialog = ensureProtectedPdfDialog();
-  const error = dialog.querySelector('.protected-pdf-error');
-  let feedback = '';
+  try {
+    const response = await fetch(protectedPdfApiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ html, documentType }),
+    });
 
-  while (true) {
-    const password = await requestProtectedPdfPassword(feedback);
-    if (!password) return;
-
-    setProtectedPdfBusy(true);
-    error.textContent = '';
-
-    try {
-      const response = await fetch(protectedPdfApiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password, html, documentType }),
-      });
-
-      if (!response.ok) {
-        let message = '';
-        try {
-          const payload = await response.json();
-          message = payload.error;
-        } catch {
-          message = '';
-        }
-        throw Object.assign(new Error(protectedPdfErrorMessage(response.status, message)), { status: response.status });
+    if (!response.ok) {
+      let message = '';
+      try {
+        const payload = await response.json();
+        message = payload.error;
+      } catch {
+        message = '';
       }
-
-      const pdf = await response.blob();
-      const url = URL.createObjectURL(pdf);
-      const download = document.createElement('a');
-      download.href = url;
-      download.download = fileName;
-      document.body.appendChild(download);
-      download.click();
-      download.remove();
-      window.setTimeout(() => URL.revokeObjectURL(url), 30000);
-      closeProtectedPdfDialog();
-      return;
-    } catch (generationError) {
-      setProtectedPdfBusy(false);
-      feedback = generationError instanceof TypeError && generationError.message === 'Failed to fetch'
-        ? 'Não foi possível conectar ao gerador seguro. Atualize a página e tente novamente.'
-        : generationError.message;
-      dialog.querySelector('#protected-pdf-password').select();
+      throw new Error(protectedPdfErrorMessage(response.status, message));
     }
+
+    const pdf = await response.blob();
+    const url = URL.createObjectURL(pdf);
+    const download = document.createElement('a');
+    download.href = url;
+    download.download = fileName;
+    document.body.appendChild(download);
+    download.click();
+    download.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 30000);
+  } catch (generationError) {
+    const message = generationError instanceof TypeError && generationError.message === 'Failed to fetch'
+      ? 'Não foi possível conectar ao gerador. Atualize a página e tente novamente.'
+      : generationError.message;
+    window.alert(message);
   }
 };
 
