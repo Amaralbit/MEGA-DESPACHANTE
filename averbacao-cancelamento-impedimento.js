@@ -19,7 +19,7 @@ if (impedimentoLicenciamentoForm) {
     event.preventDefault();
     if (!impedimentoLicenciamentoForm.reportValidity()) return;
     const data = new FormData(impedimentoLicenciamentoForm);
-    const preview = window.open('', '_blank', 'width=920,height=760');
+    const preview = window.createProtectedPdfPreview('averbacao-cancelamento', 'averbacao-cancelamento.pdf');
     if (!preview) { window.alert('Não foi possível abrir a visualização. Libere pop-ups para gerar o PDF.'); return; }
     const isAverbacao = data.get('solicitacao') === 'averbacao';
     preview.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Averbação e cancelamento de impedimento de licenciamento</title><style>

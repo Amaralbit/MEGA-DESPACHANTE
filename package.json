@@ -1,0 +1,16 @@
+{
+  "name": "mega-despachante-pdf-seguro",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check api/generate-pdf.mjs && node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "149.0.0",
+    "puppeteer-core": "25.3.0"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}

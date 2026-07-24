@@ -72,7 +72,7 @@ if (intencaoVendaForm) {
     ].filter(Boolean).join(', ');
     const vendorAddress = `${valueOf(data, 'enderecoVendedor')}, ${valueOf(data, 'numeroVendedor')}${data.get('complementoVendedor') ? ` - ${valueOf(data, 'complementoVendedor')}` : ''}, ${quadraLote ? `${quadraLote}, ` : ''}${valueOf(data, 'bairroVendedor')}, ${valueOf(data, 'cidadeVendedor')}/${valueOf(data, 'estadoVendedor')} - CEP ${valueOf(data, 'cepVendedor')}`;
     const logoUrl = new URL('assets/logo-mega-transparent.png', window.location.href).href;
-    const preview = window.open('', '_blank', 'width=920,height=760');
+    const preview = window.createProtectedPdfPreview('procuracao-intencao-venda', 'procuracao-intencao-venda.pdf');
     if (!preview) {
       window.alert('Não foi possível abrir a visualização. Libere pop-ups para gerar o PDF.');
       return;

@@ -71,7 +71,7 @@ if (declaracaoResidenciaForm) {
       data.get('celular') && `Celular ${valueOf(data, 'celular')}`,
     ].filter(Boolean).join(', ');
     const logoUrl = new URL('assets/logo-mega-transparent.png', window.location.href).href;
-    const preview = window.open('', '_blank', 'width=920,height=760');
+    const preview = window.createProtectedPdfPreview('declaracao-residencia', 'declaracao-residencia.pdf');
     if (!preview) {
       window.alert('Não foi possível abrir a visualização. Libere pop-ups para gerar o PDF.');
       return;

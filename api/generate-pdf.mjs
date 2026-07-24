@@ -1,0 +1,264 @@
+import crypto from 'node:crypto';
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
+
+const MAX_HTML_LENGTH = 250_000;
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const MAX_FAILED_ATTEMPTS = 5;
+const DEFAULT_SIGNATURE_URL = 'https://amaralbit.github.io/MEGA-DESPACHANTE/assets/assinatura-sergio.png';
+const PUBLIC_ASSET_BASE = 'https://amaralbit.github.io/MEGA-DESPACHANTE/assets/';
+
+const documentRules = {
+  'procuracao-veiculo': {
+    title: 'Procuração para veículo',
+    fileName: 'procuracao-veiculo.pdf',
+  },
+  'procuracao-intencao-venda': {
+    title: 'Procuração - Intenção de venda',
+    fileName: 'procuracao-intencao-venda.pdf',
+  },
+  'declaracao-residencia': {
+    title: 'Declaração de residência',
+    fileName: 'declaracao-residencia.pdf',
+  },
+  'averbacao-cancelamento': {
+    title: 'Averbação e cancelamento de impedimento de licenciamento',
+    fileName: 'averbacao-cancelamento.pdf',
+  },
+  'declaracao-motor': {
+    title: 'Declaração de responsabilidade pela procedência de motor',
+    fileName: 'declaracao-motor.pdf',
+  },
+  'alteracao-caracteristica': {
+    title: 'Requerimento para alteração de característica veicular',
+    fileName: 'alteracao-caracteristica.pdf',
+  },
+  'regravacao-chassi': {
+    title: 'Requerimento para regravação de chassi',
+    fileName: 'regravacao-chassi.pdf',
+  },
+  'requerimento-segunda-via': {
+    title: 'Requerimento 2ª via CRV / CRLV',
+    fileName: 'requerimento-segunda-via.pdf',
+  },
+};
+
+const failedAttempts = globalThis.__megaPdfFailedAttempts || new Map();
+globalThis.__megaPdfFailedAttempts = failedAttempts;
+
+const allowedOrigins = () => (process.env.ALLOWED_ORIGINS || 'https://amaralbit.github.io')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const setCorsHeaders = (req, res) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins().includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+};
+
+const sendJson = (res, status, payload) => {
+  res.statusCode = status;
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.end(JSON.stringify(payload));
+};
+
+const requestIp = (req) => String(req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown')
+  .split(',')[0]
+  .trim();
+
+const rateLimitState = (ip) => {
+  const now = Date.now();
+  const current = failedAttempts.get(ip);
+  if (!current || now - current.startedAt >= RATE_LIMIT_WINDOW_MS) {
+    const fresh = { count: 0, startedAt: now };
+    failedAttempts.set(ip, fresh);
+    return fresh;
+  }
+  return current;
+};
+
+const passwordMatches = (provided, expected) => {
+  const providedDigest = crypto.createHash('sha256').update(String(provided || ''), 'utf8').digest();
+  const expectedDigest = crypto.createHash('sha256').update(String(expected || ''), 'utf8').digest();
+  return crypto.timingSafeEqual(providedDigest, expectedDigest);
+};
+
+const parseBody = (body) => {
+  if (typeof body === 'string') return JSON.parse(body);
+  if (body && typeof body === 'object') return body;
+  return {};
+};
+
+const normalizeAssetUrls = (html) => html.replace(
+  /(?:file:\/\/\/[^"'()\s>]*\/)?assets\/logo-mega-transparent\.png/gi,
+  `${PUBLIC_ASSET_BASE}logo-mega-transparent.png`,
+);
+
+export const prepareSignedHtml = ({ html, documentType, signatureUrl = DEFAULT_SIGNATURE_URL }) => {
+  const rule = documentRules[documentType];
+  if (!rule) throw new Error('Tipo de documento não autorizado.');
+  if (typeof html !== 'string' || !html.trim() || html.length > MAX_HTML_LENGTH) {
+    throw new Error('Conteúdo do documento inválido.');
+  }
+  if (!html.includes(`<title>${rule.title}</title>`)) {
+    throw new Error('O conteúdo não corresponde ao tipo de documento informado.');
+  }
+  if ((html.match(/<!--MEGA_PROTECTED_SIGNATURE-->/g) || []).length !== 1) {
+    throw new Error('Área de assinatura protegida inválida.');
+  }
+  if (/<(?:script|iframe|object|embed|link|meta\s+http-equiv)\b/i.test(html) || /javascript\s*:/i.test(html) || /@import/i.test(html)) {
+    throw new Error('O documento contém elementos não permitidos.');
+  }
+
+  let safeHtml = normalizeAssetUrls(html);
+  safeHtml = safeHtml
+    .replace(/<button\b[^>]*class=["'][^"']*\bprint-hint\b[^"']*["'][^>]*>[\s\S]*?<\/button>/gi, '')
+    .replace(/\son[a-z]+\s*=\s*(?:"[^"]*"|'[^']*')/gi, '')
+    .replace(/<img\b([^>]*?)src=(?:"[^"]*"|'[^']*')([^>]*)>/gi, (image, before, after) => {
+      if (/logo-symbol/i.test(image)) {
+        return `<img${before}src="${PUBLIC_ASSET_BASE}logo-mega-transparent.png"${after}>`;
+      }
+      return '';
+    })
+    .replace(
+      '<!--MEGA_PROTECTED_SIGNATURE-->',
+      `<img src="${signatureUrl}" alt="Assinatura do responsável da MEGA Despachante">`,
+    );
+
+  return { html: safeHtml, fileName: rule.fileName };
+};
+
+const launchBrowser = async () => {
+  const onVercel = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_VERSION);
+  const executablePath = onVercel
+    ? await chromium.executablePath()
+    : process.env.CHROME_EXECUTABLE_PATH || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+  const args = onVercel
+    ? chromium.args
+    : ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'];
+
+  return puppeteer.launch({
+    args,
+    executablePath,
+    headless: true,
+    defaultViewport: { width: 1240, height: 1754, deviceScaleFactor: 1 },
+  });
+};
+
+const renderPdf = async (html, signatureUrl) => {
+  const browser = await launchBrowser();
+  try {
+    const page = await browser.newPage();
+    await page.setJavaScriptEnabled(false);
+    await page.setRequestInterception(true);
+    page.on('request', (request) => {
+      const url = request.url();
+      const allowed = url === signatureUrl
+        || url === `${PUBLIC_ASSET_BASE}logo-mega-transparent.png`
+        || url.startsWith('data:');
+      if (allowed) request.continue();
+      else request.abort();
+    });
+    await page.emulateMediaType('print');
+    await page.setContent(html, { waitUntil: 'networkidle0', timeout: 30_000 });
+    await page.evaluate(async () => {
+      await Promise.all([...document.images].map((image) => {
+        if (image.complete) return Promise.resolve();
+        return new Promise((resolve) => {
+          image.onload = resolve;
+          image.onerror = resolve;
+        });
+      }));
+      await document.fonts.ready;
+    });
+    const pdf = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      preferCSSPageSize: true,
+      margin: { top: 0, right: 0, bottom: 0, left: 0 },
+    });
+    return Buffer.from(pdf);
+  } finally {
+    await browser.close();
+  }
+};
+
+export default async function handler(req, res) {
+  setCorsHeaders(req, res);
+
+  const origin = req.headers.origin;
+  if (origin && !allowedOrigins().includes(origin)) {
+    return sendJson(res, 403, { error: 'Origem não autorizada.' });
+  }
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 204;
+    return res.end();
+  }
+  if (req.method === 'GET') {
+    return sendJson(res, 200, {
+      ok: true,
+      configured: Boolean(process.env.PDF_ACCESS_PASSWORD),
+    });
+  }
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'GET,POST,OPTIONS');
+    return sendJson(res, 405, { error: 'Método não permitido.' });
+  }
+
+  const expectedPassword = process.env.PDF_ACCESS_PASSWORD;
+  if (!expectedPassword) {
+    return sendJson(res, 503, { error: 'O gerador seguro ainda não foi configurado.' });
+  }
+
+  const ip = requestIp(req);
+  const attempts = rateLimitState(ip);
+  if (attempts.count >= MAX_FAILED_ATTEMPTS) {
+    return sendJson(res, 429, { error: 'Muitas tentativas. Aguarde alguns minutos.' });
+  }
+
+  let payload;
+  try {
+    payload = parseBody(req.body);
+  } catch {
+    return sendJson(res, 400, { error: 'Requisição inválida.' });
+  }
+
+  if (!passwordMatches(payload.password, expectedPassword)) {
+    attempts.count += 1;
+    failedAttempts.set(ip, attempts);
+    return sendJson(res, 401, { error: 'Senha incorreta.' });
+  }
+  failedAttempts.delete(ip);
+
+  const signatureUrl = process.env.PDF_SIGNATURE_URL || DEFAULT_SIGNATURE_URL;
+  let prepared;
+  try {
+    prepared = prepareSignedHtml({
+      html: payload.html,
+      documentType: payload.documentType,
+      signatureUrl,
+    });
+  } catch (validationError) {
+    return sendJson(res, 400, { error: validationError.message });
+  }
+
+  try {
+    const pdf = await renderPdf(prepared.html, signatureUrl);
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Length', String(pdf.length));
+    res.setHeader('Content-Disposition', `attachment; filename="${prepared.fileName}"`);
+    return res.end(pdf);
+  } catch (renderError) {
+    console.error('Falha ao gerar PDF protegido:', renderError);
+    return sendJson(res, 500, { error: 'Não foi possível gerar o PDF agora.' });
+  }
+}

@@ -64,7 +64,7 @@ if (requerimentoSegundaViaForm) {
     const data = new FormData(requerimentoSegundaViaForm);
     const documentChoice = data.get('documento');
     const logoUrl = new URL('assets/logo-mega-transparent.png', window.location.href).href;
-    const preview = window.open('', '_blank', 'width=920,height=760');
+    const preview = window.createProtectedPdfPreview('requerimento-segunda-via', 'requerimento-segunda-via.pdf');
     if (!preview) {
       window.alert('Não foi possível abrir a visualização. Libere pop-ups para gerar o PDF.');
       return;

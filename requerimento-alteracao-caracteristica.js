@@ -55,7 +55,7 @@ if (requerimentoAlteracaoForm) {
     event.preventDefault();
     if (!requerimentoAlteracaoForm.reportValidity()) return;
     const data = new FormData(requerimentoAlteracaoForm);
-    const preview = window.open('', '_blank', 'width=920,height=760');
+    const preview = window.createProtectedPdfPreview('alteracao-caracteristica', 'alteracao-caracteristica.pdf');
     if (!preview) { window.alert('Não foi possível abrir a visualização. Libere pop-ups para gerar o PDF.'); return; }
     preview.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Requerimento para alteração de característica veicular</title><style>
       @page { size: A4 portrait; margin: 0; } * { box-sizing: border-box; } body { margin: 0; background: #eee; color: #000; font-family: Arial, sans-serif; }
