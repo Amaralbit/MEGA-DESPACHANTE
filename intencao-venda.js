@@ -86,7 +86,7 @@ if (intencaoVendaForm) {
         * { box-sizing: border-box; }
         body { margin: 0; background: #eee; color: #151515; font-family: Arial, sans-serif; }
         .document { position: relative; width: 210mm; min-height: 297mm; margin: 10px auto; padding: 10mm 14mm; background: #fff; font-size: 8.9pt; line-height: 1.2; }
-        .logo-symbol { position: absolute; top: 9mm; right: 14mm; width: 18mm; height: 18mm; object-fit: contain; }
+        .logo-symbol { position: absolute; top: 4mm; right: 14mm; width: 18mm; height: 18mm; object-fit: contain; }
         .heading { margin: 0 24mm 8px; text-align: center; text-transform: uppercase; font-size: 14pt; line-height: 1.14; }.heading span { display: block; margin-top: 3px; font-size: 12pt; text-decoration: underline; }
         p { margin: 0 0 5px; text-align: justify; }.lead { margin-bottom: 6px; }
         .vehicle { margin: 6px 0; padding: 5px 7px; border-top: 1px solid #777; border-bottom: 1px solid #777; font-size: 8.45pt; }.vehicle div { margin: 2px 0; }
