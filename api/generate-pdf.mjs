@@ -46,7 +46,12 @@ const documentRules = {
 const failedAttempts = globalThis.__megaPdfFailedAttempts || new Map();
 globalThis.__megaPdfFailedAttempts = failedAttempts;
 
-const allowedOrigins = () => (process.env.ALLOWED_ORIGINS || 'https://amaralbit.github.io')
+const DEFAULT_ALLOWED_ORIGINS = [
+  'https://amaralbit.github.io',
+  'https://mega-despachante.vercel.app',
+];
+
+const allowedOrigins = () => (process.env.ALLOWED_ORIGINS || DEFAULT_ALLOWED_ORIGINS.join(','))
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
