@@ -10,6 +10,7 @@ if (declaracaoResidenciaForm) {
   };
   const escapeHtml = (value) => String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
   const valueOf = (data, key) => escapeHtml(data.get(key));
+  const nameOf = (data, key) => escapeHtml(String(data.get(key) || '').toLocaleUpperCase('pt-BR'));
 
   declaracaoResidenciaForm.elements.dataAssinatura.value = new Date().toISOString().slice(0, 10);
 
@@ -70,6 +71,11 @@ if (declaracaoResidenciaForm) {
       data.get('foneFixo') && `Fone fixo ${valueOf(data, 'foneFixo')}`,
       data.get('celular') && `Celular ${valueOf(data, 'celular')}`,
     ].filter(Boolean).join(', ');
+    const identityDetails = [
+      data.get('orgaoEmissor') && `órgão emissor <strong>${valueOf(data, 'orgaoEmissor')}</strong>`,
+      data.get('ufEmissao') && `Unidade Federativa <strong>${valueOf(data, 'ufEmissao')}</strong>`,
+    ].filter(Boolean).join(', ');
+    const identity = data.get('identidade') ? `, portador(a) da Carteira de Identidade nº <strong>${valueOf(data, 'identidade')}</strong>${identityDetails ? `, ${identityDetails}` : ''}` : '';
     const logoUrl = new URL('assets/logo-mega-transparent.png', window.location.href).href;
     const preview = window.createProtectedPdfPreview('declaracao-residencia', 'declaracao-residencia.pdf');
     if (!preview) {
@@ -96,8 +102,8 @@ if (declaracaoResidenciaForm) {
       <article class="document">
         <img class="logo-symbol" src="${logoUrl}" alt="MEGA Despachante">
         <h1 class="heading">ANEXO I<span>DECLARAÇÃO DE RESIDÊNCIA</span></h1>
-        <section class="declaration"><p>EU, <strong>${valueOf(data, 'nome')}</strong>, portador(a) da Carteira de Identidade nº <strong>${valueOf(data, 'identidade')}</strong>, órgão emissor <strong>${valueOf(data, 'orgaoEmissor')}</strong>, Unidade Federativa <strong>${valueOf(data, 'ufEmissao')}</strong>, e do CPF nº <strong>${valueOf(data, 'cpf')}</strong>, DECLARO que resido à Rua/Av. <strong>${valueOf(data, 'endereco')}</strong>, ${locationParts} e RESPONSABILIZO-ME, sob as penas da lei penal, civil e administrativa, pela autenticidade do endereço acima transcrito, cuja declaração de endereço representa a expressão da verdade, sujeitando-me às sanções estabelecidas no art. 299, do Código Penal (falsificação ideológica), e no art. 242, do Código de Trânsito Brasileiro (infração gravíssima, multa e 7 (sete) pontos na ACC, Permissão para Dirigir/CNH do(a) declarante), caso seja configurada falsa a declaração.</p></section>
-        <section class="signature"><div class="place-date"><span>${valueOf(data, 'cidadeAssinatura')}<br><small>Local</small></span><span>${formatDate(data.get('dataAssinatura'))}<br><small>Data</small></span></div><div class="line"></div><strong>${valueOf(data, 'nome')}</strong><br>Assinatura do(a) Declarante</section>${window.renderMegaDeclaration(valueOf(data, 'cidadeAssinatura'), formatDate(data.get('dataAssinatura')))}
+        <section class="declaration"><p>EU, <strong>${nameOf(data, 'nome')}</strong>${identity}, inscrito(a) no CPF nº <strong>${valueOf(data, 'cpf')}</strong>, DECLARO que resido à Rua/Av. <strong>${valueOf(data, 'endereco')}</strong>, ${locationParts} e RESPONSABILIZO-ME, sob as penas da lei penal, civil e administrativa, pela autenticidade do endereço acima transcrito, cuja declaração de endereço representa a expressão da verdade, sujeitando-me às sanções estabelecidas no art. 299, do Código Penal (falsificação ideológica), e no art. 242, do Código de Trânsito Brasileiro (infração gravíssima, multa e 7 (sete) pontos na ACC, Permissão para Dirigir/CNH do(a) declarante), caso seja configurada falsa a declaração.</p></section>
+        <section class="signature"><div class="place-date"><span>${valueOf(data, 'cidadeAssinatura')}<br><small>Local</small></span><span>${formatDate(data.get('dataAssinatura'))}<br><small>Data</small></span></div><div class="line"></div><strong>${nameOf(data, 'nome')}</strong><br>Assinatura do(a) Declarante</section>${window.renderMegaDeclaration(valueOf(data, 'cidadeAssinatura'), formatDate(data.get('dataAssinatura')))}
       </article></body></html>`);
     preview.document.close();
   });

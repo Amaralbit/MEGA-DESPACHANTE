@@ -54,6 +54,7 @@ if (procuracaoForm) {
 
   const escapeHtml = (value) => String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
   const valueOf = (data, key) => escapeHtml(data.get(key));
+  const nameOf = (data, key) => escapeHtml(String(data.get(key) || '').toLocaleUpperCase('pt-BR'));
   const formattedDate = (value) => {
     const [year, month, day] = value.split('-');
     return `${day}/${month}/${year}`;
@@ -64,13 +65,14 @@ if (procuracaoForm) {
     if (!procuracaoForm.reportValidity()) return;
 
     const data = new FormData(procuracaoForm);
-    const outorgante = valueOf(data, 'outorgante');
+    const outorgante = nameOf(data, 'outorgante');
     const date = formattedDate(data.get('dataAssinatura'));
     const city = valueOf(data, 'cidadeAssinatura');
     const powers = valueOf(data, 'servico');
     const validity = data.get('validade') ? ` Esta procuração terá validade de <strong>${valueOf(data, 'validade')}</strong>.` : '';
     const address = `${valueOf(data, 'endereco')}, ${valueOf(data, 'numero')}${data.get('complemento') ? ` - ${valueOf(data, 'complemento')}` : ''}, ${valueOf(data, 'bairro')}, ${valueOf(data, 'cidade')}/${valueOf(data, 'estado')} - CEP ${valueOf(data, 'cep')}`;
     const vehicle = `${valueOf(data, 'marca')} ${valueOf(data, 'modelo')}, ano fabricação/modelo ${valueOf(data, 'anoFabricacao')}/${valueOf(data, 'anoModelo')}, cor ${valueOf(data, 'cor')}, placa ${valueOf(data, 'placa')}, chassi ${valueOf(data, 'chassi')}`;
+    const identity = data.get('identidade') ? `, portador(a) do documento de identidade nº ${valueOf(data, 'identidade')}${data.get('orgao') ? ` - ${valueOf(data, 'orgao')}` : ''}` : '';
     const logoUrl = new URL('assets/logo-mega-transparent.png', window.location.href).href;
     const preview = window.createProtectedPdfPreview('procuracao-veiculo', 'procuracao-veiculo.pdf');
     if (!preview) {
@@ -100,7 +102,7 @@ if (procuracaoForm) {
         <img class="logo-symbol" src="${logoUrl}" alt="MEGA Despachante">
         <h1 class="title">Procuração para veículo</h1>
         <div class="text">
-          <p><strong>OUTORGANTE:</strong> ${outorgante}, inscrito(a) no CPF/CNPJ sob nº ${valueOf(data, 'cpfCnpj')}, portador(a) do documento de identidade nº ${valueOf(data, 'identidade')}${data.get('orgao') ? ` - ${valueOf(data, 'orgao')}` : ''}, residente e domiciliado(a) em ${address}.</p>
+          <p><strong>OUTORGANTE:</strong> <strong>${outorgante}</strong>, inscrito(a) no CPF/CNPJ sob nº ${valueOf(data, 'cpfCnpj')}${identity}, residente e domiciliado(a) em ${address}.</p>
           <p>Pelo presente instrumento particular de procuração, nomeio e constituo como meu procurador <strong>${valueOf(data, 'despachante')}</strong>, código ${valueOf(data, 'codigoDespachante')}, com endereço em ${valueOf(data, 'enderecoDespachante')}, ${valueOf(data, 'cidadeDespachante')}/${valueOf(data, 'estadoDespachante')}, a quem são conferidos exclusivamente os poderes abaixo descritos.</p>
           <p><strong>VEÍCULO:</strong> ${vehicle}.</p>
           <p><strong>PODERES:</strong> Dando poderes para <strong>${powers}</strong>.${validity}</p>
