@@ -100,7 +100,7 @@ if (procuracaoForm) {
         <img class="logo-symbol" src="${logoUrl}" alt="MEGA Despachante">
         <h1 class="title">Procuração para veículo</h1>
         <div class="text">
-          <p><strong>OUTORGANTE:</strong> ${outorgante}, inscrito(a) no CPF/CNPJ sob nº ${valueOf(data, 'cpfCnpj')}, portador(a) do documento de identidade nº ${valueOf(data, 'identidade')} - ${valueOf(data, 'orgao')}, residente e domiciliado(a) em ${address}.</p>
+          <p><strong>OUTORGANTE:</strong> ${outorgante}, inscrito(a) no CPF/CNPJ sob nº ${valueOf(data, 'cpfCnpj')}, portador(a) do documento de identidade nº ${valueOf(data, 'identidade')}${data.get('orgao') ? ` - ${valueOf(data, 'orgao')}` : ''}, residente e domiciliado(a) em ${address}.</p>
           <p>Pelo presente instrumento particular de procuração, nomeio e constituo como meu procurador <strong>${valueOf(data, 'despachante')}</strong>, código ${valueOf(data, 'codigoDespachante')}, com endereço em ${valueOf(data, 'enderecoDespachante')}, ${valueOf(data, 'cidadeDespachante')}/${valueOf(data, 'estadoDespachante')}, a quem são conferidos exclusivamente os poderes abaixo descritos.</p>
           <p><strong>VEÍCULO:</strong> ${vehicle}.</p>
           <p><strong>PODERES:</strong> Dando poderes para <strong>${powers}</strong>.${validity}</p>
