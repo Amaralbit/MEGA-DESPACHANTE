@@ -22,15 +22,12 @@
     <main>
       <section class="procura-header"><div class="container"><a class="back-link" href="formularios.html">← Voltar para Formulários</a><p class="eyebrow"><span></span> FORMULÁRIO DIGITAL</p><h1>Procuração para<br />intenção de venda</h1><p>Preencha os dados do vendedor, veículo e comprador. Ao final, gere o documento para imprimir ou salvar em PDF.</p></div></section>
       <section class="procura-content section"><div class="procura-layout container">
-        <aside class="procura-aside"><strong>Antes de começar</strong><ol><li>Preencha os dados do proprietário vendedor.</li><li>Confira as informações do veículo e comprador.</li><li>Gere o PDF, imprima e assine.</li></ol><p>Complemento e telefone são opcionais.</p></aside>
+        <aside class="procura-aside"><strong>Antes de começar</strong><ol><li>Preencha os dados do proprietário vendedor.</li><li>Confira as informações do veículo e comprador.</li><li>Gere o PDF, imprima e assine.</li></ol><p>Complemento, quadra, lote e telefone são opcionais.</p></aside>
         <form class="procuracao-form" id="intencao-venda-form">
           <div class="form-intro"><span>01</span><div><strong>Dados do vendedor</strong><small>Proprietário que concede os poderes</small></div></div>
           <div class="fields-grid">
             <label class="field-wide">Nome completo ou razão social *<input name="vendedor" autocomplete="name" required placeholder="Nome completo" /></label>
-            <label>Estado civil<input name="estadoCivil" placeholder="Ex.: solteiro(a)" /></label>
             <label>CPF ou CNPJ *<input name="cpfCnpjVendedor" inputmode="numeric" data-mask="cpf-cnpj" required placeholder="000.000.000-00" /></label>
-            <label>RG / Identidade *<input name="identidadeVendedor" required placeholder="Número do documento" /></label>
-            <label>Órgão expedidor<input name="orgaoVendedor" placeholder="Ex.: SSP/GO" /></label>
             <label>CEP *<input name="cepVendedor" inputmode="numeric" autocomplete="postal-code" data-mask="cep" required placeholder="00000-000" /><small class="cep-feedback" id="cep-vendedor-feedback" aria-live="polite"></small></label>
             <label class="field-double">Rua / Avenida *<input name="enderecoVendedor" required placeholder="Rua, avenida, alameda..." /></label>
             <label>Número *<input name="numeroVendedor" required placeholder="Número" /></label>
@@ -48,13 +45,13 @@
             <label class="field-wide">Marca e modelo *<input name="marcaModelo" required placeholder="Ex.: Hyundai HB20 1.0M Comfort" /></label>
             <label>Ano fabricação *<input name="anoFabricacao" inputmode="numeric" maxlength="4" required placeholder="AAAA" /></label>
             <label>Ano modelo *<input name="anoModelo" inputmode="numeric" maxlength="4" required placeholder="AAAA" /></label>
+            <label>Cor *<input name="cor" required placeholder="Ex.: Prata" /></label>
             <label>Placa *<input name="placa" data-mask="placa" maxlength="8" required placeholder="ABC1D23" /></label>
             <label>Chassi *<input name="chassi" maxlength="17" required placeholder="17 caracteres" /></label>
           </div>
           <div class="form-intro"><span>03</span><div><strong>Dados do comprador</strong><small>Informações declaradas pelo vendedor</small></div></div>
           <div class="fields-grid">
             <label class="field-wide">Nome completo ou razão social *<input name="comprador" required placeholder="Nome completo" /></label>
-            <label>RG / Identidade *<input name="identidadeComprador" required placeholder="Número do documento" /></label>
             <label>CPF ou CNPJ *<input name="cpfCnpjComprador" inputmode="numeric" data-mask="cpf-cnpj" required placeholder="000.000.000-00" /></label>
             <label class="field-wide">Endereço *<input name="enderecoComprador" required placeholder="Rua, número, complemento, bairro..." /></label>
             <label>Cidade *<input name="cidadeComprador" required placeholder="Cidade" /></label>

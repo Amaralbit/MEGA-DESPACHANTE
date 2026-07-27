@@ -26,7 +26,7 @@ if (intencaoVendaForm) {
     });
   });
 
-  const setupCepLookup = ({ cep, address, city, state, feedback }) => {
+  const setupCepLookup = ({ cep, address, neighborhood, city, state, feedback, includeNeighborhoodInAddress = false }) => {
     let lastCep = '';
     const setFeedback = (message, isError = false) => {
       feedback.textContent = message;
@@ -41,11 +41,16 @@ if (intencaoVendaForm) {
         if (!response.ok) throw new Error('CEP inválido');
         const result = await response.json();
         if (result.erro) throw new Error('CEP não encontrado');
-        if (!address.value) address.value = result.logradouro || '';
+        const addressParts = [
+          result.logradouro,
+          includeNeighborhoodInAddress && result.bairro,
+        ].filter(Boolean);
+        address.value = addressParts.join(', ') || address.value;
+        if (neighborhood) neighborhood.value = result.bairro || neighborhood.value;
         city.value = result.localidade || city.value;
         state.value = result.uf || state.value;
         lastCep = postalCode;
-        setFeedback('Cidade e UF preenchidas. Confira os dados antes de gerar.');
+        setFeedback('Endereço preenchido. Confira os dados antes de gerar.');
       } catch (error) {
         lastCep = '';
         setFeedback('Não foi possível encontrar este CEP. Preencha os dados manualmente.', true);
@@ -57,8 +62,8 @@ if (intencaoVendaForm) {
     });
   };
 
-  setupCepLookup({ cep: intencaoVendaForm.elements.cepVendedor, address: intencaoVendaForm.elements.enderecoVendedor, city: intencaoVendaForm.elements.cidadeVendedor, state: intencaoVendaForm.elements.estadoVendedor, feedback: document.getElementById('cep-vendedor-feedback') });
-  setupCepLookup({ cep: intencaoVendaForm.elements.cepComprador, address: intencaoVendaForm.elements.enderecoComprador, city: intencaoVendaForm.elements.cidadeComprador, state: intencaoVendaForm.elements.estadoComprador, feedback: document.getElementById('cep-comprador-feedback') });
+  setupCepLookup({ cep: intencaoVendaForm.elements.cepVendedor, address: intencaoVendaForm.elements.enderecoVendedor, neighborhood: intencaoVendaForm.elements.bairroVendedor, city: intencaoVendaForm.elements.cidadeVendedor, state: intencaoVendaForm.elements.estadoVendedor, feedback: document.getElementById('cep-vendedor-feedback') });
+  setupCepLookup({ cep: intencaoVendaForm.elements.cepComprador, address: intencaoVendaForm.elements.enderecoComprador, city: intencaoVendaForm.elements.cidadeComprador, state: intencaoVendaForm.elements.estadoComprador, feedback: document.getElementById('cep-comprador-feedback'), includeNeighborhoodInAddress: true });
 
   intencaoVendaForm.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -100,13 +105,13 @@ if (intencaoVendaForm) {
       <article class="document">
         <img class="logo-symbol" src="${logoUrl}" alt="MEGA Despachante">
         <h1 class="heading">Procuração<span>Intenção de venda e emissão ATPV-E</span></h1>
-        <p class="lead">Pelo presente instrumento de procuração, o(a) <strong>PROPRIETÁRIO(A) VENDEDOR(A)</strong>, <strong>${valueOf(data, 'vendedor')}</strong>, ${valueOf(data, 'estadoCivil')}, inscrito(a) no CPF/CNPJ sob nº ${valueOf(data, 'cpfCnpjVendedor')}, portador(a) da identidade nº ${valueOf(data, 'identidadeVendedor')}${data.get('orgaoVendedor') ? ` - ${valueOf(data, 'orgaoVendedor')}` : ''}, residente e domiciliado(a) em ${vendorAddress}, e-mail ${valueOf(data, 'emailVendedor')}${data.get('telefoneVendedor') ? `, celular ${valueOf(data, 'telefoneVendedor')}` : ''}.</p>
+        <p class="lead">Pelo presente instrumento de procuração, o(a) <strong>PROPRIETÁRIO(A) VENDEDOR(A)</strong>, <strong>${valueOf(data, 'vendedor')}</strong>, inscrito(a) no CPF/CNPJ sob nº ${valueOf(data, 'cpfCnpjVendedor')}, residente e domiciliado(a) em ${vendorAddress}, e-mail ${valueOf(data, 'emailVendedor')}${data.get('telefoneVendedor') ? `, celular ${valueOf(data, 'telefoneVendedor')}` : ''}.</p>
         <p>Nomeia e constitui seu bastante procurador, o Escritório de <strong>MEGA DESPACHANTE</strong>, código <strong>2009</strong>, com sede à <strong>Rua T-37, Nº 2695, Setor Bueno, na cidade de Goiânia</strong>, para como se presente fosse, representá-lo junto ao DETRAN/GO, para solicitação dos serviços de <strong>INCLUSÃO DE INTENÇÃO DE VENDA</strong> ou <strong>CANCELAMENTO DE INTENÇÃO DE VENDA</strong> e/ou <strong>EMISSÃO DA ATPV-E</strong>, do veículo abaixo discriminado:</p>
-        <section class="vehicle"><div><strong>Marca / modelo:</strong> ${valueOf(data, 'marcaModelo')}</div><div><strong>Ano fabricação/modelo:</strong> ${valueOf(data, 'anoFabricacao')}/${valueOf(data, 'anoModelo')}</div><div><strong>Placa:</strong> ${valueOf(data, 'placa')}</div><div><strong>Chassi:</strong> ${valueOf(data, 'chassi')}</div></section>
+        <section class="vehicle"><div><strong>Marca / modelo:</strong> ${valueOf(data, 'marcaModelo')}</div><div><strong>Ano fabricação/modelo:</strong> ${valueOf(data, 'anoFabricacao')}/${valueOf(data, 'anoModelo')}</div><div><strong>Cor:</strong> ${valueOf(data, 'cor')}</div><div><strong>Placa:</strong> ${valueOf(data, 'placa')}</div><div><strong>Chassi:</strong> ${valueOf(data, 'chassi')}</div></section>
         <p>Podendo, para tanto, requerer e assinar o que necessário for, efetuar pagamentos, receber e dar quitações, alegar, concordar, discordar, prestar declarações e informações, enfim, praticar quaisquer outros atos que se fizerem necessários para o fiel cumprimento deste mandato, o que desde já fica dado por firme e valioso.</p>
         <h2 class="buyer-title">Dados comprador</h2>
         <p>Declaro ainda que os dados abaixo são a expressão da verdade, tendo sido captados e informados por mim, assumindo a inteira responsabilidade perante eles e isentando o despachante contratado de qualquer infortúnio:</p>
-        <section class="buyer-grid"><div class="wide"><b>COMPRADOR:</b> ${valueOf(data, 'comprador')}</div><div><b>RG (Identidade):</b> ${valueOf(data, 'identidadeComprador')}</div><div><b>CPF/CNPJ:</b> ${valueOf(data, 'cpfCnpjComprador')}</div><div class="wide"><b>ENDEREÇO:</b> ${valueOf(data, 'enderecoComprador')}</div><div><b>MUNICÍPIO / UF:</b> ${valueOf(data, 'cidadeComprador')}/${valueOf(data, 'estadoComprador')}</div><div><b>CEP:</b> ${valueOf(data, 'cepComprador')}</div><div><b>E-MAIL:</b> ${valueOf(data, 'emailComprador')}</div><div><b>VALOR:</b> R$ ${valueOf(data, 'valorVenda')}</div></section>
+        <section class="buyer-grid"><div class="wide"><b>COMPRADOR:</b> ${valueOf(data, 'comprador')}</div><div><b>CPF/CNPJ:</b> ${valueOf(data, 'cpfCnpjComprador')}</div><div class="wide"><b>ENDEREÇO:</b> ${valueOf(data, 'enderecoComprador')}</div><div><b>MUNICÍPIO / UF:</b> ${valueOf(data, 'cidadeComprador')}/${valueOf(data, 'estadoComprador')}</div><div><b>CEP:</b> ${valueOf(data, 'cepComprador')}</div><div><b>E-MAIL:</b> ${valueOf(data, 'emailComprador')}</div><div><b>VALOR:</b> R$ ${valueOf(data, 'valorVenda')}</div></section>
         <section class="closing"><div class="signature"><p>${valueOf(data, 'cidadeAssinatura')}, ${date}.</p><div class="signature-line"></div><strong>${valueOf(data, 'vendedor')}</strong><br>Assinatura do Outorgante (Proprietário Vendedor)</div>${window.renderMegaDeclaration(valueOf(data, 'cidadeAssinatura'), date)}</section>
       </article></body></html>`);
     preview.document.close();
