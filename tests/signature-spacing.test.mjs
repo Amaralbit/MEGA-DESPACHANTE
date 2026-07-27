@@ -3,15 +3,15 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const signatureSpacingByDocument = [
-  ['procuracao.js', /\.signature-line \{[^}]*margin: 45px auto 5px;/],
-  ['intencao-venda.js', /\.signature p \{[^}]*margin-bottom: 40px;/],
-  ['procuracao-particular.js', /\.place-date \{ margin: 4px 0 40px; \}/],
-  ['declaracao-residencia.js', /\.signature \.place-date \{[^}]*margin-bottom: 35mm;/],
-  ['requerimento-alteracao-caracteristica.js', /\.date \{ margin: 10px 0 43px;/],
-  ['requerimento-regravacao-chassi.js', /\.date \{ margin: 10px 0 43px;/],
-  ['averbacao-cancelamento-impedimento.js', /\.date \{ margin: 12px 0 43px;/],
-  ['declaracao-procedencia-motor.js', /\.date \{ margin: 4px 0 34px;/],
-  ['requerimento-segunda-via.js', /\.place-date \{ margin: 3px 0 38px;/],
+  ['procuracao.js', /\.signature-line \{[^}]*margin: 52px auto 5px;/],
+  ['intencao-venda.js', /\.signature p \{[^}]*margin-bottom: 47px;/],
+  ['procuracao-particular.js', /\.place-date \{ margin: 1px 0 47px; \}/],
+  ['declaracao-residencia.js', /\.signature \.place-date \{[^}]*margin-bottom: 37mm;/],
+  ['requerimento-alteracao-caracteristica.js', /\.date \{ margin: 3px 0 50px;/],
+  ['requerimento-regravacao-chassi.js', /\.date \{ margin: 3px 0 50px;/],
+  ['averbacao-cancelamento-impedimento.js', /\.date \{ margin: 5px 0 50px;/],
+  ['declaracao-procedencia-motor.js', /\.date \{ margin: 0 0 41px;/],
+  ['requerimento-segunda-via.js', /\.place-date \{ margin: 0 0 45px;/],
 ];
 
 test('all PDF forms leave enough room for a handwritten signature', async () => {
