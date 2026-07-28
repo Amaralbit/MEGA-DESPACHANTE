@@ -47,3 +47,10 @@ test('all forms pin the signer immediately above the MEGA box at the bottom', as
   assert.match(particularPowerOfAttorney, /\.signature-footer \{ margin-top: auto;/);
   assert.match(particularPowerOfAttorney, /<div class="mega-stamp-box"><img class="mega-stamp"/);
 });
+
+test('vehicle power of attorney lifts the grantor signature above the fixed MEGA box', async () => {
+  const vehiclePowerOfAttorney = await readFile('procuracao.js', 'utf8');
+
+  assert.match(vehiclePowerOfAttorney, /class="signature-footer vehicle-signature-footer"/);
+  assert.match(vehiclePowerOfAttorney, /\.vehicle-signature-footer \.signature \{ margin-bottom: 160px; \}/);
+});
