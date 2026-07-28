@@ -3,15 +3,15 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const signatureSpacingByDocument = [
-  ['procuracao.js', /\.signature-line \{[^}]*margin: 52px auto 5px;/],
-  ['intencao-venda.js', /\.signature p \{[^}]*margin-bottom: 47px;/],
-  ['procuracao-particular.js', /\.place-date \{ margin: 1px 0 47px; \}/],
-  ['declaracao-residencia.js', /\.signature \.place-date \{[^}]*margin-bottom: 37mm;/],
-  ['requerimento-alteracao-caracteristica.js', /\.date \{ margin: 3px 0 50px;/],
-  ['requerimento-regravacao-chassi.js', /\.date \{ margin: 3px 0 50px;/],
-  ['averbacao-cancelamento-impedimento.js', /\.date \{ margin: 5px 0 50px;/],
-  ['declaracao-procedencia-motor.js', /\.date \{ margin: 0 0 41px;/],
-  ['requerimento-segunda-via.js', /\.place-date \{ margin: 0 0 45px;/],
+  ['procuracao.js', /\.signature-line \{[^}]*margin: 104px auto 5px;/],
+  ['intencao-venda.js', /\.signature p \{[^}]*margin-bottom: 94px;/],
+  ['procuracao-particular.js', /\.place-date \{ margin: 1px 0 94px; \}/],
+  ['declaracao-residencia.js', /\.signature \.place-date \{[^}]*margin-bottom: 74mm;/],
+  ['requerimento-alteracao-caracteristica.js', /\.date \{ margin: 3px 0 100px;/],
+  ['requerimento-regravacao-chassi.js', /\.date \{ margin: 3px 0 100px;/],
+  ['averbacao-cancelamento-impedimento.js', /\.date \{ margin: 5px 0 100px;/],
+  ['declaracao-procedencia-motor.js', /\.date \{ margin: 0 0 82px;/],
+  ['requerimento-segunda-via.js', /\.place-date \{ margin: 0 0 90px;/],
 ];
 
 test('all PDF forms leave enough room for a handwritten signature', async () => {
@@ -21,4 +21,12 @@ test('all PDF forms leave enough room for a handwritten signature', async () => 
     const script = await readFile(file, 'utf8');
     assert.match(script, spacingPattern, `${file} sem o espaçamento de assinatura esperado`);
   }
+});
+
+test('the MEGA stamp sits farther below the signer area', async () => {
+  const sharedStyles = await readFile('script.js', 'utf8');
+  const particularPowerOfAttorney = await readFile('procuracao-particular.js', 'utf8');
+
+  assert.match(sharedStyles, /\.mega-declaration \{[^}]*margin: 16px auto 0;/);
+  assert.match(particularPowerOfAttorney, /\.mega-stamp \{[^}]*margin: 11px auto 4px;/);
 });

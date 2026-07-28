@@ -108,7 +108,7 @@ if (heroPhoto && !reduceMotion && window.matchMedia('(hover: hover)').matches) {
 }
 
 window.MEGA_DECLARATION_CSS = `
-  .mega-declaration { width: 100%; margin: 8px auto 0; border: 1px solid #555; padding: 8px 14px 7px; text-align: center; font-size: 8pt; line-height: 1.22; break-inside: avoid; }
+  .mega-declaration { width: 100%; margin: 16px auto 0; border: 1px solid #555; padding: 8px 14px 7px; text-align: center; font-size: 8pt; line-height: 1.22; break-inside: avoid; }
   .mega-declaration h2 { margin: 0 0 7px; font-size: 10pt; }
   .mega-declaration p { margin: 0; text-align: center; }
   .mega-declaration strong { display: block; margin-top: 4px; }
