@@ -113,7 +113,7 @@ if (intencaoVendaForm) {
         <h2 class="buyer-title">Dados comprador</h2>
         <p>Declaro ainda que os dados abaixo são a expressão da verdade, tendo sido captados e informados por mim, assumindo a inteira responsabilidade perante eles e isentando o despachante contratado de qualquer infortúnio:</p>
         <section class="buyer-grid"><div class="wide"><b>COMPRADOR:</b> <strong>${nameOf(data, 'comprador')}</strong></div><div><b>CPF/CNPJ:</b> ${valueOf(data, 'cpfCnpjComprador')}</div><div class="wide"><b>ENDEREÇO:</b> ${valueOf(data, 'enderecoComprador')}</div><div><b>MUNICÍPIO / UF:</b> ${valueOf(data, 'cidadeComprador')}/${valueOf(data, 'estadoComprador')}</div><div><b>CEP:</b> ${valueOf(data, 'cepComprador')}</div><div><b>E-MAIL:</b> ${valueOf(data, 'emailComprador')}</div><div><b>VALOR:</b> R$ ${valueOf(data, 'valorVenda')}</div></section>
-        <section class="closing"><div class="signature"><p>${valueOf(data, 'cidadeAssinatura')}, ${date}.</p><div class="signature-line"></div><strong>${nameOf(data, 'vendedor')}</strong><br>Assinatura do Outorgante (Proprietário Vendedor)</div>${window.renderMegaDeclaration(valueOf(data, 'cidadeAssinatura'), date)}</section>
+        <section class="closing signature-footer"><div class="signature"><p>${valueOf(data, 'cidadeAssinatura')}, ${date}.</p><div class="signature-line"></div><strong>${nameOf(data, 'vendedor')}</strong><br>Assinatura do Outorgante (Proprietário Vendedor)</div>${window.renderMegaDeclaration(valueOf(data, 'cidadeAssinatura'), date)}</section>
       </article></body></html>`);
     preview.document.close();
   });

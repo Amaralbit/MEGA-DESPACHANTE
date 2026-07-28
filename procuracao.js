@@ -108,9 +108,9 @@ if (procuracaoForm) {
           <p><strong>PODERES:</strong> Dando poderes para <strong>${powers}</strong>.${validity}</p>
           <p>Esta procuração é outorgada exclusivamente para os poderes acima descritos, responsabilizando-me pela veracidade das informações prestadas.</p>
         </div>
-        <div class="signature"><p>${city}, ${date}.</p><div class="signature-line"></div><strong>${outorgante}</strong><br>Outorgante</div>
-        ${window.renderMegaDeclaration(city, date)}
         <div class="details"><strong>Dados da MEGA Despachante:</strong> Código ${valueOf(data, 'codigoDespachante')} · ${valueOf(data, 'enderecoDespachante')} · ${valueOf(data, 'cidadeDespachante')}/${valueOf(data, 'estadoDespachante')}</div>
+        <section class="signature-footer"><div class="signature"><p>${city}, ${date}.</p><div class="signature-line"></div><strong>${outorgante}</strong><br>Outorgante</div>
+        ${window.renderMegaDeclaration(city, date)}</section>
       </article></body></html>`);
     preview.document.close();
   });
