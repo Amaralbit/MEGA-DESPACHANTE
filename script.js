@@ -177,6 +177,10 @@ const protectedPdfErrorMessage = (status, fallback) => {
 };
 
 const generateProtectedPdf = async ({ html, documentType, fileName }) => {
+  window.dispatchEvent(new CustomEvent('mega:pdf-start', {
+    detail: { documentType, fileName },
+  }));
+
   try {
     const response = await fetch(protectedPdfApiUrl, {
       method: 'POST',
@@ -196,6 +200,7 @@ const generateProtectedPdf = async ({ html, documentType, fileName }) => {
     }
 
     const pdf = await response.blob();
+    window.MEGA_LAST_DOCUMENT = new File([pdf], fileName, { type: 'application/pdf' });
     const url = URL.createObjectURL(pdf);
     const download = document.createElement('a');
     download.href = url;
@@ -204,10 +209,16 @@ const generateProtectedPdf = async ({ html, documentType, fileName }) => {
     download.click();
     download.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 30000);
+    window.dispatchEvent(new CustomEvent('mega:pdf-success', {
+      detail: { documentType, fileName },
+    }));
   } catch (generationError) {
     const message = generationError instanceof TypeError && generationError.message === 'Failed to fetch'
       ? 'Não foi possível conectar ao gerador. Atualize a página e tente novamente.'
       : generationError.message;
+    window.dispatchEvent(new CustomEvent('mega:pdf-error', {
+      detail: { documentType, fileName, message },
+    }));
     window.alert(message);
   }
 };
