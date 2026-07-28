@@ -46,6 +46,9 @@ if (revealItems.length && !reduceMotion && 'IntersectionObserver' in window) {
   document.querySelectorAll('.service-card[data-reveal]').forEach((card, index) => {
     card.style.setProperty('--reveal-delay', `${(index % 4) * 70}ms`);
   });
+  document.querySelectorAll('.reviews-showcase [data-reveal]').forEach((item, index) => {
+    item.style.setProperty('--reveal-delay', `${index * 90}ms`);
+  });
 
   const revealObserver = new IntersectionObserver((entries, observer) => {
     entries.forEach((entry) => {
@@ -58,6 +61,40 @@ if (revealItems.length && !reduceMotion && 'IntersectionObserver' in window) {
   revealItems.forEach((item) => revealObserver.observe(item));
 } else {
   revealItems.forEach((item) => item.classList.add('is-visible'));
+}
+
+const reviewCounters = [
+  ...document.querySelectorAll('[data-count-rating], [data-count-reviews]'),
+];
+
+if (reviewCounters.length && !reduceMotion && 'IntersectionObserver' in window) {
+  const counterObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+
+      const element = entry.target;
+      const isRating = element.hasAttribute('data-count-rating');
+      const target = isRating ? 4.1 : 14;
+      const duration = 950;
+      const start = performance.now();
+
+      const updateCounter = (now) => {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const value = target * eased;
+        element.textContent = isRating
+          ? value.toFixed(1).replace('.', ',')
+          : String(Math.round(value));
+
+        if (progress < 1) window.requestAnimationFrame(updateCounter);
+      };
+
+      window.requestAnimationFrame(updateCounter);
+      observer.unobserve(element);
+    });
+  }, { threshold: 0.65 });
+
+  reviewCounters.forEach((counter) => counterObserver.observe(counter));
 }
 
 const heroTyping = document.querySelector('[data-hero-typing]');
