@@ -23,15 +23,13 @@ test('all PDF forms leave enough room for a handwritten signature', async () => 
   }
 });
 
-test('the MEGA stamp sits farther below the signer area', async () => {
+test('the MEGA stamp keeps its spacing in documents that still use it', async () => {
   const sharedStyles = await readFile('script.js', 'utf8');
-  const particularPowerOfAttorney = await readFile('procuracao-particular.js', 'utf8');
 
   assert.match(sharedStyles, /\.mega-declaration \{[^}]*margin: 16px auto 0;/);
-  assert.match(particularPowerOfAttorney, /\.mega-stamp-box \{[^}]*margin-top: 11px;/);
 });
 
-test('all forms pin the signer immediately above the MEGA box at the bottom', async () => {
+test('all forms pin the signer at the bottom of the document', async () => {
   const documents = signatureSpacingByDocument.map(([file]) => file);
   assert.equal(documents.length, 9);
 
@@ -45,7 +43,13 @@ test('all forms pin the signer immediately above the MEGA box at the bottom', as
   assert.match(sharedStyles, /\.document \{ display: flex; flex-direction: column; \}/);
   assert.match(sharedStyles, /\.signature-footer \{ margin-top: auto;/);
   assert.match(particularPowerOfAttorney, /\.signature-footer \{ margin-top: auto;/);
-  assert.match(particularPowerOfAttorney, /<div class="mega-stamp-box"><img class="mega-stamp"/);
+});
+
+test('particular power of attorney omits the MEGA stamp only', async () => {
+  const particularPowerOfAttorney = await readFile('procuracao-particular.js', 'utf8');
+
+  assert.doesNotMatch(particularPowerOfAttorney, /carimbo-mega-assinado|mega-stamp/);
+  assert.match(particularPowerOfAttorney, /Assinatura do\(a\) Outorgante/);
 });
 
 test('vehicle power of attorney lifts the grantor signature above the fixed MEGA box', async () => {

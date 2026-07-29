@@ -68,3 +68,9 @@ test('the forms catalog announces the premium workflow', async () => {
   assert.match(styles, /\.premium-modal\[/);
   assert.match(styles, /\.premium-success-modal/);
 });
+
+test('the floating WhatsApp shortcut stays hidden while filling a form', async () => {
+  const styles = await readFile('styles.css', 'utf8');
+
+  assert.match(styles, /\.procura-page \.floating-whatsapp\s*\{\s*display:\s*none;/);
+});
