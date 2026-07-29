@@ -340,16 +340,27 @@
           feedback.setAttribute('aria-live', 'polite');
           label.append(feedback);
         }
+        feedback.classList.remove('premium-field-warning-message');
         feedback.textContent = message;
         label.classList.add('premium-field-invalid');
         label.classList.remove('premium-field-valid');
+        label.classList.remove('premium-field-warning');
         control.setAttribute('aria-invalid', 'true');
       } else {
         feedback?.remove();
         label.classList.remove('premium-field-invalid');
         control.removeAttribute('aria-invalid');
         const hasValue = control.type === 'checkbox' ? control.checked : Boolean(cleanText(control.value));
+        const showEmptyWarning = control.dataset.touched === 'true' && !hasValue && Boolean(control.dataset.warningEmpty);
+        label.classList.toggle('premium-field-warning', showEmptyWarning);
         label.classList.toggle('premium-field-valid', control.dataset.touched === 'true' && hasValue && !message);
+        if (showEmptyWarning) {
+          feedback = document.createElement('small');
+          feedback.className = 'premium-field-message premium-field-warning-message';
+          feedback.setAttribute('aria-live', 'polite');
+          feedback.textContent = control.dataset.warningEmpty;
+          label.append(feedback);
+        }
       }
 
       return !message;

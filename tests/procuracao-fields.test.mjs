@@ -35,3 +35,18 @@ test('ATPV-e fills the complete address from the postal code', async () => {
   assert.match(script, /neighborhood: intencaoVendaForm\.elements\.bairroVendedor/);
   assert.match(script, /includeNeighborhoodInAddress: true/);
 });
+
+test('vehicle power of attorney allows a new vehicle without a license plate', async () => {
+  const [html, experience, script] = await Promise.all([
+    readFile('procuracao-veiculo.html', 'utf8'),
+    readFile('form-experience.js', 'utf8'),
+    readFile('procuracao.js', 'utf8'),
+  ]);
+  const plateInput = html.match(/<input[^>]*name="placa"[^>]*>/)?.[0];
+
+  assert.ok(plateInput, 'Campo placa não encontrado');
+  assert.doesNotMatch(plateInput, /\brequired\b/);
+  assert.match(plateInput, /\bdata-warning-empty=/);
+  assert.match(experience, /premium-field-warning/);
+  assert.match(script, /veículo novo, ainda sem placa/);
+});
