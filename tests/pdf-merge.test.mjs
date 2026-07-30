@@ -39,7 +39,7 @@ test('PDF merger is linked from the catalog and loads only local application ass
   const license = await readFile('assets/vendor/pdf-lib/LICENSE.md', 'utf8');
   const vendor = await stat('assets/vendor/pdf-lib/pdf-lib.min.js');
 
-  assert.match(catalog, /10 recursos/);
+  assert.match(catalog, /11 recursos/);
   assert.match(catalog, /href="juntar-pdfs\.html"/);
   assert.match(page, /Processamento 100% local/);
   assert.match(page, /assets\/vendor\/pdf-lib\/pdf-lib\.min\.js/);

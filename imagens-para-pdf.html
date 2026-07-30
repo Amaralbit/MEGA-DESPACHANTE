@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Converta imagens JPG e PNG em um único PDF, diretamente no seu aparelho e sem enviar documentos para servidores." />
+    <title>Converter imagens em PDF | MEGA Despachante</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="icon" type="image/png" href="assets/logo-mega-transparent.png" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="forms-page pdf-merge-page image-pdf-page">
+    <header class="site-header">
+      <div class="container nav-wrap">
+        <a class="brand" href="index.html" aria-label="MEGA Despachante, início"><span class="brand-mark">MEGA</span><span class="brand-name">DESPACHANTE</span></a>
+        <button class="menu-toggle" aria-label="Abrir menu" aria-expanded="false"><span></span><span></span><span></span></button>
+        <nav class="nav-links" aria-label="Navegação principal"><a href="index.html#servicos">Serviços</a><a class="active" href="formularios.html">Formulários</a><a href="index.html#sobre">A MEGA</a><a href="index.html#localizacao">Localização</a><a class="nav-cta" href="index.html#contato">Fale conosco <span>→</span></a></nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="pdf-merge-hero image-pdf-hero">
+        <div class="container pdf-merge-hero-grid">
+          <div>
+            <a class="back-link" href="formularios.html">← Voltar para Formulários</a>
+            <p class="eyebrow"><span></span> FERRAMENTA PDF</p>
+            <h1>Transforme fotos em PDF.<br /><em>Direto no seu aparelho.</em></h1>
+            <p>Converta fotos de CNH, documentos e comprovantes em um PDF organizado e pronto para anexar ao processo.</p>
+          </div>
+          <aside class="pdf-privacy-card" aria-label="Privacidade das imagens">
+            <span class="pdf-privacy-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5.1 3.4 9.8 8 11 4.6-1.2 8-5.9 8-11V5l-8-3Zm0 2.2 6 2.2V11c0 4-2.5 7.7-6 8.8C8.5 18.7 6 15 6 11V6.4l6-2.2Zm-1 4.3v2.1H9.8v5.2h4.4v-5.2H13V8.5h-2Zm.8 3.8h.4v1.8h-.4v-1.8Z"/></svg>
+            </span>
+            <div>
+              <strong>Processamento 100% local</strong>
+              <p>As fotos ficam apenas neste aparelho. A MEGA e a Vercel não recebem seus documentos.</p>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="pdf-merge-section section">
+        <div class="container pdf-merge-layout">
+          <aside class="pdf-merge-guide">
+            <p class="eyebrow"><span></span> COMO FUNCIONA</p>
+            <ol>
+              <li><span>01</span><div><strong>Escolha as imagens</strong><small>Selecione fotos JPG ou PNG.</small></div></li>
+              <li><span>02</span><div><strong>Organize e gire</strong><small>Deixe cada documento na posição correta.</small></div></li>
+              <li><span>03</span><div><strong>Baixe o PDF</strong><small>Cada imagem ocupará uma página A4.</small></div></li>
+            </ol>
+            <div class="pdf-merge-caution image-photo-tip">
+              <strong>Antes de adicionar a foto</strong>
+              <p>Confira se o documento está inteiro, bem iluminado, sem reflexos e com os dados legíveis. Imagens HEIC ainda não são aceitas.</p>
+            </div>
+          </aside>
+
+          <section class="pdf-merge-tool" aria-labelledby="image-pdf-title">
+            <div class="pdf-merge-tool-heading">
+              <div>
+                <span class="premium-kicker">IMAGENS PARA PDF</span>
+                <h2 id="image-pdf-title">Monte o PDF das fotos</h2>
+                <p>Adicione até 20 imagens JPG ou PNG. Limite total de 50 MB.</p>
+              </div>
+              <span class="pdf-local-badge"><i aria-hidden="true"></i> Arquivos locais</span>
+            </div>
+
+            <input id="image-pdf-input" class="pdf-file-input" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" aria-label="Selecionar imagens JPG ou PNG para converter em PDF" multiple />
+            <div id="image-pdf-dropzone" class="pdf-dropzone" role="button" tabindex="0" aria-controls="image-pdf-input" aria-describedby="image-pdf-dropzone-help">
+              <span class="pdf-dropzone-icon image-dropzone-icon" aria-hidden="true">
+                <svg viewBox="0 0 32 32"><path d="M5 5h22v22H5V5Zm2 2v18h18V7H7Zm3 14 4.2-5.2 3 3.4 2.1-2.4L23 21H10Zm10.5-11a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z"/></svg>
+              </span>
+              <strong>Arraste suas fotos aqui</strong>
+              <span>ou <u>selecione as imagens</u> no aparelho</span>
+              <small id="image-pdf-dropzone-help">JPG e PNG · máximo de 20 imagens e 50 MB</small>
+            </div>
+
+            <div id="image-pdf-message" class="pdf-message" role="status" aria-live="polite"></div>
+
+            <div id="image-pdf-selection" class="pdf-selection" hidden>
+              <div class="pdf-selection-summary">
+                <div><strong id="image-pdf-count">0 imagens</strong><span id="image-pdf-pages">0 páginas</span></div>
+                <div><span id="image-pdf-size">0 MB</span><button id="image-pdf-clear" type="button">Limpar tudo</button></div>
+              </div>
+
+              <p class="pdf-order-hint"><span aria-hidden="true">↕</span> Organize a ordem e use os botões de giro para deixar cada foto na posição correta.</p>
+              <ol id="image-pdf-list" class="pdf-file-list image-pdf-list" aria-label="Imagens selecionadas"></ol>
+
+              <div class="image-pdf-settings">
+                <label for="image-pdf-quality">Qualidade do documento</label>
+                <select id="image-pdf-quality">
+                  <option value="high">Alta qualidade — recomendado para CNH</option>
+                  <option value="balanced">Arquivo menor — envio mais rápido</option>
+                </select>
+                <small>As imagens são ajustadas em páginas A4, mantendo a proporção e sem cortar o documento.</small>
+              </div>
+
+              <div class="pdf-output-settings">
+                <label for="image-pdf-output-name">Nome do arquivo final</label>
+                <div><input id="image-pdf-output-name" value="documentos-detran" maxlength="80" /><span>.PDF</span></div>
+              </div>
+
+              <div class="pdf-merge-actions">
+                <button id="image-pdf-convert" class="button button-primary" type="button" disabled>Converter e baixar PDF <span>→</span></button>
+                <p id="image-pdf-action-note">Adicione pelo menos uma imagem para continuar.</p>
+              </div>
+            </div>
+
+            <div id="image-pdf-success" class="pdf-merge-success" role="status" hidden>
+              <span aria-hidden="true">✓</span>
+              <div>
+                <strong>PDF criado com sucesso</strong>
+                <p id="image-pdf-success-details"></p>
+              </div>
+              <a id="image-pdf-download-again" class="pdf-download-again" href="#" download>Baixar novamente</a>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer><div class="container footer-inner"><a class="brand footer-brand" href="index.html"><span class="brand-mark">MEGA</span><span class="brand-name">DESPACHANTE</span></a><p>Documentação veicular com segurança e tranquilidade.</p><p>© <span id="year"></span> MEGA Despachante</p></div></footer>
+
+    <script src="script.js"></script>
+    <script src="assets/vendor/pdf-lib/pdf-lib.min.js"></script>
+    <script type="module" src="imagens-para-pdf.js"></script>
+  </body>
+</html>
