@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Junte procurações e outros documentos em um único PDF, diretamente no seu aparelho e sem enviar arquivos para servidores." />
+    <title>Juntar documentos em PDF | MEGA Despachante</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="icon" type="image/png" href="assets/logo-mega-transparent.png" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="forms-page pdf-merge-page">
+    <header class="site-header">
+      <div class="container nav-wrap">
+        <a class="brand" href="index.html" aria-label="MEGA Despachante, início"><span class="brand-mark">MEGA</span><span class="brand-name">DESPACHANTE</span></a>
+        <button class="menu-toggle" aria-label="Abrir menu" aria-expanded="false"><span></span><span></span><span></span></button>
+        <nav class="nav-links" aria-label="Navegação principal"><a href="index.html#servicos">Serviços</a><a class="active" href="formularios.html">Formulários</a><a href="index.html#sobre">A MEGA</a><a href="index.html#localizacao">Localização</a><a class="nav-cta" href="index.html#contato">Fale conosco <span>→</span></a></nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="pdf-merge-hero">
+        <div class="container pdf-merge-hero-grid">
+          <div>
+            <a class="back-link" href="formularios.html">← Voltar para Formulários</a>
+            <p class="eyebrow"><span></span> FERRAMENTA PDF</p>
+            <h1>Junte seus documentos.<br /><em>Sem enviar nada para a internet.</em></h1>
+            <p>Organize procurações, documentos pessoais e comprovantes em um único PDF pronto para o envio.</p>
+          </div>
+          <aside class="pdf-privacy-card" aria-label="Privacidade dos documentos">
+            <span class="pdf-privacy-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5.1 3.4 9.8 8 11 4.6-1.2 8-5.9 8-11V5l-8-3Zm0 2.2 6 2.2V11c0 4-2.5 7.7-6 8.8C8.5 18.7 6 15 6 11V6.4l6-2.2Zm-1 4.3v2.1H9.8v5.2h4.4v-5.2H13V8.5h-2Zm.8 3.8h.4v1.8h-.4v-1.8Z"/></svg>
+            </span>
+            <div>
+              <strong>Processamento 100% local</strong>
+              <p>Os arquivos ficam apenas neste aparelho. A MEGA e a Vercel não recebem seus documentos.</p>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="pdf-merge-section section">
+        <div class="container pdf-merge-layout">
+          <aside class="pdf-merge-guide">
+            <p class="eyebrow"><span></span> COMO FUNCIONA</p>
+            <ol>
+              <li><span>01</span><div><strong>Escolha os PDFs</strong><small>Selecione ou arraste até 20 arquivos.</small></div></li>
+              <li><span>02</span><div><strong>Organize a ordem</strong><small>O primeiro arquivo ficará no início do documento.</small></div></li>
+              <li><span>03</span><div><strong>Baixe o resultado</strong><small>A união acontece no seu navegador.</small></div></li>
+            </ol>
+            <div class="pdf-merge-caution">
+              <strong>Atenção às assinaturas digitais</strong>
+              <p>Documentos assinados com certificado digital podem perder a validade quando são modificados. Assinaturas visuais e documentos digitalizados continuam aparecendo normalmente.</p>
+            </div>
+          </aside>
+
+          <section class="pdf-merge-tool" aria-labelledby="pdf-merge-title">
+            <div class="pdf-merge-tool-heading">
+              <div>
+                <span class="premium-kicker">JUNTAR DOCUMENTOS</span>
+                <h2 id="pdf-merge-title">Monte seu arquivo final</h2>
+                <p>Adicione pelo menos dois PDFs. O limite total é de 50 MB.</p>
+              </div>
+              <span class="pdf-local-badge"><i aria-hidden="true"></i> Arquivos locais</span>
+            </div>
+
+            <input id="pdf-file-input" class="pdf-file-input" type="file" accept="application/pdf,.pdf" aria-label="Selecionar arquivos PDF para juntar" multiple />
+            <div id="pdf-dropzone" class="pdf-dropzone" role="button" tabindex="0" aria-controls="pdf-file-input" aria-describedby="pdf-dropzone-help">
+              <span class="pdf-dropzone-icon" aria-hidden="true">
+                <svg viewBox="0 0 32 32"><path d="M7 3h12l6 6v20H7V3Zm11 2H9v22h14V10h-5V5Zm2 1.4V8h1.6L20 6.4ZM15 13h2v6.2l2.6-2.6L21 18l-5 5-5-5 1.4-1.4 2.6 2.6V13Z"/></svg>
+              </span>
+              <strong>Arraste seus PDFs aqui</strong>
+              <span>ou <u>selecione os arquivos</u> no aparelho</span>
+              <small id="pdf-dropzone-help">Máximo de 20 arquivos e 50 MB no total</small>
+            </div>
+
+            <div id="pdf-message" class="pdf-message" role="status" aria-live="polite"></div>
+
+            <div id="pdf-selection" class="pdf-selection" hidden>
+              <div class="pdf-selection-summary">
+                <div><strong id="pdf-file-count">0 arquivos</strong><span id="pdf-page-count">0 páginas</span></div>
+                <div><span id="pdf-total-size">0 MB</span><button id="pdf-clear-button" type="button">Limpar tudo</button></div>
+              </div>
+
+              <p class="pdf-order-hint"><span aria-hidden="true">↕</span> Arraste os arquivos ou use as setas para definir a ordem das páginas.</p>
+              <ol id="pdf-file-list" class="pdf-file-list" aria-label="Arquivos selecionados"></ol>
+
+              <div id="pdf-signature-warning" class="pdf-signature-warning" hidden>
+                <div>
+                  <strong>Possível assinatura digital detectada</strong>
+                  <p>Ao juntar o arquivo, a assinatura visual permanece, mas a validação do certificado pode ser perdida.</p>
+                </div>
+                <label><input id="pdf-signature-confirmation" type="checkbox" /> Entendi e quero continuar</label>
+              </div>
+
+              <div class="pdf-output-settings">
+                <label for="pdf-output-name">Nome do arquivo final</label>
+                <div><input id="pdf-output-name" value="documentos-detran" maxlength="80" /><span>.PDF</span></div>
+              </div>
+
+              <div class="pdf-merge-actions">
+                <button id="pdf-merge-button" class="button button-primary" type="button" disabled>Juntar e baixar PDF <span>→</span></button>
+                <p id="pdf-action-note">Adicione pelo menos dois arquivos para continuar.</p>
+              </div>
+            </div>
+
+            <div id="pdf-success" class="pdf-merge-success" role="status" hidden>
+              <span aria-hidden="true">✓</span>
+              <div>
+                <strong>PDF criado com sucesso</strong>
+                <p id="pdf-success-details"></p>
+              </div>
+              <a id="pdf-download-again" class="pdf-download-again" href="#" download>Baixar novamente</a>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer><div class="container footer-inner"><a class="brand footer-brand" href="index.html"><span class="brand-mark">MEGA</span><span class="brand-name">DESPACHANTE</span></a><p>Documentação veicular com segurança e tranquilidade.</p><p>© <span id="year"></span> MEGA Despachante</p></div></footer>
+
+    <script src="script.js"></script>
+    <script src="assets/vendor/pdf-lib/pdf-lib.min.js"></script>
+    <script type="module" src="juntar-pdfs.js"></script>
+  </body>
+</html>
