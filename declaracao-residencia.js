@@ -92,8 +92,8 @@ if (declaracaoResidenciaForm) {
         .document { position: relative; width: 210mm; min-height: 297mm; margin: 10px auto; padding: 15mm 18mm 7mm; background: #fff; font-size: 10pt; line-height: 1.46; }
         .logo-symbol { position: absolute; top: 12mm; right: 18mm; width: 20mm; height: 20mm; object-fit: contain; }
         .heading { margin: 20mm 25mm; text-align: center; font-size: 14pt; font-weight: 400; }.heading span { display: block; margin-top: 17px; font-size: 15pt; }
-        .declaration { text-align: justify; }.declaration p { margin: 0; text-indent: 20mm; }
-        .signature { width: 125mm; margin: 20mm auto 0; text-align: center; }.signature .place-date { display: flex; justify-content: space-between; margin-bottom: 74mm; text-align: left; }.signature .line { border-top: 1px solid #222; margin-bottom: 4px; }
+        .declaration { overflow-wrap: anywhere; text-align: justify; }.declaration p { margin: 0; text-indent: 20mm; }
+        .signature { width: 125mm; margin: 12mm auto 0; text-align: center; }.signature .place-date { display: flex; justify-content: space-between; margin-bottom: 58mm; text-align: left; }.signature .line { border-top: 1px solid #222; margin-bottom: 4px; }
         ${window.MEGA_DECLARATION_CSS}
         .print-hint { position: fixed; z-index: 10; top: 18px; right: 18px; border: 0; background: #b42313; color: #fff; padding: 12px 16px; font-weight: 700; cursor: pointer; }
         @media print { body { background: #fff; }.document { width: 210mm; min-height: 297mm; margin: 0; }.print-hint { display: none; } }

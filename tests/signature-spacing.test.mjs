@@ -6,7 +6,7 @@ const signatureSpacingByDocument = [
   ['procuracao.js', /\.signature-line \{[^}]*margin: 104px auto 5px;/],
   ['intencao-venda.js', /\.signature p \{[^}]*margin-bottom: 94px;/],
   ['procuracao-particular.js', /\.place-date \{ margin: 1px 0 94px; \}/],
-  ['declaracao-residencia.js', /\.signature \.place-date \{[^}]*margin-bottom: 74mm;/],
+  ['declaracao-residencia.js', /\.signature \.place-date \{[^}]*margin-bottom: 58mm;/],
   ['requerimento-alteracao-caracteristica.js', /\.date \{ margin: 3px 0 100px;/],
   ['requerimento-regravacao-chassi.js', /\.date \{ margin: 3px 0 100px;/],
   ['averbacao-cancelamento-impedimento.js', /\.date \{ margin: 5px 0 100px;/],
@@ -50,6 +50,14 @@ test('particular power of attorney omits the MEGA stamp only', async () => {
 
   assert.doesNotMatch(particularPowerOfAttorney, /carimbo-mega-assinado|mega-stamp/);
   assert.match(particularPowerOfAttorney, /Assinatura do\(a\) Outorgante/);
+});
+
+test('residence declaration keeps long addresses and signatures on one A4 page', async () => {
+  const residenceDeclaration = await readFile('declaracao-residencia.js', 'utf8');
+
+  assert.match(residenceDeclaration, /\.declaration \{[^}]*overflow-wrap: anywhere;/);
+  assert.match(residenceDeclaration, /\.signature \{[^}]*margin: 12mm auto 0;/);
+  assert.match(residenceDeclaration, /\.signature \.place-date \{[^}]*margin-bottom: 58mm;/);
 });
 
 test('vehicle power of attorney lifts the grantor signature above the fixed MEGA box', async () => {
