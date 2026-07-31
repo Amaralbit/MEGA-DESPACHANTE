@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Comprima documentos PDF diretamente no seu aparelho, sem enviar arquivos para servidores." />
+    <title>Comprimir PDF | MEGA Despachante</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="icon" type="image/png" href="assets/logo-mega-transparent.png" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="forms-page pdf-merge-page pdf-compress-page">
+    <header class="site-header">
+      <div class="container nav-wrap">
+        <a class="brand" href="index.html" aria-label="MEGA Despachante, início"><span class="brand-mark">MEGA</span><span class="brand-name">DESPACHANTE</span></a>
+        <button class="menu-toggle" aria-label="Abrir menu" aria-expanded="false"><span></span><span></span><span></span></button>
+        <nav class="nav-links" aria-label="Navegação principal"><a href="index.html#servicos">Serviços</a><a class="active" href="formularios.html">Formulários</a><a href="index.html#sobre">A MEGA</a><a href="index.html#localizacao">Localização</a><a class="nav-cta" href="index.html#contato">Fale conosco <span>→</span></a></nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="pdf-merge-hero pdf-compress-hero">
+        <div class="container pdf-merge-hero-grid">
+          <div>
+            <a class="back-link" href="formularios.html#ferramentas-pdf">← Voltar para Ferramentas PDF</a>
+            <p class="eyebrow"><span></span> FERRAMENTA PDF</p>
+            <h1>Reduza o tamanho do PDF.<br /><em>Sem enviar o documento.</em></h1>
+            <p>Comprima PDFs de fotos e documentos digitalizados para facilitar o envio aos sistemas do DETRAN.</p>
+          </div>
+          <aside class="pdf-privacy-card" aria-label="Privacidade do documento">
+            <span class="pdf-privacy-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5.1 3.4 9.8 8 11 4.6-1.2 8-5.9 8-11V5l-8-3Zm0 2.2 6 2.2V11c0 4-2.5 7.7-6 8.8C8.5 18.7 6 15 6 11V6.4l6-2.2Zm-1 4.3v2.1H9.8v5.2h4.4v-5.2H13V8.5h-2Zm.8 3.8h.4v1.8h-.4v-1.8Z"/></svg>
+            </span>
+            <div>
+              <strong>Processamento 100% local</strong>
+              <p>O PDF fica apenas neste aparelho. A MEGA e a Vercel não recebem o documento.</p>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="pdf-merge-section section">
+        <div class="container pdf-merge-layout">
+          <aside class="pdf-merge-guide">
+            <p class="eyebrow"><span></span> COMO FUNCIONA</p>
+            <ol>
+              <li><span>01</span><div><strong>Escolha o PDF</strong><small>Selecione um arquivo de até 40 MB.</small></div></li>
+              <li><span>02</span><div><strong>Defina a qualidade</strong><small>Escolha entre mais nitidez ou arquivo menor.</small></div></li>
+              <li><span>03</span><div><strong>Compare e baixe</strong><small>Veja quanto o documento diminuiu.</small></div></li>
+            </ol>
+            <div class="pdf-merge-caution pdf-compress-caution">
+              <strong>O que muda no documento</strong>
+              <p>As páginas são reconstruídas como imagens. Textos selecionáveis, links, formulários e assinaturas digitais podem perder suas propriedades originais.</p>
+            </div>
+          </aside>
+
+          <section class="pdf-merge-tool" aria-labelledby="pdf-compress-title">
+            <div class="pdf-merge-tool-heading">
+              <div>
+                <span class="premium-kicker">COMPRIMIR PDF</span>
+                <h2 id="pdf-compress-title">Deixe o arquivo mais leve</h2>
+                <p>Ideal para PDFs criados a partir de fotos ou digitalizações.</p>
+              </div>
+              <span class="pdf-local-badge"><i aria-hidden="true"></i> Arquivo local</span>
+            </div>
+
+            <input id="pdf-compress-input" class="pdf-file-input" type="file" accept="application/pdf,.pdf" aria-label="Selecionar PDF para comprimir" />
+            <div id="pdf-compress-dropzone" class="pdf-dropzone" role="button" tabindex="0" aria-controls="pdf-compress-input" aria-describedby="pdf-compress-dropzone-help">
+              <span class="pdf-dropzone-icon pdf-compress-dropzone-icon" aria-hidden="true">
+                <svg viewBox="0 0 32 32"><path d="M6 3h13l7 7v19H6V3Zm2 2v22h16V11h-6V5H8Zm12 1.4V9h2.6L20 6.4ZM11 15h3v-3h2v5h-5v-2Zm10 2h-5v-5h2v3h3v2Zm-5 3h5v2h-3v3h-2v-5Zm-5 0h5v5h-2v-3h-3v-2Z"/></svg>
+              </span>
+              <strong>Arraste seu PDF aqui</strong>
+              <span>ou <u>selecione o arquivo</u> no aparelho</span>
+              <small id="pdf-compress-dropzone-help">Um PDF de até 40 MB e 80 páginas</small>
+            </div>
+
+            <div id="pdf-compress-message" class="pdf-message" role="status" aria-live="polite"></div>
+
+            <div id="pdf-compress-selection" class="pdf-selection" hidden>
+              <div class="pdf-compress-file">
+                <span class="pdf-compress-file-icon" aria-hidden="true">PDF</span>
+                <div>
+                  <strong id="pdf-compress-file-name"></strong>
+                  <span><b id="pdf-compress-page-count"></b> · <b id="pdf-compress-original-size"></b></span>
+                </div>
+                <button id="pdf-compress-remove" type="button">Remover</button>
+              </div>
+
+              <fieldset class="pdf-compress-quality">
+                <legend>Nível de compressão</legend>
+                <div class="pdf-compress-quality-grid">
+                  <label><input type="radio" name="pdf-compress-quality" value="high" /><span><strong>Alta qualidade</strong><small>Mais nitidez para letras pequenas</small></span></label>
+                  <label class="is-recommended"><input type="radio" name="pdf-compress-quality" value="balanced" checked /><span><strong>Equilibrada</strong><small>Boa leitura e redução de tamanho</small></span><em>Recomendado</em></label>
+                  <label><input type="radio" name="pdf-compress-quality" value="small" /><span><strong>Arquivo menor</strong><small>Maior redução para uploads difíceis</small></span></label>
+                </div>
+              </fieldset>
+
+              <div class="pdf-compress-info">
+                <strong>Importante</strong>
+                <p>Esta ferramenta funciona melhor em PDFs de fotos e digitalizações. Se o arquivo já estiver otimizado, talvez ele não diminua.</p>
+              </div>
+
+              <div id="pdf-compress-signature-warning" class="pdf-signature-warning" hidden>
+                <div>
+                  <strong>Possível assinatura digital detectada</strong>
+                  <p>A compressão reconstrói as páginas e invalida certificados digitais existentes.</p>
+                </div>
+                <label><input id="pdf-compress-signature-confirmation" type="checkbox" /> Entendi e quero continuar</label>
+              </div>
+
+              <div class="pdf-output-settings">
+                <label for="pdf-compress-output-name">Nome do arquivo final</label>
+                <div><input id="pdf-compress-output-name" value="documento-comprimido" maxlength="80" /><span>.PDF</span></div>
+              </div>
+
+              <div id="pdf-compress-progress" class="pdf-compress-progress" hidden>
+                <div><strong id="pdf-compress-progress-label">Preparando...</strong><span id="pdf-compress-progress-percent">0%</span></div>
+                <div class="pdf-compress-progress-track" role="progressbar" aria-label="Progresso da compressão" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+              </div>
+
+              <div class="pdf-merge-actions">
+                <button id="pdf-compress-button" class="button button-primary" type="button">Comprimir e baixar PDF <span>→</span></button>
+                <p id="pdf-compress-action-note">O processamento acontece somente neste aparelho.</p>
+              </div>
+            </div>
+
+            <div id="pdf-compress-success" class="pdf-compress-success" role="status" hidden>
+              <div class="pdf-compress-success-heading"><span aria-hidden="true">✓</span><div><strong>PDF comprimido com sucesso</strong><p id="pdf-compress-success-name"></p></div></div>
+              <div class="pdf-compress-result-grid">
+                <div><small>ANTES</small><strong id="pdf-compress-result-original"></strong></div>
+                <span aria-hidden="true">→</span>
+                <div><small>DEPOIS</small><strong id="pdf-compress-result-final"></strong></div>
+                <div class="pdf-compress-saving"><small>REDUÇÃO</small><strong id="pdf-compress-result-saving"></strong></div>
+              </div>
+              <a id="pdf-compress-download-again" class="button button-secondary" href="#" download>Baixar novamente</a>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer><div class="container footer-inner"><a class="brand footer-brand" href="index.html"><span class="brand-mark">MEGA</span><span class="brand-name">DESPACHANTE</span></a><p>Documentação veicular com segurança e tranquilidade.</p><p>© <span id="year"></span> MEGA Despachante</p></div></footer>
+
+    <script src="script.js"></script>
+    <script src="assets/vendor/pdf-lib/pdf-lib.min.js"></script>
+    <script type="module" src="comprimir-pdf.js"></script>
+  </body>
+</html>

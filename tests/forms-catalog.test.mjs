@@ -6,7 +6,7 @@ test('every catalog card is a native link across its whole area', async () => {
   const catalog = await readFile('formularios.html', 'utf8');
   const linkedCards = catalog.match(/<a class="form-option(?: form-option-tool)?" href="[^"]+" aria-label="[^"]+">/g) || [];
 
-  assert.equal(linkedCards.length, 11);
+  assert.equal(linkedCards.length, 12);
   assert.doesNotMatch(catalog, /<article class="form-option/);
   assert.doesNotMatch(catalog, /<a class="form-card-link"/);
   assert.match(catalog, /<span class="form-card-link" aria-hidden="true">↗<\/span>/);

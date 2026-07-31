@@ -8,7 +8,7 @@ const tabSettings = {
     hash: '',
   },
   tools: {
-    count: '02 ferramentas PDF',
+    count: '03 ferramentas PDF',
     hash: '#ferramentas-pdf',
   },
 };
