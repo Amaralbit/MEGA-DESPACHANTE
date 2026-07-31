@@ -1,8 +1,8 @@
 import * as pdfjsLib from './assets/vendor/pdfjs/pdf.min.mjs';
 import {
-  COMPRESSION_PRESETS,
   calculateCompressionSavings,
   formatCompressedBytes,
+  getCompressionAttempts,
   getRenderScale,
   hasPdfDigitalSignature,
   normalizeCompressedName,
@@ -302,16 +302,32 @@ const initPdfCompressor = () => {
     updateButtonState();
 
     try {
-      const preset = COMPRESSION_PRESETS[selectedQuality()] || COMPRESSION_PRESETS.balanced;
-      const compressedBytes = await renderCompressedPdf({
-        file: selectedFile,
-        preset,
-        onProgress: updateProgress,
-      });
+      const quality = selectedQuality();
+      const attempts = getCompressionAttempts(quality);
+      let compressedBytes;
+
+      for (let attemptIndex = 0; attemptIndex < attempts.length; attemptIndex += 1) {
+        if (attemptIndex > 0) {
+          progress.hidden = false;
+          updateProgress(0, selectedPages, 'Ajustando a alta qualidade...');
+          setMessage('A primeira versão ainda ficou grande. Ajustando a alta qualidade sem perder a legibilidade...', 'loading');
+        }
+
+        compressedBytes = await renderCompressedPdf({
+          file: selectedFile,
+          preset: attempts[attemptIndex],
+          onProgress: (completed, total, label) => {
+            const adjustedLabel = attemptIndex > 0 ? `Ajuste ${attemptIndex} · ${label}` : label;
+            updateProgress(completed, total, adjustedLabel);
+          },
+        });
+
+        if (compressedBytes.length < selectedFile.size) break;
+      }
 
       if (compressedBytes.length >= selectedFile.size) {
         progress.hidden = true;
-        setMessage('Este PDF já está bem otimizado e a nova versão não ficaria menor. O arquivo original foi mantido. Tente “Arquivo menor” se precisar reduzir mais.', 'info');
+        setMessage('Este PDF já está muito otimizado e nem o ajuste automático conseguiu deixá-lo menor. O arquivo original foi mantido. Tente “Equilibrada”, “Arquivo menor” ou a opção indicada no fim da página.', 'info');
         return;
       }
 

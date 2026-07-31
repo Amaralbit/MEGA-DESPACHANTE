@@ -1,8 +1,19 @@
 export const COMPRESSION_PRESETS = Object.freeze({
-  high: Object.freeze({ scale: 2.4, jpegQuality: 0.9, maxDimension: 3600 }),
+  high: Object.freeze({ scale: 2.1, jpegQuality: 0.86, maxDimension: 3200 }),
   balanced: Object.freeze({ scale: 1.75, jpegQuality: 0.78, maxDimension: 2800 }),
   small: Object.freeze({ scale: 1.2, jpegQuality: 0.62, maxDimension: 2000 }),
 });
+
+const HIGH_QUALITY_FALLBACKS = Object.freeze([
+  COMPRESSION_PRESETS.high,
+  Object.freeze({ scale: 1.95, jpegQuality: 0.81, maxDimension: 3000 }),
+  Object.freeze({ scale: 1.8, jpegQuality: 0.76, maxDimension: 2800 }),
+]);
+
+export const getCompressionAttempts = (quality) => {
+  if (quality === 'high') return HIGH_QUALITY_FALLBACKS;
+  return Object.freeze([COMPRESSION_PRESETS[quality] || COMPRESSION_PRESETS.balanced]);
+};
 
 export const formatCompressedBytes = (bytes) => {
   if (!Number.isFinite(bytes) || bytes <= 0) return '0 KB';

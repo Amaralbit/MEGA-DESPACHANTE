@@ -1281,13 +1281,100 @@ body.protected-pdf-open{overflow:hidden}.protected-pdf-dialog[hidden]{display:no
   justify-content: center;
 }
 
+.pdf-compress-alternative {
+  padding: 0 0 72px;
+  background: #f8f7f2;
+}
+
+.pdf-compress-alternative-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 22px;
+  align-items: center;
+  padding: 26px 28px;
+  border: 1px solid #ddd7e8;
+  border-radius: 10px;
+  background: #f2edf9;
+}
+
+.pdf-compress-alternative-icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  color: #6547a5;
+  font: 800 21px Outfit, sans-serif;
+}
+
+.pdf-compress-alternative .eyebrow {
+  margin: 0 0 7px;
+  color: #6547a5;
+}
+
+.pdf-compress-alternative .eyebrow span {
+  background: #6547a5;
+}
+
+.pdf-compress-alternative h2 {
+  margin: 0 0 6px;
+  font-size: clamp(20px, 2.2vw, 28px);
+}
+
+.pdf-compress-alternative p:last-child {
+  max-width: 710px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.pdf-compress-alternative .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  background: #6547a5;
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(101, 71, 165, 0.2);
+}
+
+.pdf-compress-alternative .button:hover {
+  background: #56388f;
+}
+
 @media (max-width: 900px) {
   .forms-tools-category .forms-category-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  .pdf-compress-alternative-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .pdf-compress-alternative .button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
 }
 
 @media (max-width: 620px) {
+  .pdf-compress-alternative {
+    padding-bottom: 48px;
+  }
+
+  .pdf-compress-alternative-card {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 22px;
+  }
+
+  .pdf-compress-alternative-icon {
+    width: 44px;
+    height: 44px;
+  }
+
   .pdf-compress-quality-grid {
     grid-template-columns: 1fr;
   }

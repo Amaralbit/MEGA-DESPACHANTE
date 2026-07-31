@@ -5,6 +5,7 @@ import {
   COMPRESSION_PRESETS,
   calculateCompressionSavings,
   formatCompressedBytes,
+  getCompressionAttempts,
   getRenderScale,
   hasPdfDigitalSignature,
   normalizeCompressedName,
@@ -21,6 +22,8 @@ test('PDF compressor is local, linked from the tools tab and self-hosts PDF.js',
   assert.match(catalog, /Ferramentas PDF <span>03<\/span>/);
   assert.match(catalog, /href="comprimir-pdf\.html"/);
   assert.match(page, /Processamento 100% local/);
+  assert.match(page, /href="https:\/\/www\.ilovepdf\.com\/pt\/comprimir_pdf" target="_blank" rel="noopener noreferrer"/);
+  assert.match(page, /serviço externo/);
   assert.match(page, /type="module" src="comprimir-pdf\.js"/);
   assert.doesNotMatch(page, /cdn\.|unpkg|jsdelivr/i);
   assert.doesNotMatch(script, /\/api\//);
@@ -29,6 +32,8 @@ test('PDF compressor is local, linked from the tools tab and self-hosts PDF.js',
   assert.match(script, /loadingTask\?\.destroy/);
   assert.doesNotMatch(script, /documentProxy\.destroy/);
   assert.match(script, /compressedBytes\.length >= selectedFile\.size/);
+  assert.match(script, /getCompressionAttempts/);
+  assert.match(script, /Ajustando a alta qualidade/);
   assert.match(license, /Apache License/);
   assert.ok(pdfJs.size > 300_000);
   assert.ok(worker.size > 700_000);
@@ -51,4 +56,11 @@ test('PDF compressor quality presets respect their resolution caps', () => {
   assert.ok(COMPRESSION_PRESETS.high.jpegQuality > COMPRESSION_PRESETS.small.jpegQuality);
   assert.equal(getRenderScale(595, 842, COMPRESSION_PRESETS.balanced), COMPRESSION_PRESETS.balanced.scale);
   assert.ok(getRenderScale(5000, 3000, COMPRESSION_PRESETS.high) < 1);
+
+  const highAttempts = getCompressionAttempts('high');
+  assert.equal(highAttempts.length, 3);
+  assert.equal(highAttempts[0], COMPRESSION_PRESETS.high);
+  assert.ok(highAttempts.every((preset, index) => index === 0 || preset.scale < highAttempts[index - 1].scale));
+  assert.ok(highAttempts.every((preset, index) => index === 0 || preset.jpegQuality < highAttempts[index - 1].jpegQuality));
+  assert.deepEqual(getCompressionAttempts('balanced'), [COMPRESSION_PRESETS.balanced]);
 });
