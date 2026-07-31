@@ -44,6 +44,19 @@ test('the shared form experience includes every premium workflow capability', as
   assert.match(script, /Enviar documento para a MEGA/);
   assert.match(script, /navigator\.canShare/);
   assert.match(script, /https:\/\/wa\.me\//);
+  assert.match(script, /Limpar todos os campos/);
+  assert.match(script, /form\.reset\(\)/);
+  assert.match(script, /localStorage\.removeItem\(storageKey\)/);
+  assert.match(script, /showStep\(0, true\)/);
+});
+
+test('the contact form also offers a confirmed clear-all action', async () => {
+  const html = await readFile('index.html', 'utf8');
+  const script = await readFile('script.js', 'utf8');
+
+  assert.match(html, /class="contact-clear-button" type="reset">Limpar todos os campos/);
+  assert.match(script, /contactForm\?\.addEventListener\('reset'/);
+  assert.match(script, /Limpar todos os campos deste formulário/);
 });
 
 test('the protected download emits lifecycle events and keeps the PDF available for sharing', async () => {

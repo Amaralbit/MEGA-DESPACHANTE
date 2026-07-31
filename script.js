@@ -36,6 +36,12 @@ contactForm?.addEventListener('submit', (event) => {
   window.location.href = `mailto:Atendimento@megadetran.com.br?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 });
 
+contactForm?.addEventListener('reset', (event) => {
+  if (!window.confirm('Limpar todos os campos deste formulário?')) {
+    event.preventDefault();
+  }
+});
+
 const revealItems = [...document.querySelectorAll('[data-reveal]')];
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 

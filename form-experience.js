@@ -197,7 +197,10 @@
           <span class="premium-kicker">PREENCHIMENTO GUIADO</span>
           <strong data-progress-label>Etapa 1 de ${panels.length}</strong>
         </div>
-        <span class="premium-save-status" data-save-status><i aria-hidden="true"></i> Rascunho automático ativo</span>
+        <div class="premium-progress-actions">
+          <span class="premium-save-status" data-save-status><i aria-hidden="true"></i> Rascunho automático ativo</span>
+          <button type="button" class="premium-clear-button" data-clear-form>Limpar todos os campos</button>
+        </div>
       </div>
       <div class="premium-progress-track" role="progressbar" aria-valuemin="1" aria-valuemax="${panels.length}" aria-valuenow="1" aria-label="Progresso do formulário">
         <span data-progress-bar></span>
@@ -272,6 +275,7 @@
     let highestVisitedStep = 0;
     let allowOriginalSubmit = false;
     let saveTimer = 0;
+    let suppressDraftSave = false;
     const storageKey = `mega-form-draft:v2:${window.location.pathname}:${form.id}`;
     const saveStatus = progress.querySelector('[data-save-status]');
     const controls = [...form.elements].filter((control) => (
@@ -412,6 +416,7 @@
     };
 
     function scheduleDraftSave() {
+      if (suppressDraftSave) return;
       window.clearTimeout(saveTimer);
       setSaveStatus('Salvando rascunho...', 'saving');
       saveTimer = window.setTimeout(saveDraft, 420);
@@ -453,6 +458,51 @@
         window.queueMicrotask(() => updateFieldState(control, control.dataset.touched === 'true'));
         scheduleDraftSave();
       });
+    });
+
+    progress.querySelector('[data-clear-form]').addEventListener('click', () => {
+      const shouldClear = window.confirm('Limpar todos os campos? Os dados preenchidos e o rascunho salvo neste dispositivo serão apagados.');
+      if (!shouldClear) return;
+
+      suppressDraftSave = true;
+      window.clearTimeout(saveTimer);
+      form.reset();
+
+      controls.forEach((control) => {
+        if (!control.readOnly) {
+          if (control.type === 'checkbox' || control.type === 'radio') {
+            control.checked = false;
+          } else if (control.tagName === 'SELECT') {
+            control.selectedIndex = 0;
+          } else {
+            control.value = '';
+          }
+        }
+
+        control.setCustomValidity('');
+        delete control.dataset.touched;
+        control.removeAttribute('aria-invalid');
+
+        const label = control.closest('label')
+          || (control.id ? document.querySelector(`label[for="${CSS.escape(control.id)}"]`) : null);
+        label?.classList.remove('premium-field-invalid', 'premium-field-valid', 'premium-field-warning');
+        label?.querySelector('.premium-field-message')?.remove();
+
+        control.dispatchEvent(new Event('input', { bubbles: true }));
+        control.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+
+      try {
+        localStorage.removeItem(storageKey);
+      } catch {
+        // O formulário ainda pode ser limpo quando o armazenamento do navegador está indisponível.
+      }
+
+      highestVisitedStep = 0;
+      showStep(0, true);
+      setSaveStatus('Campos e rascunho limpos', 'saved');
+      showToast('Todos os campos e o rascunho foram limpos.');
+      suppressDraftSave = false;
     });
 
     const reviewModal = createModal('premium-review-modal', `premium-review-title-${form.id}`);

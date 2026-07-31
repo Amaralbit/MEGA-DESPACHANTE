@@ -1406,3 +1406,88 @@ body.protected-pdf-open{overflow:hidden}.protected-pdf-dialog[hidden]{display:no
     transition: none;
   }
 }
+
+/* Ações para limpar dados durante o preenchimento. */
+.premium-progress-actions {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+}
+
+.premium-clear-button {
+  min-height: 32px;
+  padding: 6px 2px;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: #cfcdc5;
+  font: 700 10px "DM Sans", sans-serif;
+  text-decoration: underline;
+  text-decoration-color: #706d64;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.premium-clear-button:hover {
+  color: #fff;
+  text-decoration-color: var(--yellow);
+}
+
+.premium-clear-button:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+.contact-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 17px;
+  margin-top: 4px;
+}
+
+.contact-form-actions button {
+  margin-top: 0;
+}
+
+.contact-clear-button {
+  padding: 10px 2px;
+  background: transparent;
+  color: #fff;
+  font: 700 12px "DM Sans", sans-serif;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, .46);
+  text-underline-offset: 4px;
+}
+
+.contact-clear-button:hover {
+  color: var(--yellow);
+  text-decoration-color: var(--yellow);
+}
+
+.contact-clear-button:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+@media (max-width: 560px) {
+  .premium-progress-actions {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .contact-form-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+    gap: 7px;
+  }
+
+  .contact-form-actions .button {
+    text-align: center;
+  }
+
+  .contact-clear-button {
+    min-height: 42px;
+  }
+}
