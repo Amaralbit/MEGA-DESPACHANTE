@@ -48,6 +48,16 @@ test('usa os ativos otimizados por padrão na geração do PDF', () => {
   assert.doesNotMatch(result.html, /logo-mega-transparent\.png/);
 });
 
+test('autoriza e prepara a procuração de intenção de venda', () => {
+  const result = prepareSignedHtml({
+    html: validHtml('Procuração - Intenção de venda'),
+    documentType: 'procuracao-intencao-venda',
+  });
+
+  assert.equal(result.fileName, 'procuracao-intencao-venda.pdf');
+  assert.match(result.html, /assinatura-sergio-pdf\.png/);
+});
+
 test('mantém os ativos de impressão abaixo de 100 KB cada', async () => {
   const signature = await stat('assets/assinatura-sergio-pdf.png');
   const logo = await stat('assets/logo-mega-pdf.png');
@@ -70,6 +80,7 @@ test('rejeita scripts e mais de uma área de assinatura', () => {
 
 test('aceita o site oficial e ambientes locais, mas rejeita sites externos', () => {
   assert.equal(isAllowedOrigin('https://amaralbit.github.io'), true);
+  assert.equal(isAllowedOrigin('https://mega-despachante-seguro.vercel.app'), true);
   assert.equal(isAllowedOrigin('https://mega-despachante.vercel.app'), true);
   assert.equal(isAllowedOrigin('http://localhost:5500'), true);
   assert.equal(isAllowedOrigin('http://127.0.0.1:8080'), true);

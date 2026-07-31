@@ -43,13 +43,17 @@ const documentRules = {
 
 const DEFAULT_ALLOWED_ORIGINS = [
   'https://amaralbit.github.io',
+  'https://mega-despachante-seguro.vercel.app',
   'https://mega-despachante.vercel.app',
 ];
 
-const allowedOrigins = () => (process.env.ALLOWED_ORIGINS || DEFAULT_ALLOWED_ORIGINS.join(','))
-  .split(',')
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const allowedOrigins = () => [...new Set([
+  ...DEFAULT_ALLOWED_ORIGINS,
+  ...(process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+])];
 
 export const isAllowedOrigin = (origin) => {
   if (!origin) return true;
