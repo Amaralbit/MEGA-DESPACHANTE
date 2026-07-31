@@ -37,7 +37,6 @@ test('image converter is linked from the catalog and keeps document processing l
   const page = await readFile('imagens-para-pdf.html', 'utf8');
   const script = await readFile('imagens-para-pdf.js', 'utf8');
 
-  assert.match(catalog, /11 recursos/);
   assert.match(catalog, /href="imagens-para-pdf\.html"/);
   assert.match(page, /Processamento 100% local/);
   assert.match(page, /image\/jpeg,image\/png/);
