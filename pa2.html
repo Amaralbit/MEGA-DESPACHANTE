@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Monte o documento PA2 com imagens e a tabela de despesas, diretamente no seu aparelho." />
+    <title>PA2 | MEGA Despachante</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="icon" type="image/png" href="assets/logo-mega-transparent.png" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="forms-page pa2-page">
+    <header class="site-header">
+      <div class="container nav-wrap">
+        <a class="brand" href="index.html" aria-label="MEGA Despachante, início"><span class="brand-mark">MEGA</span><span class="brand-name">DESPACHANTE</span></a>
+        <button class="menu-toggle" aria-label="Abrir menu" aria-expanded="false"><span></span><span></span><span></span></button>
+        <nav class="nav-links" aria-label="Navegação principal"><a href="index.html#servicos">Serviços</a><a href="formularios.html">Formulários</a><a class="active" href="pa2.html">PA2</a><a href="index.html#sobre">A MEGA</a><a href="index.html#localizacao">Localização</a><a class="nav-cta" href="index.html#contato">Fale conosco <span>→</span></a></nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="pa2-hero">
+        <div class="container pa2-hero-grid">
+          <div>
+            <a class="back-link" href="index.html">← Voltar para o site</a>
+            <p class="eyebrow"><span></span> DOCUMENTO PA2</p>
+            <h1>Imagens e despesas.<br /><em>Um único PDF organizado.</em></h1>
+            <p>Adicione de 3 a 6 imagens, organize a sequência e preencha somente as informações que desejar. Os campos não preenchidos ficarão em branco.</p>
+          </div>
+          <aside class="pa2-local-card" aria-label="Privacidade e formato do documento">
+            <span aria-hidden="true">PA2</span>
+            <div><strong>Feito no seu aparelho</strong><p>As imagens não são enviadas para servidores. O PDF é montado localmente e pode ocupar mais de uma página.</p></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="pa2-section section">
+        <div class="container pa2-layout">
+          <aside class="pa2-guide">
+            <p class="eyebrow"><span></span> COMO FUNCIONA</p>
+            <ol>
+              <li><span>01</span><div><strong>Anexe as imagens</strong><small>Escolha entre 3 e 6 arquivos JPG ou PNG.</small></div></li>
+              <li><span>02</span><div><strong>Preencha a tabela</strong><small>Todos os valores e observações são opcionais.</small></div></li>
+              <li><span>03</span><div><strong>Baixe o documento</strong><small>As imagens aparecem primeiro e a tabela por último.</small></div></li>
+            </ol>
+            <div class="pa2-guide-note"><strong>Dica para fotos legíveis</strong><p>Use imagens nítidas, sem reflexos e com todo o conteúdo enquadrado.</p></div>
+          </aside>
+
+          <form id="pa2-form" class="pa2-tool" novalidate>
+            <section class="pa2-form-section" aria-labelledby="pa2-images-title">
+              <div class="pa2-section-heading">
+                <div><span>ETAPA 1</span><h2 id="pa2-images-title">Imagens do documento</h2><p>JPG ou PNG · mínimo de 3 e máximo de 6 imagens.</p></div>
+                <strong id="pa2-count" aria-live="polite">0 / 6</strong>
+              </div>
+
+              <input id="pa2-image-input" class="pdf-file-input" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" multiple aria-label="Selecionar de 3 a 6 imagens para o PA2" />
+              <div id="pa2-dropzone" class="pa2-dropzone" role="button" tabindex="0" aria-controls="pa2-image-input" aria-describedby="pa2-dropzone-help">
+                <span class="pa2-dropzone-plus" aria-hidden="true">+</span>
+                <strong>Arraste as imagens aqui</strong>
+                <span>ou <u>selecione no aparelho</u></span>
+                <small id="pa2-dropzone-help">Até 6 imagens e 40 MB no total</small>
+              </div>
+              <div id="pa2-image-message" class="pa2-message" role="status" aria-live="polite"></div>
+              <ol id="pa2-image-list" class="pa2-image-list" aria-label="Imagens selecionadas"></ol>
+            </section>
+
+            <section class="pa2-form-section pa2-table-section" aria-labelledby="pa2-table-title">
+              <div class="pa2-section-heading">
+                <div><span>ETAPA 2</span><h2 id="pa2-table-title">Informações da tabela</h2><p>Nenhum campo abaixo é obrigatório.</p></div>
+                <span class="pa2-optional-badge">Tudo opcional</span>
+              </div>
+
+              <div class="pa2-header-fields">
+                <label>Placa<input id="pa2-plate" name="plate" maxlength="12" placeholder="Ex.: NWQ4A28" /></label>
+                <label>Serviço ou documento<input id="pa2-document" name="document" maxlength="60" placeholder="Ex.: DUT DIGITAL" /></label>
+                <label>Data<input id="pa2-date" name="date" type="date" /></label>
+                <label>Nome do arquivo<input id="pa2-filename" name="filename" maxlength="70" value="PA2" /></label>
+              </div>
+
+              <div class="pa2-table-wrap">
+                <table class="pa2-entry-table">
+                  <thead><tr><th scope="col">Descrição</th><th scope="col">Valor</th><th scope="col">Observação</th></tr></thead>
+                  <tbody id="pa2-table-body"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <div class="pa2-actions">
+              <button id="pa2-generate" class="button button-primary" type="submit" disabled>Gerar e baixar PA2 <span>→</span></button>
+              <p id="pa2-action-note">Adicione pelo menos 3 imagens para gerar o documento.</p>
+            </div>
+            <div id="pa2-result" class="pa2-result" role="status" aria-live="polite" hidden></div>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer><div class="container footer-inner"><a class="brand footer-brand" href="index.html"><span class="brand-mark">MEGA</span><span class="brand-name">DESPACHANTE</span></a><p>Documentação veicular com segurança e tranquilidade.</p><p>© <span id="year"></span> MEGA Despachante</p></div></footer>
+
+    <script src="script.js"></script>
+    <script src="assets/vendor/pdf-lib/pdf-lib.min.js"></script>
+    <script type="module" src="pa2.js"></script>
+  </body>
+</html>
