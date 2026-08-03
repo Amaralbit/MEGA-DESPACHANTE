@@ -74,7 +74,14 @@
 
               <div class="pa2-header-fields">
                 <label>Placa<input id="pa2-plate" name="plate" maxlength="12" placeholder="Ex.: NWQ4A28" /></label>
-                <label>Serviço ou documento<input id="pa2-document" name="document" maxlength="60" placeholder="Ex.: DUT DIGITAL" /></label>
+                <fieldset class="pa2-document-field">
+                  <legend>Tipo de documento</legend>
+                  <div class="pa2-document-options">
+                    <label><input type="radio" name="documentType" value="DOC DIGITAL" /><span>DOC DIGITAL</span></label>
+                    <label><input type="radio" name="documentType" value="DOC FÍSICO" /><span>DOC FÍSICO</span></label>
+                  </div>
+                  <button id="pa2-clear-document" type="button">Limpar seleção</button>
+                </fieldset>
                 <label>Data<input id="pa2-date" name="date" type="date" /></label>
                 <label>Nome do arquivo<input id="pa2-filename" name="filename" maxlength="70" value="PA2" /></label>
               </div>

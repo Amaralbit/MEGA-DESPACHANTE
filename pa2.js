@@ -25,6 +25,14 @@ export const PA2_ROWS = Object.freeze([
   'Taxa ATPV-e',
 ]);
 
+export const PA2_DOCUMENT_OPTIONS = Object.freeze(['DOC DIGITAL', 'DOC FÍSICO']);
+
+export const normalizePa2DocumentLabel = (value) => (
+  PA2_DOCUMENT_OPTIONS.includes(String(value || '').trim().toUpperCase())
+    ? String(value).trim().toUpperCase()
+    : ''
+);
+
 export const isValidPa2ImageCount = (count) => (
   Number.isInteger(count) && count >= MIN_PA2_IMAGES && count <= MAX_PA2_IMAGES
 );
@@ -189,7 +197,8 @@ export const createPa2Pdf = async ({ entries, plate = '', documentLabel = '', da
 
   const font = await document.embedFont(StandardFonts.Helvetica);
   const boldFont = await document.embedFont(StandardFonts.HelveticaBold);
-  let table = addTablePage({ document, font, boldFont, plate: plate.toUpperCase(), documentLabel });
+  const normalizedDocumentLabel = normalizePa2DocumentLabel(documentLabel);
+  let table = addTablePage({ document, font, boldFont, plate: plate.toUpperCase(), documentLabel: normalizedDocumentLabel });
   const fontSize = 8;
   const bottomLimit = PAGE_MARGIN + 34;
   const normalizedRows = PA2_ROWS.map((description, index) => {
@@ -206,7 +215,7 @@ export const createPa2Pdf = async ({ entries, plate = '', documentLabel = '', da
     const cells = [row.description.toUpperCase(), row.amount, row.note];
     const height = measureRowHeight(cells, table.widths, font, fontSize);
     if (table.y - height < bottomLimit) {
-      table = addTablePage({ document, font, boldFont, plate: plate.toUpperCase(), documentLabel, continuation: true });
+      table = addTablePage({ document, font, boldFont, plate: plate.toUpperCase(), documentLabel: normalizedDocumentLabel, continuation: true });
     }
     table.y = drawGridRow({ ...table, cells, x: PAGE_MARGIN, height, font, boldFont, size: fontSize, fill: table.colors.white });
   }
@@ -217,7 +226,7 @@ export const createPa2Pdf = async ({ entries, plate = '', documentLabel = '', da
   const totalCells = ['TOTAL', total, formattedDate];
   const totalHeight = 31;
   if (table.y - totalHeight < PAGE_MARGIN) {
-    table = addTablePage({ document, font, boldFont, plate: plate.toUpperCase(), documentLabel, continuation: true });
+    table = addTablePage({ document, font, boldFont, plate: plate.toUpperCase(), documentLabel: normalizedDocumentLabel, continuation: true });
   }
   table.y = drawGridRow({ ...table, cells: totalCells, x: PAGE_MARGIN, height: totalHeight, font, boldFont, bold: true, size: 11, fill: table.colors.header });
 
@@ -235,6 +244,7 @@ const initPa2 = () => {
   const generateButton = document.getElementById('pa2-generate');
   const actionNote = document.getElementById('pa2-action-note');
   const result = document.getElementById('pa2-result');
+  const clearDocumentButton = document.getElementById('pa2-clear-document');
   if (!form || !input || !dropzone || !list || !tableBody || !generateButton) return;
 
   let entries = [];
@@ -405,6 +415,11 @@ const initPa2 = () => {
     dropzone.classList.remove('is-dragover');
   }));
   dropzone.addEventListener('drop', (event) => void addFiles(event.dataTransfer.files));
+  clearDocumentButton?.addEventListener('click', () => {
+    form.querySelectorAll('input[name="documentType"]').forEach((option) => {
+      option.checked = false;
+    });
+  });
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -425,7 +440,7 @@ const initPa2 = () => {
       const pdfBytes = await createPa2Pdf({
         entries,
         plate: form.elements.plate.value.trim(),
-        documentLabel: form.elements.document.value.trim(),
+        documentLabel: form.elements.documentType.value,
         date: form.elements.date.value,
         rows,
       });

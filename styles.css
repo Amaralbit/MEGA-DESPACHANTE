@@ -1903,7 +1903,103 @@ body.protected-pdf-open{overflow:hidden}.protected-pdf-dialog[hidden]{display:no
   font-weight: 800;
 }
 
-.pa2-header-fields input,
+.pa2-document-field {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.pa2-document-field legend {
+  margin-bottom: 7px;
+  padding: 0;
+  color: #55524b;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.pa2-document-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+
+.pa2-document-options label {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+
+.pa2-document-options input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pa2-document-options span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 43px;
+  padding: 8px 7px;
+  border: 1px solid #d8d4ca;
+  border-radius: 4px;
+  background: #fff;
+  color: #5b5851;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  transition: border-color .2s, background .2s, color .2s, box-shadow .2s;
+}
+
+.pa2-document-options span:before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+  border: 1.5px solid #aaa69c;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: inset 0 0 0 3px #fff;
+}
+
+.pa2-document-options input:checked+span {
+  border-color: var(--red);
+  background: #fff7f4;
+  color: var(--red);
+  box-shadow: 0 0 0 3px rgba(196, 35, 16, .08);
+}
+
+.pa2-document-options input:checked+span:before {
+  border-color: var(--red);
+  background: var(--red);
+}
+
+.pa2-document-options input:focus-visible+span {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
+
+.pa2-document-field>button {
+  margin-top: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #77736b;
+  font: 600 9px "DM Sans", sans-serif;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.pa2-document-field>button:hover {
+  color: var(--red);
+}
+
+.pa2-header-fields input:not([type="radio"]),
 .pa2-entry-table input {
   width: 100%;
   border: 1px solid #d8d4ca;
@@ -1914,12 +2010,12 @@ body.protected-pdf-open{overflow:hidden}.protected-pdf-dialog[hidden]{display:no
   outline: none;
 }
 
-.pa2-header-fields input {
+.pa2-header-fields input:not([type="radio"]) {
   min-height: 43px;
   padding: 10px 11px;
 }
 
-.pa2-header-fields input:focus,
+.pa2-header-fields input:not([type="radio"]):focus,
 .pa2-entry-table input:focus {
   border-color: var(--red);
   box-shadow: 0 0 0 3px rgba(196, 35, 16, .08);
@@ -2116,6 +2212,10 @@ body.protected-pdf-open{overflow:hidden}.protected-pdf-dialog[hidden]{display:no
 
   .pa2-header-fields {
     grid-template-columns: 1fr;
+  }
+
+  .pa2-document-options {
+    grid-template-columns: 1fr 1fr;
   }
 
   .pa2-actions {

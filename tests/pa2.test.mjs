@@ -5,6 +5,7 @@ import {
   PA2_ROWS,
   formatCurrencyValue,
   isValidPa2ImageCount,
+  normalizePa2DocumentLabel,
   parseCurrencyValue,
 } from '../pa2.js';
 
@@ -28,6 +29,13 @@ test('PA2 contém as linhas do modelo de despesas', () => {
   assert.ok(PA2_ROWS.includes('Taxa ATPV-e'));
 });
 
+test('PA2 aceita somente as marcações de documento previstas', () => {
+  assert.equal(normalizePa2DocumentLabel('doc digital'), 'DOC DIGITAL');
+  assert.equal(normalizePa2DocumentLabel('DOC FÍSICO'), 'DOC FÍSICO');
+  assert.equal(normalizePa2DocumentLabel(''), '');
+  assert.equal(normalizePa2DocumentLabel('outro'), '');
+});
+
 test('PA2 fica entre Formulários e A MEGA e não exige campos da tabela', async () => {
   const [home, page] = await Promise.all([
     readFile('index.html', 'utf8'),
@@ -36,5 +44,7 @@ test('PA2 fica entre Formulários e A MEGA e não exige campos da tabela', async
   assert.match(home, /Formulários<\/a>[\s\S]*?pa2\.html">PA2<\/a>[\s\S]*?A MEGA<\/a>/);
   assert.doesNotMatch(page, /\srequired(?:\s|>|=)/i);
   assert.match(page, /mínimo de 3 e máximo de 6 imagens/i);
+  assert.match(page, /name="documentType" value="DOC DIGITAL"/);
+  assert.match(page, /name="documentType" value="DOC FÍSICO"/);
   assert.match(page, /pdf-lib\.min\.js[\s\S]*pa2\.js/);
 });
