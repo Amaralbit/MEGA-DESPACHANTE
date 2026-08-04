@@ -53,10 +53,10 @@
           <div class="fields-grid">
             <label class="field-wide">Nome completo ou razão social *<input name="comprador" required placeholder="Nome completo" /></label>
             <label>CPF ou CNPJ *<input name="cpfCnpjComprador" inputmode="numeric" data-mask="cpf-cnpj" required placeholder="000.000.000-00" /></label>
-            <label class="field-wide">Endereço *<input name="enderecoComprador" required placeholder="Rua, número, complemento, bairro..." /></label>
+            <label class="field-wide">CEP *<input name="cepComprador" inputmode="numeric" data-mask="cep" required placeholder="00000-000" /><small class="cep-feedback" id="cep-comprador-feedback" aria-live="polite"></small></label>
             <label>Cidade *<input name="cidadeComprador" required placeholder="Cidade" /></label>
             <label>Estado *<input name="estadoComprador" maxlength="2" required placeholder="UF" /></label>
-            <label>CEP *<input name="cepComprador" inputmode="numeric" data-mask="cep" required placeholder="00000-000" /><small class="cep-feedback" id="cep-comprador-feedback" aria-live="polite"></small></label>
+            <label>Endereço *<input name="enderecoComprador" required placeholder="Rua, número, complemento, bairro..." /></label>
             <label>E-mail *<input name="emailComprador" type="email" required placeholder="comprador@email.com" /></label>
             <label class="field-wide">Valor da venda *<input name="valorVenda" inputmode="decimal" required placeholder="Ex.: 46.500,00" /></label>
           </div>

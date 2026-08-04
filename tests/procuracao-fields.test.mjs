@@ -36,6 +36,18 @@ test('ATPV-e fills the complete address from the postal code', async () => {
   assert.match(script, /includeNeighborhoodInAddress: true/);
 });
 
+test('ATPV-e asks for the buyer postal code before the address', async () => {
+  const html = await readFile('procuracao-intencao-venda.html', 'utf8');
+  const postalCodePosition = html.indexOf('name="cepComprador"');
+  const addressPosition = html.indexOf('name="enderecoComprador"');
+
+  assert.ok(postalCodePosition >= 0, 'Campo CEP do comprador não encontrado');
+  assert.ok(addressPosition >= 0, 'Campo endereço do comprador não encontrado');
+  assert.ok(postalCodePosition < addressPosition, 'O CEP deve aparecer antes do endereço');
+  assert.match(html, /<label class="field-wide">CEP \*/);
+  assert.match(html, /<label>Endereço \*/);
+});
+
 test('vehicle power of attorney allows a new vehicle without a license plate', async () => {
   const [html, experience, script] = await Promise.all([
     readFile('procuracao-veiculo.html', 'utf8'),
