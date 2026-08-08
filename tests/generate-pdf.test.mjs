@@ -82,6 +82,8 @@ test('aceita o site oficial e ambientes locais, mas rejeita sites externos', () 
   assert.equal(isAllowedOrigin('https://amaralbit.github.io'), true);
   assert.equal(isAllowedOrigin('https://mega-despachante-seguro.vercel.app'), true);
   assert.equal(isAllowedOrigin('https://mega-despachante.vercel.app'), true);
+  assert.equal(isAllowedOrigin('https://megadespachante.com.br'), true);
+  assert.equal(isAllowedOrigin('https://www.megadespachante.com.br'), true);
   assert.equal(isAllowedOrigin('http://localhost:5500'), true);
   assert.equal(isAllowedOrigin('http://127.0.0.1:8080'), true);
   assert.equal(isAllowedOrigin('null'), true);

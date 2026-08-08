@@ -45,6 +45,8 @@ const DEFAULT_ALLOWED_ORIGINS = [
   'https://amaralbit.github.io',
   'https://mega-despachante-seguro.vercel.app',
   'https://mega-despachante.vercel.app',
+  'https://megadespachante.com.br',
+  'https://www.megadespachante.com.br',
 ];
 
 const allowedOrigins = () => [...new Set([
