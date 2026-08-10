@@ -72,7 +72,7 @@ if (procuracaoForm) {
     const validity = data.get('validade') ? ` Esta procuração terá validade de <strong>${valueOf(data, 'validade')}</strong>.` : '';
     const address = `${valueOf(data, 'endereco')}, ${valueOf(data, 'numero')}${data.get('complemento') ? ` - ${valueOf(data, 'complemento')}` : ''}, ${valueOf(data, 'bairro')}, ${valueOf(data, 'cidade')}/${valueOf(data, 'estado')} - CEP ${valueOf(data, 'cep')}`;
     const plate = data.get('placa') ? `placa ${valueOf(data, 'placa')}` : 'veículo novo, ainda sem placa';
-    const vehicle = `${valueOf(data, 'marca')} ${valueOf(data, 'modelo')}, ano fabricação/modelo ${valueOf(data, 'anoFabricacao')}/${valueOf(data, 'anoModelo')}, cor ${valueOf(data, 'cor')}, ${plate}, chassi ${valueOf(data, 'chassi')}`;
+    const vehicle = `${valueOf(data, 'marcaModelo')}, ano fabricação/modelo ${valueOf(data, 'anoFabricacao')}/${valueOf(data, 'anoModelo')}, cor ${valueOf(data, 'cor')}, ${plate}, chassi ${valueOf(data, 'chassi')}`;
     const identity = data.get('identidade') ? `, portador(a) do documento de identidade nº ${valueOf(data, 'identidade')}${data.get('orgao') ? ` - ${valueOf(data, 'orgao')}` : ''}` : '';
     const logoUrl = new URL('assets/logo-mega-transparent.png', window.location.href).href;
     const preview = window.createProtectedPdfPreview('procuracao-veiculo', 'procuracao-veiculo.pdf');

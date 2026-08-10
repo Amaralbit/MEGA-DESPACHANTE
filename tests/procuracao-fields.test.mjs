@@ -62,3 +62,17 @@ test('vehicle power of attorney allows a new vehicle without a license plate', a
   assert.match(experience, /premium-field-warning/);
   assert.match(script, /veículo novo, ainda sem placa/);
 });
+
+test('vehicle power of attorney uses a single make and model field', async () => {
+  const [html, script] = await Promise.all([
+    readFile('procuracao-veiculo.html', 'utf8'),
+    readFile('procuracao.js', 'utf8'),
+  ]);
+  const makeAndModelInput = html.match(/<input[^>]*name="marcaModelo"[^>]*>/)?.[0];
+
+  assert.ok(makeAndModelInput, 'Campo Marca/Modelo não encontrado');
+  assert.match(makeAndModelInput, /\brequired\b/);
+  assert.doesNotMatch(html, /name="marca"|name="modelo"/);
+  assert.match(script, /valueOf\(data, 'marcaModelo'\)/);
+  assert.doesNotMatch(script, /valueOf\(data, 'marca'\)|valueOf\(data, 'modelo'\)/);
+});
