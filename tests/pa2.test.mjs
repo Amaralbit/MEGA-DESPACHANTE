@@ -2,18 +2,36 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import {
+  MAX_PA2_IMAGES,
   PA2_ROWS,
   formatCurrencyValue,
+  getPa2ClipboardImages,
   isValidPa2ImageCount,
   normalizePa2DocumentLabel,
   parseCurrencyValue,
 } from '../pa2.js';
 
-test('PA2 aceita somente de 3 a 6 imagens', () => {
+test('PA2 aceita somente de 3 a 10 imagens', () => {
+  assert.equal(MAX_PA2_IMAGES, 10);
   assert.equal(isValidPa2ImageCount(2), false);
   assert.equal(isValidPa2ImageCount(3), true);
-  assert.equal(isValidPa2ImageCount(6), true);
-  assert.equal(isValidPa2ImageCount(7), false);
+  assert.equal(isValidPa2ImageCount(10), true);
+  assert.equal(isValidPa2ImageCount(11), false);
+});
+
+test('PA2 extrai somente imagens JPG e PNG da área de transferência', () => {
+  const png = { name: 'print.png', type: 'image/png' };
+  const jpeg = { name: 'foto.jpg', type: 'image/jpeg' };
+  const clipboardData = {
+    items: [
+      { kind: 'string', type: 'text/plain', getAsFile: () => null },
+      { kind: 'file', type: 'image/png', getAsFile: () => png },
+      { kind: 'file', type: 'image/webp', getAsFile: () => ({ name: 'ignorar.webp', type: 'image/webp' }) },
+      { kind: 'file', type: 'image/jpeg', getAsFile: () => jpeg },
+    ],
+  };
+
+  assert.deepEqual(getPa2ClipboardImages(clipboardData), [png, jpeg]);
 });
 
 test('PA2 reconhece e formata valores brasileiros', () => {
@@ -36,14 +54,19 @@ test('PA2 aceita somente as marcações de documento previstas', () => {
   assert.equal(normalizePa2DocumentLabel('outro'), '');
 });
 
-test('PA2 fica entre Formulários e A MEGA e não exige campos da tabela', async () => {
-  const [home, page] = await Promise.all([
+test('PA2 fica entre Formulários e A MEGA, aceita imagens coladas e não exige campos da tabela', async () => {
+  const [home, page, script] = await Promise.all([
     readFile('index.html', 'utf8'),
     readFile('pa2.html', 'utf8'),
+    readFile('pa2.js', 'utf8'),
   ]);
   assert.match(home, /Formulários<\/a>[\s\S]*?pa2\.html">PA2<\/a>[\s\S]*?A MEGA<\/a>/);
   assert.doesNotMatch(page, /\srequired(?:\s|>|=)/i);
-  assert.match(page, /mínimo de 3 e máximo de 6 imagens/i);
+  assert.match(page, /mínimo de 3 e máximo de 10 imagens/i);
+  assert.match(page, /Arraste ou cole as imagens aqui/i);
+  assert.match(page, /Use Ctrl\+V para colar/i);
+  assert.match(script, /document\.addEventListener\('paste'/);
+  assert.match(script, /getPa2ClipboardImages\(event\.clipboardData\)/);
   assert.match(page, /name="documentType" value="DOC DIGITAL"/);
   assert.match(page, /name="documentType" value="DOC FÍSICO"/);
   assert.match(page, /pdf-lib\.min\.js[\s\S]*pa2\.js/);

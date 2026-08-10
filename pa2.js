@@ -1,7 +1,7 @@
 import { formatImageBytes, prepareImageForPdf } from './imagens-para-pdf.js';
 
 export const MIN_PA2_IMAGES = 3;
-export const MAX_PA2_IMAGES = 6;
+export const MAX_PA2_IMAGES = 10;
 const MAX_TOTAL_BYTES = 40 * 1024 * 1024;
 const ACCEPTED_TYPES = new Set(['image/jpeg', 'image/png']);
 const A4 = Object.freeze({ width: 595.28, height: 841.89 });
@@ -36,6 +36,15 @@ export const normalizePa2DocumentLabel = (value) => (
 export const isValidPa2ImageCount = (count) => (
   Number.isInteger(count) && count >= MIN_PA2_IMAGES && count <= MAX_PA2_IMAGES
 );
+
+export const getPa2ClipboardImages = (clipboardData) => {
+  const itemFiles = [...(clipboardData?.items || [])]
+    .filter((item) => item.kind === 'file')
+    .map((item) => item.getAsFile())
+    .filter((file) => file && ACCEPTED_TYPES.has(file.type));
+  if (itemFiles.length) return itemFiles;
+  return [...(clipboardData?.files || [])].filter((file) => ACCEPTED_TYPES.has(file.type));
+};
 
 export const parseCurrencyValue = (value) => {
   const cleaned = String(value || '').trim().replace(/[^\d,.-]/g, '');
@@ -187,7 +196,7 @@ const appendImages = async (document, entries) => {
 
 export const createPa2Pdf = async ({ entries, plate = '', documentLabel = '', date = '', rows = [] }) => {
   if (!window.PDFLib?.PDFDocument) throw new Error('Biblioteca de PDF indisponível. Atualize a página e tente novamente.');
-  if (!isValidPa2ImageCount(entries.length)) throw new Error('Adicione de 3 a 6 imagens para gerar o PA2.');
+  if (!isValidPa2ImageCount(entries.length)) throw new Error('Adicione de 3 a 10 imagens para gerar o PA2.');
 
   const { PDFDocument, StandardFonts } = window.PDFLib;
   const document = await PDFDocument.create();
@@ -351,7 +360,7 @@ const initPa2 = () => {
     updateState();
   };
 
-  const addFiles = async (fileList) => {
+  const addFiles = async (fileList, source = 'selection') => {
     const candidates = [...fileList];
     if (!candidates.length) return;
     setMessage('Conferindo as imagens...', 'loading');
@@ -393,6 +402,7 @@ const initPa2 = () => {
     input.value = '';
     renderList();
     if (errors.length) setMessage(errors.join(' '), 'error');
+    else if (source === 'clipboard') setMessage(`${added} ${added === 1 ? 'imagem colada' : 'imagens coladas'} com sucesso.`, 'success');
     else setMessage(`${added} ${added === 1 ? 'imagem adicionada' : 'imagens adicionadas'} com sucesso.`, 'success');
   };
 
@@ -415,6 +425,20 @@ const initPa2 = () => {
     dropzone.classList.remove('is-dragover');
   }));
   dropzone.addEventListener('drop', (event) => void addFiles(event.dataTransfer.files));
+  document.addEventListener('paste', (event) => {
+    const clipboardImages = getPa2ClipboardImages(event.clipboardData);
+    if (!clipboardImages.length) return;
+    event.preventDefault();
+    const pastedAt = Date.now();
+    const namedImages = clipboardImages.map((file, index) => {
+      const extension = file.type === 'image/jpeg' ? 'jpg' : 'png';
+      return new File([file], `imagem-colada-${pastedAt}-${index + 1}.${extension}`, {
+        type: file.type,
+        lastModified: pastedAt + index,
+      });
+    });
+    void addFiles(namedImages, 'clipboard');
+  });
   clearDocumentButton?.addEventListener('click', () => {
     form.querySelectorAll('input[name="documentType"]').forEach((option) => {
       option.checked = false;
@@ -424,7 +448,7 @@ const initPa2 = () => {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!isValidPa2ImageCount(entries.length)) {
-      setMessage('Adicione de 3 a 6 imagens antes de gerar o PA2.', 'error');
+      setMessage('Adicione de 3 a 10 imagens antes de gerar o PA2.', 'error');
       return;
     }
     generateButton.disabled = true;

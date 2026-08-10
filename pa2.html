@@ -27,7 +27,7 @@
             <a class="back-link" href="index.html">← Voltar para o site</a>
             <p class="eyebrow"><span></span> DOCUMENTO PA2</p>
             <h1>Imagens e despesas.<br /><em>Um único PDF organizado.</em></h1>
-            <p>Adicione de 3 a 6 imagens, organize a sequência e preencha somente as informações que desejar. Os campos não preenchidos ficarão em branco.</p>
+            <p>Adicione de 3 a 10 imagens, organize a sequência e preencha somente as informações que desejar. Os campos não preenchidos ficarão em branco.</p>
           </div>
           <aside class="pa2-local-card" aria-label="Privacidade e formato do documento">
             <span aria-hidden="true">PA2</span>
@@ -41,7 +41,7 @@
           <aside class="pa2-guide">
             <p class="eyebrow"><span></span> COMO FUNCIONA</p>
             <ol>
-              <li><span>01</span><div><strong>Anexe as imagens</strong><small>Escolha entre 3 e 6 arquivos JPG ou PNG.</small></div></li>
+              <li><span>01</span><div><strong>Anexe as imagens</strong><small>Escolha ou cole entre 3 e 10 imagens JPG ou PNG.</small></div></li>
               <li><span>02</span><div><strong>Preencha a tabela</strong><small>Todos os valores e observações são opcionais.</small></div></li>
               <li><span>03</span><div><strong>Baixe o documento</strong><small>As imagens aparecem primeiro e a tabela por último.</small></div></li>
             </ol>
@@ -51,16 +51,16 @@
           <form id="pa2-form" class="pa2-tool" novalidate>
             <section class="pa2-form-section" aria-labelledby="pa2-images-title">
               <div class="pa2-section-heading">
-                <div><span>ETAPA 1</span><h2 id="pa2-images-title">Imagens do documento</h2><p>JPG ou PNG · mínimo de 3 e máximo de 6 imagens.</p></div>
-                <strong id="pa2-count" aria-live="polite">0 / 6</strong>
+                <div><span>ETAPA 1</span><h2 id="pa2-images-title">Imagens do documento</h2><p>JPG ou PNG · mínimo de 3 e máximo de 10 imagens.</p></div>
+                <strong id="pa2-count" aria-live="polite">0 / 10</strong>
               </div>
 
-              <input id="pa2-image-input" class="pdf-file-input" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" multiple aria-label="Selecionar de 3 a 6 imagens para o PA2" />
-              <div id="pa2-dropzone" class="pa2-dropzone" role="button" tabindex="0" aria-controls="pa2-image-input" aria-describedby="pa2-dropzone-help">
+              <input id="pa2-image-input" class="pdf-file-input" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" multiple aria-label="Selecionar de 3 a 10 imagens para o PA2" />
+              <div id="pa2-dropzone" class="pa2-dropzone" role="button" tabindex="0" aria-controls="pa2-image-input" aria-describedby="pa2-dropzone-help" aria-keyshortcuts="Control+V Meta+V">
                 <span class="pa2-dropzone-plus" aria-hidden="true">+</span>
-                <strong>Arraste as imagens aqui</strong>
+                <strong>Arraste ou cole as imagens aqui</strong>
                 <span>ou <u>selecione no aparelho</u></span>
-                <small id="pa2-dropzone-help">Até 6 imagens e 40 MB no total</small>
+                <small id="pa2-dropzone-help">Use Ctrl+V para colar · até 10 imagens e 40 MB no total</small>
               </div>
               <div id="pa2-image-message" class="pa2-message" role="status" aria-live="polite"></div>
               <ol id="pa2-image-list" class="pa2-image-list" aria-label="Imagens selecionadas"></ol>
