@@ -305,29 +305,42 @@ const initPdfCompressor = () => {
       const quality = selectedQuality();
       const attempts = getCompressionAttempts(quality);
       let compressedBytes;
+      let lastCompressionError;
 
       for (let attemptIndex = 0; attemptIndex < attempts.length; attemptIndex += 1) {
         if (attemptIndex > 0) {
+          compressedBytes = undefined;
+          await new Promise((resolve) => window.setTimeout(resolve, 0));
           progress.hidden = false;
-          updateProgress(0, selectedPages, 'Ajustando a alta qualidade...');
-          setMessage('A primeira versão ainda ficou grande. Ajustando a alta qualidade sem perder a legibilidade...', 'loading');
+          updateProgress(0, selectedPages, 'Ajustando a qualidade...');
+          setMessage('A tentativa anterior não reduziu o arquivo. Ajustando a qualidade automaticamente...', 'loading');
         }
 
-        compressedBytes = await renderCompressedPdf({
-          file: selectedFile,
-          preset: attempts[attemptIndex],
-          onProgress: (completed, total, label) => {
-            const adjustedLabel = attemptIndex > 0 ? `Ajuste ${attemptIndex} · ${label}` : label;
-            updateProgress(completed, total, adjustedLabel);
-          },
-        });
+        try {
+          compressedBytes = await renderCompressedPdf({
+            file: selectedFile,
+            preset: attempts[attemptIndex],
+            onProgress: (completed, total, label) => {
+              const adjustedLabel = attemptIndex > 0 ? `Ajuste ${attemptIndex} · ${label}` : label;
+              updateProgress(completed, total, adjustedLabel);
+            },
+          });
+          lastCompressionError = undefined;
+        } catch (error) {
+          lastCompressionError = error;
+          compressedBytes = undefined;
+          if (attemptIndex === attempts.length - 1) throw error;
+          continue;
+        }
 
         if (compressedBytes.length < selectedFile.size) break;
       }
 
+      if (!compressedBytes && lastCompressionError) throw lastCompressionError;
+
       if (compressedBytes.length >= selectedFile.size) {
         progress.hidden = true;
-        setMessage('Este PDF já está muito otimizado e nem o ajuste automático conseguiu deixá-lo menor. O arquivo original foi mantido. Tente “Equilibrada”, “Arquivo menor” ou a opção indicada no fim da página.', 'info');
+        setMessage('Este PDF já está muito otimizado e nem o ajuste automático conseguiu deixá-lo menor. O arquivo original foi mantido. Tente a opção indicada no fim da página.', 'info');
         return;
       }
 

@@ -33,7 +33,9 @@ test('PDF compressor is local, linked from the tools tab and self-hosts PDF.js',
   assert.doesNotMatch(script, /documentProxy\.destroy/);
   assert.match(script, /compressedBytes\.length >= selectedFile\.size/);
   assert.match(script, /getCompressionAttempts/);
-  assert.match(script, /Ajustando a alta qualidade/);
+  assert.match(script, /Ajustando a qualidade/);
+  assert.match(script, /compressedBytes = undefined/);
+  assert.match(script, /lastCompressionError/);
   assert.match(license, /Apache License/);
   assert.ok(pdfJs.size > 300_000);
   assert.ok(worker.size > 700_000);
@@ -58,9 +60,20 @@ test('PDF compressor quality presets respect their resolution caps', () => {
   assert.ok(getRenderScale(5000, 3000, COMPRESSION_PRESETS.high) < 1);
 
   const highAttempts = getCompressionAttempts('high');
-  assert.equal(highAttempts.length, 3);
+  const balancedAttempts = getCompressionAttempts('balanced');
+  const smallAttempts = getCompressionAttempts('small');
+
+  assert.equal(highAttempts.length, 5);
   assert.equal(highAttempts[0], COMPRESSION_PRESETS.high);
   assert.ok(highAttempts.every((preset, index) => index === 0 || preset.scale < highAttempts[index - 1].scale));
   assert.ok(highAttempts.every((preset, index) => index === 0 || preset.jpegQuality < highAttempts[index - 1].jpegQuality));
-  assert.deepEqual(getCompressionAttempts('balanced'), [COMPRESSION_PRESETS.balanced]);
+  assert.equal(highAttempts.at(-1), COMPRESSION_PRESETS.small);
+
+  assert.equal(balancedAttempts.length, 4);
+  assert.equal(balancedAttempts[0], COMPRESSION_PRESETS.balanced);
+  assert.ok(balancedAttempts.every((preset, index) => index === 0 || preset.scale < balancedAttempts[index - 1].scale));
+  assert.ok(balancedAttempts.every((preset, index) => index === 0 || preset.jpegQuality < balancedAttempts[index - 1].jpegQuality));
+  assert.equal(balancedAttempts.at(-1), COMPRESSION_PRESETS.small);
+  assert.deepEqual(smallAttempts, [COMPRESSION_PRESETS.small]);
+  assert.deepEqual(getCompressionAttempts('unknown'), balancedAttempts);
 });

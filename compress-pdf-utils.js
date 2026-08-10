@@ -7,12 +7,24 @@ export const COMPRESSION_PRESETS = Object.freeze({
 const HIGH_QUALITY_FALLBACKS = Object.freeze([
   COMPRESSION_PRESETS.high,
   Object.freeze({ scale: 1.95, jpegQuality: 0.81, maxDimension: 3000 }),
-  Object.freeze({ scale: 1.8, jpegQuality: 0.76, maxDimension: 2800 }),
+  COMPRESSION_PRESETS.balanced,
+  Object.freeze({ scale: 1.5, jpegQuality: 0.7, maxDimension: 2400 }),
+  COMPRESSION_PRESETS.small,
 ]);
+
+const BALANCED_QUALITY_FALLBACKS = Object.freeze([
+  COMPRESSION_PRESETS.balanced,
+  Object.freeze({ scale: 1.5, jpegQuality: 0.72, maxDimension: 2400 }),
+  Object.freeze({ scale: 1.35, jpegQuality: 0.67, maxDimension: 2200 }),
+  COMPRESSION_PRESETS.small,
+]);
+
+const SMALL_FILE_ATTEMPTS = Object.freeze([COMPRESSION_PRESETS.small]);
 
 export const getCompressionAttempts = (quality) => {
   if (quality === 'high') return HIGH_QUALITY_FALLBACKS;
-  return Object.freeze([COMPRESSION_PRESETS[quality] || COMPRESSION_PRESETS.balanced]);
+  if (quality === 'small') return SMALL_FILE_ATTEMPTS;
+  return BALANCED_QUALITY_FALLBACKS;
 };
 
 export const formatCompressedBytes = (bytes) => {
