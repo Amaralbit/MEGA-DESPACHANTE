@@ -39,4 +39,5 @@ test('site header uses the complete MEGA logo asset', async () => {
   assert.ok(logo.length > 0);
   assert.match(styles, /\.site-header \.brand-mark\s*\{[^}]*logo-mega-pdf\.png/s);
   assert.match(styles, /\.site-header \.brand-mark::after\s*\{[^}]*display:\s*none/s);
+  assert.match(styles, /\.site-header \.brand-name\s*\{[^}]*display:\s*none/s);
 });

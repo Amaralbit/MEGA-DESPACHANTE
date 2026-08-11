@@ -85,6 +85,10 @@ body.protected-pdf-open{overflow:hidden}.protected-pdf-dialog[hidden]{display:no
   display: none;
 }
 
+.site-header .brand-name {
+  display: none;
+}
+
 /* Ferramenta local para juntar documentos PDF */
 .pdf-merge-page [hidden] {
   display: none !important;
