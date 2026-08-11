@@ -19,7 +19,7 @@ export const PA2_ROWS = Object.freeze([
   'Multa',
   'Vistoria DETRAN',
   'Honorário despachante',
-  'IPVA',
+  'IPVA+LICENCIAMENTO',
   'Placa',
   'Taxa RENAVE',
   'SEFAZ',

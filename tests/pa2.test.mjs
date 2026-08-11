@@ -45,6 +45,7 @@ test('PA2 reconhece e formata valores brasileiros', () => {
 test('PA2 contém as linhas do modelo de despesas', () => {
   assert.equal(PA2_ROWS.length, 15);
   assert.ok(PA2_ROWS.includes('Perícia e foto'));
+  assert.ok(PA2_ROWS.includes('IPVA+LICENCIAMENTO'));
   assert.ok(PA2_ROWS.includes('Taxa ATPV-e'));
 });
 
