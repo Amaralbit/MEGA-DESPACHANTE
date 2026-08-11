@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import {
   MAX_PA2_IMAGES,
+  PA2_LETTERHEAD_PATH,
   PA2_ROWS,
   formatCurrencyValue,
   getPa2ClipboardImages,
@@ -52,6 +53,15 @@ test('PA2 aceita somente as marcações de documento previstas', () => {
   assert.equal(normalizePa2DocumentLabel('DOC FÍSICO'), 'DOC FÍSICO');
   assert.equal(normalizePa2DocumentLabel(''), '');
   assert.equal(normalizePa2DocumentLabel('outro'), '');
+});
+
+test('PA2 usa o papel timbrado da MEGA atrás da tabela e identifica a empresa', async () => {
+  const script = await readFile('pa2.js', 'utf8');
+  await assert.doesNotReject(() => readFile(PA2_LETTERHEAD_PATH));
+  assert.match(script, /drawPage\(letterheadPage/);
+  assert.match(script, /opacity:\s*PA2_LETTERHEAD_OPACITY/);
+  assert.match(script, /'MEGA DESPACHANTE'/);
+  assert.match(script, /'MEGA DESPACHANTE \(CONT\.\)'/);
 });
 
 test('PA2 fica entre Formulários e A MEGA, aceita imagens coladas e não exige campos da tabela', async () => {

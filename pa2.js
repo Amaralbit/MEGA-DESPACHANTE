@@ -6,6 +6,8 @@ const MAX_TOTAL_BYTES = 40 * 1024 * 1024;
 const ACCEPTED_TYPES = new Set(['image/jpeg', 'image/png']);
 const A4 = Object.freeze({ width: 595.28, height: 841.89 });
 const PAGE_MARGIN = 28.35;
+export const PA2_LETTERHEAD_PATH = 'assets/papel-timbrado-mega-despachante.pdf';
+const PA2_LETTERHEAD_OPACITY = 0.18;
 
 export const PA2_ROWS = Object.freeze([
   'Taxa de leasing',
@@ -134,31 +136,54 @@ const drawGridRow = ({ page, cells, widths, x, y, height, font, size, boldFont, 
   let cursorX = x;
   const activeFont = bold ? boldFont : font;
   for (let index = 0; index < cells.length; index += 1) {
-    page.drawRectangle({
+    const rectangle = {
       x: cursorX,
       y: y - height,
       width: widths[index],
       height,
       borderColor: colors.ink,
       borderWidth: 0.75,
-      color: fill,
-    });
+    };
+    if (fill) rectangle.color = fill;
+    page.drawRectangle(rectangle);
     drawCellText({ page, text: cells[index], font: activeFont, size, color: colors.ink, x: cursorX, y: y - height, width: widths[index], height });
     cursorX += widths[index];
   }
   return y - height;
 };
 
-const addTablePage = ({ document, font, boldFont, plate, documentLabel, continuation = false }) => {
+const drawLetterheadWatermark = (page, letterheadPage) => {
+  const scale = Math.min(A4.width / letterheadPage.width, A4.height / letterheadPage.height);
+  const width = letterheadPage.width * scale;
+  const height = letterheadPage.height * scale;
+  page.drawPage(letterheadPage, {
+    x: (A4.width - width) / 2,
+    y: (A4.height - height) / 2,
+    width,
+    height,
+    opacity: PA2_LETTERHEAD_OPACITY,
+  });
+};
+
+const loadLetterheadPage = async (document) => {
+  const letterheadUrl = new URL(`./${PA2_LETTERHEAD_PATH}`, import.meta.url);
+  const response = await fetch(letterheadUrl);
+  if (!response.ok) throw new Error('Não foi possível carregar o papel timbrado da MEGA.');
+  const [letterheadPage] = await document.embedPdf(await response.arrayBuffer(), [0]);
+  if (!letterheadPage) throw new Error('O papel timbrado da MEGA não possui uma página válida.');
+  return letterheadPage;
+};
+
+const addTablePage = ({ document, font, boldFont, letterheadPage, plate, documentLabel, continuation = false }) => {
   const page = document.addPage([A4.width, A4.height]);
+  drawLetterheadWatermark(page, letterheadPage);
   const colors = {
     ink: window.PDFLib.rgb(0.08, 0.08, 0.08),
     header: window.PDFLib.rgb(0.93, 0.93, 0.91),
-    white: window.PDFLib.rgb(1, 1, 1),
   };
   const widths = [231, 92, A4.width - (PAGE_MARGIN * 2) - 323];
   let y = A4.height - PAGE_MARGIN;
-  y = drawGridRow({ page, cells: [continuation ? 'DESPACHANTE (CONT.)' : 'DESPACHANTE', plate, documentLabel], widths, x: PAGE_MARGIN, y, height: 31, font, boldFont, bold: true, size: 11, fill: colors.white, colors });
+  y = drawGridRow({ page, cells: [continuation ? 'MEGA DESPACHANTE (CONT.)' : 'MEGA DESPACHANTE', plate, documentLabel], widths, x: PAGE_MARGIN, y, height: 31, font, boldFont, bold: true, size: 11, colors });
   y = drawGridRow({ page, cells: ['DESCRIÇÃO', 'VALOR', 'OBSERVAÇÃO'], widths, x: PAGE_MARGIN, y, height: 23, font, boldFont, bold: true, size: 8.5, fill: colors.header, colors });
   return { page, y, widths, colors };
 };
@@ -206,8 +231,9 @@ export const createPa2Pdf = async ({ entries, plate = '', documentLabel = '', da
 
   const font = await document.embedFont(StandardFonts.Helvetica);
   const boldFont = await document.embedFont(StandardFonts.HelveticaBold);
+  const letterheadPage = await loadLetterheadPage(document);
   const normalizedDocumentLabel = normalizePa2DocumentLabel(documentLabel);
-  let table = addTablePage({ document, font, boldFont, plate: plate.toUpperCase(), documentLabel: normalizedDocumentLabel });
+  let table = addTablePage({ document, font, boldFont, letterheadPage, plate: plate.toUpperCase(), documentLabel: normalizedDocumentLabel });
   const fontSize = 8;
   const bottomLimit = PAGE_MARGIN + 34;
   const normalizedRows = PA2_ROWS.map((description, index) => {
@@ -224,9 +250,9 @@ export const createPa2Pdf = async ({ entries, plate = '', documentLabel = '', da
     const cells = [row.description.toUpperCase(), row.amount, row.note];
     const height = measureRowHeight(cells, table.widths, font, fontSize);
     if (table.y - height < bottomLimit) {
-      table = addTablePage({ document, font, boldFont, plate: plate.toUpperCase(), documentLabel: normalizedDocumentLabel, continuation: true });
+      table = addTablePage({ document, font, boldFont, letterheadPage, plate: plate.toUpperCase(), documentLabel: normalizedDocumentLabel, continuation: true });
     }
-    table.y = drawGridRow({ ...table, cells, x: PAGE_MARGIN, height, font, boldFont, size: fontSize, fill: table.colors.white });
+    table.y = drawGridRow({ ...table, cells, x: PAGE_MARGIN, height, font, boldFont, size: fontSize });
   }
 
   const parsedValues = normalizedRows.map((row) => row.parsedAmount).filter(Number.isFinite);
@@ -235,7 +261,7 @@ export const createPa2Pdf = async ({ entries, plate = '', documentLabel = '', da
   const totalCells = ['TOTAL', total, formattedDate];
   const totalHeight = 31;
   if (table.y - totalHeight < PAGE_MARGIN) {
-    table = addTablePage({ document, font, boldFont, plate: plate.toUpperCase(), documentLabel: normalizedDocumentLabel, continuation: true });
+    table = addTablePage({ document, font, boldFont, letterheadPage, plate: plate.toUpperCase(), documentLabel: normalizedDocumentLabel, continuation: true });
   }
   table.y = drawGridRow({ ...table, cells: totalCells, x: PAGE_MARGIN, height: totalHeight, font, boldFont, bold: true, size: 11, fill: table.colors.header });
 
