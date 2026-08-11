@@ -74,6 +74,17 @@ body.protected-pdf-open{overflow:hidden}.protected-pdf-dialog[hidden]{display:no
   display: none;
 }
 
+.site-header .brand-mark {
+  background: url("assets/logo-mega-pdf.png") center / 124% 124% no-repeat;
+  border: 0;
+  color: transparent;
+  font-size: 0;
+}
+
+.site-header .brand-mark::after {
+  display: none;
+}
+
 /* Ferramenta local para juntar documentos PDF */
 .pdf-merge-page [hidden] {
   display: none !important;

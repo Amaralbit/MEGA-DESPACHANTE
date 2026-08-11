@@ -29,3 +29,14 @@ test('forms and PDF tools live in separate accessible tabs', async () => {
   assert.match(behavior, /panel\.hidden = panel\.dataset\.catalogPanel !== name/);
   assert.match(catalog, /<aside aria-label="Atendimento pelo WhatsApp">/);
 });
+
+test('site header uses the complete MEGA logo asset', async () => {
+  const [styles, logo] = await Promise.all([
+    readFile('styles.css', 'utf8'),
+    readFile('assets/logo-mega-pdf.png'),
+  ]);
+
+  assert.ok(logo.length > 0);
+  assert.match(styles, /\.site-header \.brand-mark\s*\{[^}]*logo-mega-pdf\.png/s);
+  assert.match(styles, /\.site-header \.brand-mark::after\s*\{[^}]*display:\s*none/s);
+});
