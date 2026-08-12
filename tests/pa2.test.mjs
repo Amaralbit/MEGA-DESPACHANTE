@@ -44,9 +44,11 @@ test('PA2 reconhece e formata valores brasileiros', () => {
 });
 
 test('PA2 contém as linhas do modelo de despesas', () => {
-  assert.equal(PA2_ROWS.length, 16);
+  assert.equal(PA2_ROWS.length, 17);
   assert.ok(PA2_ROWS.includes('Perícia e foto'));
-  assert.ok(PA2_ROWS.includes('IPVA+LICENCIAMENTO'));
+  assert.ok(PA2_ROWS.includes('IPVA'));
+  assert.equal(PA2_ROWS[PA2_ROWS.indexOf('IPVA') + 1], 'Licenciamento');
+  assert.ok(!PA2_ROWS.includes('IPVA+LICENCIAMENTO'));
   assert.ok(PA2_ROWS.includes('Taxa ATPV-e'));
   assert.equal(PA2_ROWS[PA2_ROWS.indexOf('Multa') + 1], 'Multas em estado de autuação');
 });
