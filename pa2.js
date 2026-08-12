@@ -18,7 +18,6 @@ export const PA2_ROWS = Object.freeze([
   'Transferência de UF + município',
   'Multas',
   'Multas em estado de autuação',
-  'Restrições',
   'Vistoria DETRAN',
   'Honorário despachante',
   'IPVA',
@@ -28,6 +27,7 @@ export const PA2_ROWS = Object.freeze([
   'SEFAZ',
   'Benefício tributário',
   'Taxa ATPV-e',
+  'Restrições',
 ]);
 
 const PA2_FINE_DESCRIPTIONS = new Set(['Multas', 'Multas em estado de autuação']);

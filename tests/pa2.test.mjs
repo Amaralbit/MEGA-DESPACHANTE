@@ -51,7 +51,7 @@ test('PA2 contém as linhas do modelo de despesas', () => {
   assert.ok(!PA2_ROWS.includes('IPVA+LICENCIAMENTO'));
   assert.ok(PA2_ROWS.includes('Taxa ATPV-e'));
   assert.equal(PA2_ROWS[PA2_ROWS.indexOf('Multas') + 1], 'Multas em estado de autuação');
-  assert.equal(PA2_ROWS[PA2_ROWS.indexOf('Multas em estado de autuação') + 1], 'Restrições');
+  assert.equal(PA2_ROWS[PA2_ROWS.indexOf('Taxa ATPV-e') + 1], 'Restrições');
 });
 
 test('PA2 soma multas normais e multas em estado de autuação', () => {
