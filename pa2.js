@@ -17,6 +17,7 @@ export const PA2_ROWS = Object.freeze([
   '2ª via de recibo (DUT)',
   'Transferência de UF + município',
   'Multa',
+  'Multas em estado de autuação',
   'Vistoria DETRAN',
   'Honorário despachante',
   'IPVA+LICENCIAMENTO',
@@ -26,6 +27,8 @@ export const PA2_ROWS = Object.freeze([
   'Benefício tributário',
   'Taxa ATPV-e',
 ]);
+
+const PA2_FINE_DESCRIPTIONS = new Set(['Multa', 'Multas em estado de autuação']);
 
 export const PA2_DOCUMENT_OPTIONS = Object.freeze(['DOC DIGITAL', 'DOC FÍSICO']);
 
@@ -63,6 +66,12 @@ export const formatCurrencyValue = (value) => {
   const grouped = integer.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   return `R$ ${grouped},${decimals}`;
 };
+
+export const calculatePa2FinesTotal = (rows = []) => PA2_ROWS.reduce((total, description, index) => {
+  if (!PA2_FINE_DESCRIPTIONS.has(description)) return total;
+  const amount = parseCurrencyValue(rows[index]?.amount);
+  return total + (Number.isFinite(amount) ? amount : 0);
+}, 0);
 
 const normalizeFilename = (value) => {
   const base = String(value || '')
@@ -260,10 +269,19 @@ export const createPa2Pdf = async ({ entries, plate = '', documentLabel = '', da
   const formattedDate = date ? date.split('-').reverse().join('/') : '';
   const totalCells = ['TOTAL', total, formattedDate];
   const totalHeight = 31;
-  if (table.y - totalHeight < PAGE_MARGIN) {
+  const finesSummary = `OBS.: SOMA DE MULTAS + MULTAS EM ESTADO DE AUTUAÇÃO: ${formatCurrencyValue(calculatePa2FinesTotal(rows))}`;
+  const finesSummaryHeight = 28;
+  if (table.y - totalHeight - finesSummaryHeight < PAGE_MARGIN) {
     table = addTablePage({ document, font, boldFont, letterheadPage, plate: plate.toUpperCase(), documentLabel: normalizedDocumentLabel, continuation: true });
   }
   table.y = drawGridRow({ ...table, cells: totalCells, x: PAGE_MARGIN, height: totalHeight, font, boldFont, bold: true, size: 11, fill: table.colors.header });
+  table.page.drawText(finesSummary, {
+    x: PAGE_MARGIN,
+    y: table.y - 18,
+    size: 9,
+    font: boldFont,
+    color: table.colors.ink,
+  });
 
   return document.save({ useObjectStreams: true });
 };
