@@ -44,18 +44,19 @@ test('PA2 reconhece e formata valores brasileiros', () => {
 });
 
 test('PA2 contém as linhas do modelo de despesas', () => {
-  assert.equal(PA2_ROWS.length, 17);
+  assert.equal(PA2_ROWS.length, 18);
   assert.ok(PA2_ROWS.includes('Perícia e foto'));
   assert.ok(PA2_ROWS.includes('IPVA'));
   assert.equal(PA2_ROWS[PA2_ROWS.indexOf('IPVA') + 1], 'Licenciamento');
   assert.ok(!PA2_ROWS.includes('IPVA+LICENCIAMENTO'));
   assert.ok(PA2_ROWS.includes('Taxa ATPV-e'));
-  assert.equal(PA2_ROWS[PA2_ROWS.indexOf('Multa') + 1], 'Multas em estado de autuação');
+  assert.equal(PA2_ROWS[PA2_ROWS.indexOf('Multas') + 1], 'Multas em estado de autuação');
+  assert.equal(PA2_ROWS[PA2_ROWS.indexOf('Multas em estado de autuação') + 1], 'Restrições');
 });
 
 test('PA2 soma multas normais e multas em estado de autuação', () => {
   const rows = PA2_ROWS.map(() => ({ amount: '' }));
-  rows[PA2_ROWS.indexOf('Multa')].amount = 'R$ 250,50';
+  rows[PA2_ROWS.indexOf('Multas')].amount = 'R$ 250,50';
   rows[PA2_ROWS.indexOf('Multas em estado de autuação')].amount = '100,00';
 
   assert.equal(calculatePa2FinesTotal(rows), 350.5);

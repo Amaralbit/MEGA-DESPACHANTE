@@ -16,8 +16,9 @@ export const PA2_ROWS = Object.freeze([
   'Transferência de propriedade',
   '2ª via de recibo (DUT)',
   'Transferência de UF + município',
-  'Multa',
+  'Multas',
   'Multas em estado de autuação',
+  'Restrições',
   'Vistoria DETRAN',
   'Honorário despachante',
   'IPVA',
@@ -29,7 +30,7 @@ export const PA2_ROWS = Object.freeze([
   'Taxa ATPV-e',
 ]);
 
-const PA2_FINE_DESCRIPTIONS = new Set(['Multa', 'Multas em estado de autuação']);
+const PA2_FINE_DESCRIPTIONS = new Set(['Multas', 'Multas em estado de autuação']);
 
 export const PA2_DOCUMENT_OPTIONS = Object.freeze(['DOC DIGITAL', 'DOC FÍSICO']);
 
