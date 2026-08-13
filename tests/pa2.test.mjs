@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import {
   MAX_PA2_IMAGES,
+  MIN_PA2_IMAGES,
   PA2_LETTERHEAD_PATH,
   PA2_ROWS,
   calculatePa2FinesTotal,
@@ -13,10 +14,11 @@ import {
   parseCurrencyValue,
 } from '../pa2.js';
 
-test('PA2 aceita somente de 3 a 10 imagens', () => {
+test('PA2 aceita de 1 a 10 imagens', () => {
+  assert.equal(MIN_PA2_IMAGES, 1);
   assert.equal(MAX_PA2_IMAGES, 10);
-  assert.equal(isValidPa2ImageCount(2), false);
-  assert.equal(isValidPa2ImageCount(3), true);
+  assert.equal(isValidPa2ImageCount(0), false);
+  assert.equal(isValidPa2ImageCount(1), true);
   assert.equal(isValidPa2ImageCount(10), true);
   assert.equal(isValidPa2ImageCount(11), false);
 });
@@ -102,7 +104,7 @@ test('PA2 fica entre Formulários e A MEGA, aceita imagens coladas e não exige 
   ]);
   assert.match(home, /Formulários<\/a>[\s\S]*?pa2\.html">PA2<\/a>[\s\S]*?A MEGA<\/a>/);
   assert.doesNotMatch(page, /\srequired(?:\s|>|=)/i);
-  assert.match(page, /mínimo de 3 e máximo de 10 imagens/i);
+  assert.match(page, /mínimo de 1 e máximo de 10 imagens/i);
   assert.match(page, /Arraste ou cole as imagens aqui/i);
   assert.match(page, /Use Ctrl\+V para colar/i);
   assert.match(script, /document\.addEventListener\('paste'/);

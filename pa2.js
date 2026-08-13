@@ -1,6 +1,6 @@
 import { formatImageBytes, prepareImageForPdf } from './imagens-para-pdf.js';
 
-export const MIN_PA2_IMAGES = 3;
+export const MIN_PA2_IMAGES = 1;
 export const MAX_PA2_IMAGES = 10;
 const MAX_TOTAL_BYTES = 40 * 1024 * 1024;
 const ACCEPTED_TYPES = new Set(['image/jpeg', 'image/png']);
@@ -265,7 +265,7 @@ const appendImages = async (document, entries) => {
 
 export const createPa2Pdf = async ({ entries, plate = '', documentLabel = '', date = '', rows = [], finalObservations = '' }) => {
   if (!window.PDFLib?.PDFDocument) throw new Error('Biblioteca de PDF indisponível. Atualize a página e tente novamente.');
-  if (!isValidPa2ImageCount(entries.length)) throw new Error('Adicione de 3 a 10 imagens para gerar o PA2.');
+  if (!isValidPa2ImageCount(entries.length)) throw new Error('Adicione de 1 a 10 imagens para gerar o PA2.');
 
   const { PDFDocument, StandardFonts } = window.PDFLib;
   const document = await PDFDocument.create();
@@ -550,7 +550,7 @@ const initPa2 = () => {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!isValidPa2ImageCount(entries.length)) {
-      setMessage('Adicione de 3 a 10 imagens antes de gerar o PA2.', 'error');
+      setMessage('Adicione de 1 a 10 imagens antes de gerar o PA2.', 'error');
       return;
     }
     generateButton.disabled = true;
