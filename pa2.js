@@ -300,6 +300,7 @@ const initPa2 = () => {
   const actionNote = document.getElementById('pa2-action-note');
   const result = document.getElementById('pa2-result');
   const clearDocumentButton = document.getElementById('pa2-clear-document');
+  const clearDataButton = document.getElementById('pa2-clear-data');
   if (!form || !input || !dropzone || !list || !tableBody || !generateButton) return;
 
   let entries = [];
@@ -489,6 +490,20 @@ const initPa2 = () => {
     form.querySelectorAll('input[name="documentType"]').forEach((option) => {
       option.checked = false;
     });
+  });
+  clearDataButton?.addEventListener('click', () => {
+    if (!window.confirm('Limpar todos os dados do PA2? As imagens e os campos preenchidos serão apagados.')) return;
+
+    entries.forEach(releaseEntry);
+    entries = [];
+    form.reset();
+    input.value = '';
+    result.hidden = true;
+    result.textContent = '';
+    result.classList.remove('pa2-result--error');
+    setMessage('Todos os dados do PA2 foram limpos.', 'success');
+    renderList();
+    dropzone.focus();
   });
 
   form.addEventListener('submit', async (event) => {

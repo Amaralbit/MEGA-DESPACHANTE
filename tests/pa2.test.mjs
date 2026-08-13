@@ -95,3 +95,15 @@ test('PA2 fica entre Formulários e A MEGA, aceita imagens coladas e não exige 
   assert.match(page, /name="documentType" value="DOC FÍSICO"/);
   assert.match(page, /pdf-lib\.min\.js[\s\S]*pa2\.js/);
 });
+
+test('PA2 oferece uma ação confirmada para limpar todos os dados', async () => {
+  const [page, script] = await Promise.all([
+    readFile('pa2.html', 'utf8'),
+    readFile('pa2.js', 'utf8'),
+  ]);
+
+  assert.match(page, /id="pa2-clear-data"[^>]*type="button"[^>]*>Limpar dados<\/button>/);
+  assert.match(script, /clearDataButton\?\.addEventListener\('click'/);
+  assert.match(script, /window\.confirm\('Limpar todos os dados do PA2\?/);
+  assert.match(script, /entries\.forEach\(releaseEntry\);[\s\S]*entries = \[\];[\s\S]*form\.reset\(\);/);
+});

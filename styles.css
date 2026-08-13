@@ -2118,6 +2118,33 @@ body.protected-pdf-open{overflow:hidden}.protected-pdf-dialog[hidden]{display:no
   transform: none;
 }
 
+.pa2-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+}
+
+.pa2-clear-button {
+  min-height: 42px;
+  padding: 8px 2px;
+  background: transparent;
+  color: #77736b;
+  font: 700 11px "DM Sans", sans-serif;
+  text-decoration: underline;
+  text-decoration-color: #b8b3a8;
+  text-underline-offset: 4px;
+}
+
+.pa2-clear-button:hover {
+  color: var(--red);
+  text-decoration-color: var(--red);
+}
+
+.pa2-clear-button:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
+}
+
 .pa2-actions p {
   margin: 0;
   color: var(--muted);
@@ -2241,6 +2268,12 @@ body.protected-pdf-open{overflow:hidden}.protected-pdf-dialog[hidden]{display:no
 
   .pa2-actions .button {
     width: 100%;
+  }
+
+  .pa2-action-buttons {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 5px;
   }
 
   .pa2-actions p {
