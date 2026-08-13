@@ -92,8 +92,8 @@ if (procuracaoForm) {
         .title { text-align: center; font-size: 14pt; font-weight: 700; margin: 12mm 0 16px; text-transform: uppercase; }
         .text { text-align: justify; }.text p { margin: 0 0 8px; }
         .signature { margin-top: 0; text-align: center; }.signature p { margin: 0; }
-        .signature-line { width: 310px; border-top: 1px solid #222; margin: 104px auto 5px; }
-        .vehicle-signature-footer .signature { margin-bottom: 160px; }
+        .signature-line { width: 310px; border-top: 1px solid #222; margin: 40px auto 5px; }
+        .vehicle-signature-footer .signature { margin-bottom: 224px; }
         ${window.MEGA_DECLARATION_CSS}
         .details { margin-top: 14px; border-top: 1px solid #ccc; padding-top: 8px; font-size: 8pt; color: #444; }.details strong { color: #111; }
         .print-hint { position: fixed; z-index: 10; right: 18px; top: 18px; background: #b42313; color: #fff; border: 0; padding: 12px 16px; cursor: pointer; font-weight: 700; }

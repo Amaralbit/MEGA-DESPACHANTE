@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const signatureSpacingByDocument = [
-  ['procuracao.js', /\.signature-line \{[^}]*margin: 104px auto 5px;/],
+  ['procuracao.js', /\.signature-line \{[^}]*margin: 40px auto 5px;/],
   ['intencao-venda.js', /\.signature p \{[^}]*margin-bottom: 94px;/],
   ['procuracao-particular.js', /\.place-date \{ margin: 1px 0 94px; \}/],
   ['declaracao-residencia.js', /\.signature \.place-date \{[^}]*margin-bottom: 58mm;/],
@@ -64,5 +64,5 @@ test('vehicle power of attorney lifts the grantor signature above the fixed MEGA
   const vehiclePowerOfAttorney = await readFile('procuracao.js', 'utf8');
 
   assert.match(vehiclePowerOfAttorney, /class="signature-footer vehicle-signature-footer"/);
-  assert.match(vehiclePowerOfAttorney, /\.vehicle-signature-footer \.signature \{ margin-bottom: 160px; \}/);
+  assert.match(vehiclePowerOfAttorney, /\.vehicle-signature-footer \.signature \{ margin-bottom: 224px; \}/);
 });
