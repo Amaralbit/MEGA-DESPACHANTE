@@ -76,3 +76,13 @@ test('vehicle power of attorney uses a single make and model field', async () =>
   assert.match(script, /valueOf\(data, 'marcaModelo'\)/);
   assert.doesNotMatch(script, /valueOf\(data, 'marca'\)|valueOf\(data, 'modelo'\)/);
 });
+
+test('power of attorney headings start below the MEGA logo', async () => {
+  const [vehicleScript, saleIntentScript] = await Promise.all([
+    readFile('procuracao.js', 'utf8'),
+    readFile('intencao-venda.js', 'utf8'),
+  ]);
+
+  assert.match(vehicleScript, /\.title \{[^}]*margin: 12mm 0 16px;/);
+  assert.match(saleIntentScript, /\.heading \{[^}]*margin: 14mm 24mm 8px;/);
+});

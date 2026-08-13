@@ -89,7 +89,7 @@ if (procuracaoForm) {
         body { font-family: Arial, sans-serif; color: #161616; margin: 0; background: #eee; }
         .document { position: relative; width: 210mm; min-height: 297mm; margin: 10px auto; background: #fff; padding: 13mm 15mm; font-size: 9.6pt; line-height: 1.36; }
         .logo-symbol { position: absolute; top: 5mm; right: 15mm; width: 18mm; height: 18mm; object-fit: contain; }
-        .title { text-align: center; font-size: 14pt; font-weight: 700; margin: 2px 0 16px; text-transform: uppercase; }
+        .title { text-align: center; font-size: 14pt; font-weight: 700; margin: 12mm 0 16px; text-transform: uppercase; }
         .text { text-align: justify; }.text p { margin: 0 0 8px; }
         .signature { margin-top: 0; text-align: center; }.signature p { margin: 0; }
         .signature-line { width: 310px; border-top: 1px solid #222; margin: 104px auto 5px; }
