@@ -45,12 +45,28 @@ test('PA2 reconhece e formata valores brasileiros', () => {
 
 test('PA2 contém as linhas do modelo de despesas', () => {
   assert.equal(PA2_ROWS.length, 18);
-  assert.ok(PA2_ROWS.includes('Perícia e foto'));
-  assert.ok(PA2_ROWS.includes('IPVA'));
-  assert.equal(PA2_ROWS[PA2_ROWS.indexOf('IPVA') + 1], 'Licenciamento');
+  assert.deepEqual(PA2_ROWS, [
+    'Perícia e foto',
+    'Taxa RENAVE',
+    'Desalienação',
+    'Multas',
+    'Multas em estado de autuação',
+    'IPVA',
+    'Licenciamento',
+    'SEFAZ',
+    'Taxa de leasing',
+    'Transferência de propriedade',
+    '2ª via de recibo (DUT)',
+    'Transferência de UF + município',
+    'Vistoria DETRAN',
+    'Honorário despachante',
+    'Placa',
+    'Benefício tributário',
+    'Taxa ATPV-e',
+    'Restrições',
+  ]);
   assert.ok(!PA2_ROWS.includes('IPVA+LICENCIAMENTO'));
   assert.ok(PA2_ROWS.includes('Taxa ATPV-e'));
-  assert.equal(PA2_ROWS[PA2_ROWS.indexOf('Multas') + 1], 'Multas em estado de autuação');
   assert.equal(PA2_ROWS[PA2_ROWS.indexOf('Taxa ATPV-e') + 1], 'Restrições');
 });
 
@@ -106,4 +122,16 @@ test('PA2 oferece uma ação confirmada para limpar todos os dados', async () =>
   assert.match(script, /clearDataButton\?\.addEventListener\('click'/);
   assert.match(script, /window\.confirm\('Limpar todos os dados do PA2\?/);
   assert.match(script, /entries\.forEach\(releaseEntry\);[\s\S]*entries = \[\];[\s\S]*form\.reset\(\);/);
+});
+
+test('PA2 envia observações finais para o fim do PDF', async () => {
+  const [page, script] = await Promise.all([
+    readFile('pa2.html', 'utf8'),
+    readFile('pa2.js', 'utf8'),
+  ]);
+
+  assert.match(page, /textarea name="finalObservations"[^>]*placeholder="Informações adicionais que aparecerão no fim do PA2"/);
+  assert.match(script, /finalObservations: form\.elements\.finalObservations\.value\.trim\(\)/);
+  assert.match(script, /drawFinalObservations\(\{ table, text: finalObservationsText, font, boldFont \}\)/);
+  assert.match(script, /OBSERVAÇÕES FINAIS/);
 });

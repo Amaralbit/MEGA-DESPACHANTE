@@ -10,21 +10,21 @@ export const PA2_LETTERHEAD_PATH = 'assets/papel-timbrado-mega-despachante.pdf';
 const PA2_LETTERHEAD_OPACITY = 0.18;
 
 export const PA2_ROWS = Object.freeze([
-  'Taxa de leasing',
   'Perícia e foto',
+  'Taxa RENAVE',
   'Desalienação',
+  'Multas',
+  'Multas em estado de autuação',
+  'IPVA',
+  'Licenciamento',
+  'SEFAZ',
+  'Taxa de leasing',
   'Transferência de propriedade',
   '2ª via de recibo (DUT)',
   'Transferência de UF + município',
-  'Multas',
-  'Multas em estado de autuação',
   'Vistoria DETRAN',
   'Honorário despachante',
-  'IPVA',
-  'Licenciamento',
   'Placa',
-  'Taxa RENAVE',
-  'SEFAZ',
   'Benefício tributário',
   'Taxa ATPV-e',
   'Restrições',
@@ -143,6 +143,11 @@ const measureRowHeight = (cells, widths, font, size) => {
   return Math.max(24, (lineCount * (size + 2)) + 10);
 };
 
+const measureFinalObservationsHeight = (text, font, width) => {
+  const lineCount = Math.max(1, wrapText(text, font, 8.5, width - 16).length);
+  return Math.max(46, 32 + (lineCount * 10));
+};
+
 const drawGridRow = ({ page, cells, widths, x, y, height, font, size, boldFont, bold = false, fill, colors }) => {
   let cursorX = x;
   const activeFont = bold ? boldFont : font;
@@ -161,6 +166,34 @@ const drawGridRow = ({ page, cells, widths, x, y, height, font, size, boldFont, 
     cursorX += widths[index];
   }
   return y - height;
+};
+
+const drawFinalObservations = ({ table, text, font, boldFont }) => {
+  const width = A4.width - (PAGE_MARGIN * 2);
+  const height = measureFinalObservationsHeight(text, font, width);
+  const textX = PAGE_MARGIN + 8;
+  const lines = wrapText(text, font, 8.5, width - 16);
+  table.page.drawRectangle({
+    x: PAGE_MARGIN,
+    y: table.y - height,
+    width,
+    height,
+    borderColor: table.colors.ink,
+    borderWidth: 0.75,
+  });
+  table.page.drawText('OBSERVAÇÕES FINAIS', {
+    x: textX,
+    y: table.y - 14,
+    size: 8.5,
+    font: boldFont,
+    color: table.colors.ink,
+  });
+  let y = table.y - 27;
+  lines.forEach((line) => {
+    table.page.drawText(line, { x: textX, y, size: 8.5, font, color: table.colors.ink });
+    y -= 10;
+  });
+  return height;
 };
 
 const drawLetterheadWatermark = (page, letterheadPage) => {
@@ -230,7 +263,7 @@ const appendImages = async (document, entries) => {
   }
 };
 
-export const createPa2Pdf = async ({ entries, plate = '', documentLabel = '', date = '', rows = [] }) => {
+export const createPa2Pdf = async ({ entries, plate = '', documentLabel = '', date = '', rows = [], finalObservations = '' }) => {
   if (!window.PDFLib?.PDFDocument) throw new Error('Biblioteca de PDF indisponível. Atualize a página e tente novamente.');
   if (!isValidPa2ImageCount(entries.length)) throw new Error('Adicione de 3 a 10 imagens para gerar o PA2.');
 
@@ -273,7 +306,11 @@ export const createPa2Pdf = async ({ entries, plate = '', documentLabel = '', da
   const totalHeight = 31;
   const finesSummary = `OBS.: SOMA DE MULTAS + MULTAS EM ESTADO DE AUTUAÇÃO: ${formatCurrencyValue(calculatePa2FinesTotal(rows))}`;
   const finesSummaryHeight = 28;
-  if (table.y - totalHeight - finesSummaryHeight < PAGE_MARGIN) {
+  const finalObservationsText = String(finalObservations || '').trim();
+  const finalObservationsHeight = finalObservationsText
+    ? measureFinalObservationsHeight(finalObservationsText, font, A4.width - (PAGE_MARGIN * 2))
+    : 0;
+  if (table.y - totalHeight - finesSummaryHeight - finalObservationsHeight < PAGE_MARGIN) {
     table = addTablePage({ document, font, boldFont, letterheadPage, plate: plate.toUpperCase(), documentLabel: normalizedDocumentLabel, continuation: true });
   }
   table.y = drawGridRow({ ...table, cells: totalCells, x: PAGE_MARGIN, height: totalHeight, font, boldFont, bold: true, size: 11, fill: table.colors.header });
@@ -284,6 +321,10 @@ export const createPa2Pdf = async ({ entries, plate = '', documentLabel = '', da
     font: boldFont,
     color: table.colors.ink,
   });
+  table.y -= finesSummaryHeight;
+  if (finalObservationsText) {
+    table.y -= drawFinalObservations({ table, text: finalObservationsText, font, boldFont });
+  }
 
   return document.save({ useObjectStreams: true });
 };
@@ -528,6 +569,7 @@ const initPa2 = () => {
         documentLabel: form.elements.documentType.value,
         date: form.elements.date.value,
         rows,
+        finalObservations: form.elements.finalObservations.value.trim(),
       });
       const filename = normalizeFilename(form.elements.filename.value);
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
