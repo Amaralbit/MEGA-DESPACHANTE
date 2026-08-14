@@ -1429,27 +1429,37 @@ body.protected-pdf-open{overflow:hidden}.protected-pdf-dialog[hidden]{display:no
   gap: 10px;
 }
 
-.premium-clear-button {
-  min-height: 32px;
-  padding: 6px 2px;
-  border: 0;
-  border-radius: 2px;
+.premium-step-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Especificidade "button.premium-clear-button" para vencer a regra
+   ".form-actions button{border:0}" quando o botão fica ao lado do
+   botão de gerar PDF, na última etapa. */
+button.premium-clear-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 43px;
+  padding: 0 18px;
+  border: 1.5px solid var(--red);
+  border-radius: 3px;
   background: transparent;
-  color: #cfcdc5;
-  font: 700 10px "DM Sans", sans-serif;
-  text-decoration: underline;
-  text-decoration-color: #706d64;
-  text-underline-offset: 4px;
+  color: var(--red);
+  font: 700 12px "DM Sans", sans-serif;
   cursor: pointer;
+  transition: background .2s, color .2s;
 }
 
 .premium-clear-button:hover {
+  background: var(--red);
   color: #fff;
-  text-decoration-color: var(--yellow);
 }
 
 .premium-clear-button:focus-visible {
-  outline: 2px solid var(--yellow);
+  outline: 2px solid var(--red);
   outline-offset: 3px;
 }
 
@@ -1490,6 +1500,17 @@ body.protected-pdf-open{overflow:hidden}.protected-pdf-dialog[hidden]{display:no
     align-items: flex-start;
     flex-direction: column;
     gap: 4px;
+  }
+
+  .premium-step-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .premium-step-actions .premium-clear-button {
+    width: 100%;
   }
 
   .contact-form-actions {

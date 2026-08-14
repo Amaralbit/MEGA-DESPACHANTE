@@ -199,7 +199,6 @@
         </div>
         <div class="premium-progress-actions">
           <span class="premium-save-status" data-save-status><i aria-hidden="true"></i> Rascunho automático ativo</span>
-          <button type="button" class="premium-clear-button" data-clear-form>Limpar todos os campos</button>
         </div>
       </div>
       <div class="premium-progress-track" role="progressbar" aria-valuemin="1" aria-valuemax="${panels.length}" aria-valuenow="1" aria-label="Progresso do formulário">
@@ -225,6 +224,26 @@
     if (submitButton) submitButton.innerHTML = 'Revisar e gerar PDF <span>→</span>';
     const actionDescription = form.querySelector('.form-actions p');
     if (actionDescription) actionDescription.textContent = 'Você verá uma conferência final antes de gerar e baixar o documento.';
+
+    // O botão de gerar PDF ganha o mesmo agrupamento usado pelo "Continuar",
+    // para que o botão de limpar sempre pouse à esquerda dele, no mesmo padrão.
+    let submitActions = null;
+    if (submitButton && formActions) {
+      submitActions = document.createElement('div');
+      submitActions.className = 'premium-step-actions';
+      formActions.insertBefore(submitActions, submitButton);
+      submitActions.append(submitButton);
+    }
+
+    const clearButton = document.createElement('button');
+    clearButton.type = 'button';
+    clearButton.className = 'premium-clear-button';
+    clearButton.dataset.clearForm = '';
+    clearButton.textContent = 'Limpar todos os campos';
+
+    // Onde o botão de limpar deve pousar em cada etapa: sempre à esquerda do
+    // botão de ação principal daquela etapa (Continuar, ou Revisar e gerar PDF na última).
+    const clearButtonSlots = [];
 
     panels.forEach((panel, index) => {
       const navigation = document.createElement('div');
@@ -254,10 +273,15 @@
           }
           showStep(index + 1, true);
         });
-        navigation.append(nextButton);
+        const actions = document.createElement('div');
+        actions.className = 'premium-step-actions';
+        actions.append(nextButton);
+        navigation.append(actions);
         panel.append(navigation);
+        clearButtonSlots[index] = { parent: actions, before: nextButton };
       } else {
         panel.insertBefore(navigation, confirmation || formActions || null);
+        if (submitButton) clearButtonSlots[index] = { parent: submitActions, before: submitButton };
       }
     });
 
@@ -298,6 +322,9 @@
       panels.forEach((panel, panelIndex) => {
         panel.hidden = panelIndex !== nextIndex;
       });
+
+      const slot = clearButtonSlots[nextIndex];
+      if (slot?.parent) slot.parent.insertBefore(clearButton, slot.before || null);
 
       tabButtons.forEach((button, buttonIndex) => {
         button.classList.toggle('is-active', buttonIndex === nextIndex);
@@ -460,7 +487,7 @@
       });
     });
 
-    progress.querySelector('[data-clear-form]').addEventListener('click', () => {
+    clearButton.addEventListener('click', () => {
       const shouldClear = window.confirm('Limpar todos os campos? Os dados preenchidos e o rascunho salvo neste dispositivo serão apagados.');
       if (!shouldClear) return;
 
