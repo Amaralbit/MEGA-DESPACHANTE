@@ -146,3 +146,12 @@ test('PA2 envia observações finais para o fim do PDF', async () => {
   assert.match(script, /drawFinalObservations\(\{ table, text: finalObservationsText, font, boldFont \}\)/);
   assert.match(script, /OBSERVAÇÕES FINAIS/);
 });
+
+test('PA2 só mostra a soma das multas na observação da linha quando ambos os valores estiverem preenchidos', async () => {
+  const script = await readFile('pa2.js', 'utf8');
+
+  assert.doesNotMatch(script, /table\.page\.drawText\(finesSummary/);
+  assert.match(script, /const bothFinesFilled = Number\.isFinite\(parseCurrencyValue\(rows\[PA2_ROWS\.indexOf\('Multas'\)\]\?\.amount\)\)/);
+  assert.match(script, /const finesSummaryText = bothFinesFilled/);
+  assert.match(script, /description === 'Multas em estado de autuação' && finesSummaryText/);
+});

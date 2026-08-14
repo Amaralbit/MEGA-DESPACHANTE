@@ -292,12 +292,21 @@ export const createPa2Pdf = async ({ entries, plate = '', documentLabel = '', da
   let table = addTablePage({ document, font, boldFont, letterheadPage, plate: plate.toUpperCase(), documentLabel: normalizedDocumentLabel });
   const fontSize = 8;
   const bottomLimit = PAGE_MARGIN + 34;
+  const bothFinesFilled = Number.isFinite(parseCurrencyValue(rows[PA2_ROWS.indexOf('Multas')]?.amount))
+    && Number.isFinite(parseCurrencyValue(rows[PA2_ROWS.indexOf('Multas em estado de autuação')]?.amount));
+  const finesSummaryText = bothFinesFilled
+    ? `SOMA DE MULTAS + MULTAS EM ESTADO DE AUTUAÇÃO: ${formatCurrencyValue(calculatePa2FinesTotal(rows))}`
+    : '';
   const normalizedRows = PA2_ROWS.map((description, index) => {
     const parsedAmount = parseCurrencyValue(rows[index]?.amount);
+    const userNote = rows[index]?.note || '';
+    const note = description === 'Multas em estado de autuação' && finesSummaryText
+      ? [userNote, finesSummaryText].filter(Boolean).join(' — ')
+      : userNote;
     return {
       description,
       amount: Number.isFinite(parsedAmount) ? formatCurrencyValue(parsedAmount) : '',
-      note: rows[index]?.note || '',
+      note,
       parsedAmount,
     };
   });
@@ -316,24 +325,14 @@ export const createPa2Pdf = async ({ entries, plate = '', documentLabel = '', da
   const formattedDate = date ? date.split('-').reverse().join('/') : '';
   const totalCells = ['TOTAL', total, formattedDate];
   const totalHeight = 31;
-  const finesSummary = `OBS.: SOMA DE MULTAS + MULTAS EM ESTADO DE AUTUAÇÃO: ${formatCurrencyValue(calculatePa2FinesTotal(rows))}`;
-  const finesSummaryHeight = 28;
   const finalObservationsText = String(finalObservations || '').trim();
   const finalObservationsHeight = finalObservationsText
     ? measureFinalObservationsHeight(finalObservationsText, font, A4.width - (PAGE_MARGIN * 2))
     : 0;
-  if (table.y - totalHeight - finesSummaryHeight - finalObservationsHeight < PAGE_MARGIN) {
+  if (table.y - totalHeight - finalObservationsHeight < PAGE_MARGIN) {
     table = addTablePage({ document, font, boldFont, letterheadPage, plate: plate.toUpperCase(), documentLabel: normalizedDocumentLabel, continuation: true });
   }
   table.y = drawGridRow({ ...table, cells: totalCells, x: PAGE_MARGIN, height: totalHeight, font, boldFont, bold: true, size: 11, fill: table.colors.header });
-  table.page.drawText(finesSummary, {
-    x: PAGE_MARGIN,
-    y: table.y - 18,
-    size: 9,
-    font: boldFont,
-    color: table.colors.ink,
-  });
-  table.y -= finesSummaryHeight;
   if (finalObservationsText) {
     table.y -= drawFinalObservations({ table, text: finalObservationsText, font, boldFont });
   }
