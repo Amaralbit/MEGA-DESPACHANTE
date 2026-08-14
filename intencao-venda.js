@@ -27,7 +27,7 @@ if (intencaoVendaForm) {
     });
   });
 
-  const setupCepLookup = ({ cep, address, neighborhood, city, state, feedback, includeNeighborhoodInAddress = false }) => {
+  const setupCepLookup = ({ cep, address, bairro, city, state, feedback }) => {
     let lastCep = '';
     const setFeedback = (message, isError = false) => {
       feedback.textContent = message;
@@ -42,12 +42,8 @@ if (intencaoVendaForm) {
         if (!response.ok) throw new Error('CEP inválido');
         const result = await response.json();
         if (result.erro) throw new Error('CEP não encontrado');
-        const addressParts = [
-          result.logradouro,
-          includeNeighborhoodInAddress && result.bairro,
-        ].filter(Boolean);
-        address.value = addressParts.join(', ') || address.value;
-        if (neighborhood) neighborhood.value = result.bairro || neighborhood.value;
+        address.value = result.logradouro || address.value;
+        bairro.value = result.bairro || bairro.value;
         city.value = result.localidade || city.value;
         state.value = result.uf || state.value;
         lastCep = postalCode;
@@ -63,8 +59,8 @@ if (intencaoVendaForm) {
     });
   };
 
-  setupCepLookup({ cep: intencaoVendaForm.elements.cepVendedor, address: intencaoVendaForm.elements.enderecoVendedor, neighborhood: intencaoVendaForm.elements.bairroVendedor, city: intencaoVendaForm.elements.cidadeVendedor, state: intencaoVendaForm.elements.estadoVendedor, feedback: document.getElementById('cep-vendedor-feedback') });
-  setupCepLookup({ cep: intencaoVendaForm.elements.cepComprador, address: intencaoVendaForm.elements.enderecoComprador, city: intencaoVendaForm.elements.cidadeComprador, state: intencaoVendaForm.elements.estadoComprador, feedback: document.getElementById('cep-comprador-feedback'), includeNeighborhoodInAddress: true });
+  setupCepLookup({ cep: intencaoVendaForm.elements.cepVendedor, address: intencaoVendaForm.elements.enderecoVendedor, bairro: intencaoVendaForm.elements.bairroVendedor, city: intencaoVendaForm.elements.cidadeVendedor, state: intencaoVendaForm.elements.estadoVendedor, feedback: document.getElementById('cep-vendedor-feedback') });
+  setupCepLookup({ cep: intencaoVendaForm.elements.cepComprador, address: intencaoVendaForm.elements.enderecoComprador, bairro: intencaoVendaForm.elements.bairroComprador, city: intencaoVendaForm.elements.cidadeComprador, state: intencaoVendaForm.elements.estadoComprador, feedback: document.getElementById('cep-comprador-feedback') });
 
   intencaoVendaForm.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -77,6 +73,11 @@ if (intencaoVendaForm) {
       data.get('loteVendedor') && `Lt. ${valueOf(data, 'loteVendedor')}`,
     ].filter(Boolean).join(', ');
     const vendorAddress = `${valueOf(data, 'enderecoVendedor')}, ${valueOf(data, 'numeroVendedor')}${data.get('complementoVendedor') ? ` - ${valueOf(data, 'complementoVendedor')}` : ''}, ${quadraLote ? `${quadraLote}, ` : ''}${valueOf(data, 'bairroVendedor')}, ${valueOf(data, 'cidadeVendedor')}/${valueOf(data, 'estadoVendedor')} - CEP ${valueOf(data, 'cepVendedor')}`;
+    const quadraLoteComprador = [
+      data.get('quadraComprador') && `Qd. ${valueOf(data, 'quadraComprador')}`,
+      data.get('loteComprador') && `Lt. ${valueOf(data, 'loteComprador')}`,
+    ].filter(Boolean).join(', ');
+    const buyerAddress = `${valueOf(data, 'enderecoComprador')}, ${valueOf(data, 'numeroComprador')}${data.get('complementoComprador') ? ` - ${valueOf(data, 'complementoComprador')}` : ''}, ${quadraLoteComprador ? `${quadraLoteComprador}, ` : ''}${valueOf(data, 'bairroComprador')}, ${valueOf(data, 'cidadeComprador')}/${valueOf(data, 'estadoComprador')} - CEP ${valueOf(data, 'cepComprador')}`;
     const logoUrl = new URL('assets/logo-mega-transparent.png', window.location.href).href;
     const preview = window.createProtectedPdfPreview('procuracao-intencao-venda', 'procuracao-intencao-venda.pdf');
     if (!preview) {
@@ -112,7 +113,7 @@ if (intencaoVendaForm) {
         <p>Podendo, para tanto, requerer e assinar o que necessário for, efetuar pagamentos, receber e dar quitações, alegar, concordar, discordar, prestar declarações e informações, enfim, praticar quaisquer outros atos que se fizerem necessários para o fiel cumprimento deste mandato, o que desde já fica dado por firme e valioso.</p>
         <h2 class="buyer-title">Dados comprador</h2>
         <p>Declaro ainda que os dados abaixo são a expressão da verdade, tendo sido captados e informados por mim, assumindo a inteira responsabilidade perante eles e isentando o despachante contratado de qualquer infortúnio:</p>
-        <section class="buyer-grid"><div class="wide"><b>COMPRADOR:</b> <strong>${nameOf(data, 'comprador')}</strong></div><div><b>CPF/CNPJ:</b> ${valueOf(data, 'cpfCnpjComprador')}</div><div class="wide"><b>ENDEREÇO:</b> ${valueOf(data, 'enderecoComprador')}</div><div><b>MUNICÍPIO / UF:</b> ${valueOf(data, 'cidadeComprador')}/${valueOf(data, 'estadoComprador')}</div><div><b>CEP:</b> ${valueOf(data, 'cepComprador')}</div><div><b>E-MAIL:</b> ${valueOf(data, 'emailComprador')}</div><div><b>VALOR:</b> R$ ${valueOf(data, 'valorVenda')}</div></section>
+        <section class="buyer-grid"><div class="wide"><b>COMPRADOR:</b> <strong>${nameOf(data, 'comprador')}</strong></div><div><b>CPF/CNPJ:</b> ${valueOf(data, 'cpfCnpjComprador')}</div><div><b>E-MAIL:</b> ${valueOf(data, 'emailComprador')}</div><div class="wide"><b>ENDEREÇO:</b> ${buyerAddress}</div><div class="wide"><b>VALOR:</b> R$ ${valueOf(data, 'valorVenda')}</div></section>
         <section class="closing signature-footer"><div class="signature"><p>${valueOf(data, 'cidadeAssinatura')}, ${date}.</p><div class="signature-line"></div><strong>${nameOf(data, 'vendedor')}</strong><br>Assinatura do Outorgante (Proprietário Vendedor)</div>${window.renderMegaDeclaration(valueOf(data, 'cidadeAssinatura'), date)}</section>
       </article></body></html>`);
     preview.document.close();

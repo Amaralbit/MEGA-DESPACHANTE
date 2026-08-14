@@ -30,13 +30,12 @@ test('ATPV-e requests only relevant identification and vehicle fields', async ()
 test('ATPV-e fills the complete address from the postal code', async () => {
   const script = await readFile('intencao-venda.js', 'utf8');
 
-  assert.match(script, /neighborhood\.value = result\.bairro/);
-  assert.match(script, /includeNeighborhoodInAddress && result\.bairro/);
-  assert.match(script, /neighborhood: intencaoVendaForm\.elements\.bairroVendedor/);
-  assert.match(script, /includeNeighborhoodInAddress: true/);
+  assert.match(script, /bairro\.value = result\.bairro/);
+  assert.match(script, /bairro: intencaoVendaForm\.elements\.bairroVendedor/);
+  assert.match(script, /bairro: intencaoVendaForm\.elements\.bairroComprador/);
 });
 
-test('ATPV-e asks for the buyer postal code before the address', async () => {
+test('ATPV-e asks for the buyer postal code before the address, mirroring the seller layout', async () => {
   const html = await readFile('procuracao-intencao-venda.html', 'utf8');
   const postalCodePosition = html.indexOf('name="cepComprador"');
   const addressPosition = html.indexOf('name="enderecoComprador"');
@@ -44,8 +43,11 @@ test('ATPV-e asks for the buyer postal code before the address', async () => {
   assert.ok(postalCodePosition >= 0, 'Campo CEP do comprador não encontrado');
   assert.ok(addressPosition >= 0, 'Campo endereço do comprador não encontrado');
   assert.ok(postalCodePosition < addressPosition, 'O CEP deve aparecer antes do endereço');
-  assert.match(html, /<label class="field-wide">CEP \*/);
-  assert.match(html, /<label>Endereço \*/);
+  assert.match(html, /name="numeroComprador"/);
+  assert.match(html, /name="complementoComprador"/);
+  assert.match(html, /name="quadraComprador"/);
+  assert.match(html, /name="loteComprador"/);
+  assert.match(html, /name="bairroComprador"/);
 });
 
 test('vehicle power of attorney allows a new vehicle without a license plate', async () => {

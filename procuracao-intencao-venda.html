@@ -53,11 +53,16 @@
           <div class="fields-grid">
             <label class="field-wide">Nome completo ou razão social *<input name="comprador" required placeholder="Nome completo" /></label>
             <label>CPF ou CNPJ *<input name="cpfCnpjComprador" inputmode="numeric" data-mask="cpf-cnpj" required placeholder="000.000.000-00" /></label>
-            <label class="field-wide">CEP *<input name="cepComprador" inputmode="numeric" data-mask="cep" required placeholder="00000-000" /><small class="cep-feedback" id="cep-comprador-feedback" aria-live="polite"></small></label>
+            <label>CEP *<input name="cepComprador" inputmode="numeric" autocomplete="postal-code" data-mask="cep" required placeholder="00000-000" /><small class="cep-feedback" id="cep-comprador-feedback" aria-live="polite"></small></label>
+            <label class="field-double">Rua / Avenida *<input name="enderecoComprador" required placeholder="Rua, avenida, alameda..." /></label>
+            <label>Número *<input name="numeroComprador" required placeholder="Número" /></label>
+            <label>Complemento<input name="complementoComprador" placeholder="Apto., sala, casa..." /></label>
+            <label>Quadra<input name="quadraComprador" placeholder="Ex.: 05" /></label>
+            <label>Lote<input name="loteComprador" placeholder="Ex.: 17" /></label>
+            <label>Bairro *<input name="bairroComprador" required placeholder="Bairro" /></label>
             <label>Cidade *<input name="cidadeComprador" required placeholder="Cidade" /></label>
             <label>Estado *<input name="estadoComprador" maxlength="2" required placeholder="UF" /></label>
-            <label>Endereço *<input name="enderecoComprador" required placeholder="Rua, número, complemento, bairro..." /></label>
-            <label>E-mail *<input name="emailComprador" type="email" required placeholder="comprador@email.com" /></label>
+            <label class="field-double">E-mail *<input name="emailComprador" type="email" required placeholder="comprador@email.com" /></label>
             <label class="field-wide">Valor da venda *<input name="valorVenda" inputmode="decimal" required placeholder="Ex.: 46.500,00" /></label>
           </div>
           <div class="form-intro"><span>04</span><div><strong>Local e data</strong><small>Data que aparecerá no documento</small></div></div>
