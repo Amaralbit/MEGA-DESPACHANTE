@@ -193,3 +193,16 @@ test('PA2 esquece o código quando a aba/navegador fecha, mas não ao trocar de 
   assert.doesNotMatch(page, /localStorage/);
   assert.doesNotMatch(script, /\blocalStorage\b/);
 });
+
+test('PA2 mostra uma prévia ao vivo do valor interpretado em cada linha', () => {
+  assert.equal(formatCurrencyValue(parseCurrencyValue('1.017')), 'R$ 1.017,00');
+  assert.equal(formatCurrencyValue(parseCurrencyValue('1.17')), 'R$ 1,17');
+});
+
+test('PA2 atualiza a prévia do valor a cada tecla digitada', async () => {
+  const script = await readFile('pa2.js', 'utf8');
+
+  assert.match(script, /pa2-amount-preview/);
+  assert.match(script, /amount\.addEventListener\('input', \(\) => \{/);
+  assert.match(script, /amountPreview\.textContent = Number\.isFinite\(parsed\) \? `= \$\{formatCurrencyValue\(parsed\)\}` : '';/);
+});

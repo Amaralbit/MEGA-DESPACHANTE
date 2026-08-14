@@ -425,13 +425,20 @@ const initPa2 = () => {
     amount.maxLength = 18;
     amount.placeholder = 'R$ 0,00';
     amount.setAttribute('aria-label', `Valor de ${description}`);
+    const amountPreview = document.createElement('small');
+    amountPreview.className = 'pa2-amount-preview';
+    amountPreview.setAttribute('aria-live', 'polite');
+    amount.addEventListener('input', () => {
+      const parsed = parseCurrencyValue(amount.value);
+      amountPreview.textContent = Number.isFinite(parsed) ? `= ${formatCurrencyValue(parsed)}` : '';
+    });
     const noteCell = document.createElement('td');
     const note = document.createElement('input');
     note.name = `note-${index}`;
     note.maxLength = 180;
     note.placeholder = 'Observação';
     note.setAttribute('aria-label', `Observação de ${description}`);
-    amountCell.append(amount);
+    amountCell.append(amount, amountPreview);
     noteCell.append(note);
     row.append(descriptionCell, amountCell, noteCell);
     tableBody.append(row);
