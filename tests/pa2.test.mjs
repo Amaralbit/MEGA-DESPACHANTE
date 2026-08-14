@@ -55,6 +55,17 @@ test('PA2 não corrompe valores colados sem centavos ou com múltiplos separador
   assert.equal(parseCurrencyValue('12.5'), 12.5);
 });
 
+test('PA2 reconhece valores colados no formato americano (vírgula de milhar, ponto decimal)', () => {
+  // Sistemas como o do DETRAN às vezes exibem valores em "modo americano".
+  assert.equal(parseCurrencyValue('1,172.65'), 1172.65);
+  assert.equal(parseCurrencyValue('1,234,567.89'), 1234567.89);
+  assert.equal(parseCurrencyValue('1,172'), 1172);
+  assert.equal(parseCurrencyValue('1,234,567'), 1234567);
+  // E continua reconhecendo o formato brasileiro normalmente.
+  assert.equal(parseCurrencyValue('1.172,65'), 1172.65);
+  assert.equal(parseCurrencyValue('1,17'), 1.17);
+});
+
 test('PA2 contém as linhas do modelo de despesas', () => {
   assert.equal(PA2_ROWS.length, 18);
   assert.deepEqual(PA2_ROWS, [

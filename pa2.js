@@ -61,21 +61,35 @@ export const getPa2ClipboardImages = (clipboardData) => {
 export const parseCurrencyValue = (value) => {
   const cleaned = String(value || '').trim().replace(/[^\d,.-]/g, '');
   if (!cleaned || cleaned === '-' || !/\d/.test(cleaned)) return null;
+  const lastComma = cleaned.lastIndexOf(',');
+  const lastDot = cleaned.lastIndexOf('.');
   let normalized = cleaned;
-  if (cleaned.includes(',')) {
-    // Vírgula é o separador decimal (padrão BR); pontos são separadores de milhar.
-    normalized = cleaned.replace(/\./g, '').replace(',', '.');
-  } else if ((cleaned.match(/\./g) || []).length > 1) {
-    // Mais de um ponto só pode ser separador de milhar (ex.: "1.234.567").
-    normalized = cleaned.replace(/\./g, '');
-  } else {
-    const dotMatch = cleaned.match(/\.(\d+)$/);
-    if (dotMatch && dotMatch[1].length === 3) {
-      // Um único ponto seguido de exatamente 3 dígitos é separador de milhar
-      // (ex.: "1.000" colado sem os centavos) — valor monetário nunca tem 3 casas decimais.
+
+  if (lastComma !== -1 && lastDot !== -1) {
+    // Tem os dois separadores: o que aparece por último é o decimal, e o
+    // outro (onde aparecer) é separador de milhar. Cobre tanto o padrão BR
+    // ("1.172,65") quanto sistemas no formato americano copiados sem querer
+    // ("1,172.65", onde o ponto é o decimal e a vírgula é o milhar).
+    normalized = lastComma > lastDot
+      ? cleaned.replace(/\./g, '').replace(',', '.')
+      : cleaned.replace(/,/g, '');
+  } else if (lastComma !== -1) {
+    const tail = cleaned.slice(lastComma + 1);
+    normalized = cleaned.split(',').length > 2 || tail.length === 3
+      // Mais de uma vírgula, ou uma vírgula seguida de 3 dígitos, só pode ser
+      // separador de milhar (ex.: "1,172" ou "1,234,567") — valor monetário
+      // nunca tem 3 casas decimais.
+      ? cleaned.replace(/,/g, '')
+      : cleaned.replace(',', '.');
+  } else if (lastDot !== -1) {
+    const tail = cleaned.slice(lastDot + 1);
+    if (cleaned.split('.').length > 2 || tail.length === 3) {
+      // Mais de um ponto, ou um ponto seguido de 3 dígitos, só pode ser
+      // separador de milhar (ex.: "1.000" ou "1.234.567").
       normalized = cleaned.replace(/\./g, '');
     }
   }
+
   const number = Number.parseFloat(normalized);
   return Number.isFinite(number) ? number : null;
 };
