@@ -11,7 +11,30 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body class="forms-page pa2-page">
+  <body class="forms-page pa2-page pa2-locked">
+    <div id="pa2-gate" class="pa2-gate">
+      <div class="pa2-gate-card">
+        <p class="eyebrow"><span></span> ACESSO RESTRITO</p>
+        <h2>Código de acesso</h2>
+        <p>Digite o código para acessar o PA2.</p>
+        <form id="pa2-gate-form" class="pa2-gate-form" autocomplete="off">
+          <label for="pa2-gate-input">Código de acesso</label>
+          <input id="pa2-gate-input" name="pa2-gate-code" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Código de acesso" />
+          <button class="button button-primary" type="submit">Entrar <span>→</span></button>
+        </form>
+        <p id="pa2-gate-error" class="pa2-gate-error" role="alert" hidden>Código incorreto. Tente novamente.</p>
+      </div>
+    </div>
+    <script>
+      // Evita mostrar o PA2 por um instante antes do JS principal carregar,
+      // para quem já digitou o código de acesso neste aparelho antes.
+      try {
+        if (localStorage.getItem('pa2-access-granted') === 'true') {
+          document.body.classList.remove('pa2-locked');
+          document.getElementById('pa2-gate').hidden = true;
+        }
+      } catch { /* localStorage indisponível; segue pedindo o código normalmente. */ }
+    </script>
     <header class="site-header">
       <div class="container nav-wrap">
         <a class="brand" href="index.html" aria-label="MEGA Despachante, início"><span class="brand-mark">MEGA</span><span class="brand-name">DESPACHANTE</span></a>

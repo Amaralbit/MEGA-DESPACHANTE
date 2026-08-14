@@ -9,6 +9,11 @@ const PAGE_MARGIN = 28.35;
 export const PA2_LETTERHEAD_PATH = 'assets/papel-timbrado-mega-despachante.pdf';
 const PA2_LETTERHEAD_OPACITY = 0.18;
 
+// Código de acesso ao PA2. Troque o valor abaixo para definir/alterar o código
+// (a comparação ignora maiúsculas/minúsculas e espaços nas pontas).
+export const PA2_ACCESS_CODE = 'consulta';
+const PA2_ACCESS_STORAGE_KEY = 'pa2-access-granted';
+
 export const PA2_ROWS = Object.freeze([
   'Perícia e foto',
   'Taxa RENAVE',
@@ -344,6 +349,50 @@ export const createPa2Pdf = async ({ entries, plate = '', documentLabel = '', da
   return document.save({ useObjectStreams: true });
 };
 
+const initPa2Gate = () => {
+  const gate = document.getElementById('pa2-gate');
+  const gateForm = document.getElementById('pa2-gate-form');
+  const gateInput = document.getElementById('pa2-gate-input');
+  const gateError = document.getElementById('pa2-gate-error');
+  if (!gate || !gateForm || !gateInput) return;
+
+  const unlock = () => {
+    document.body.classList.remove('pa2-locked');
+    gate.hidden = true;
+  };
+
+  try {
+    if (localStorage.getItem(PA2_ACCESS_STORAGE_KEY) === 'true') {
+      unlock();
+      return;
+    }
+  } catch {
+    // localStorage indisponível (modo privado, etc.); segue pedindo o código normalmente.
+  }
+
+  gateInput.focus();
+  gateInput.addEventListener('input', () => {
+    if (gateError) gateError.hidden = true;
+  });
+
+  gateForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const entered = gateInput.value.trim().toLowerCase();
+    const expected = PA2_ACCESS_CODE.trim().toLowerCase();
+    if (entered && entered === expected) {
+      try {
+        localStorage.setItem(PA2_ACCESS_STORAGE_KEY, 'true');
+      } catch {
+        // Sem localStorage disponível: libera o acesso só para esta visita.
+      }
+      unlock();
+      return;
+    }
+    if (gateError) gateError.hidden = false;
+    gateInput.select();
+  });
+};
+
 const initPa2 = () => {
   const form = document.getElementById('pa2-form');
   const input = document.getElementById('pa2-image-input');
@@ -634,4 +683,5 @@ const initPa2 = () => {
   updateState();
 };
 
+if (typeof document !== 'undefined') initPa2Gate();
 if (typeof document !== 'undefined') initPa2();

@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import {
   MAX_PA2_IMAGES,
   MIN_PA2_IMAGES,
+  PA2_ACCESS_CODE,
   PA2_LETTERHEAD_PATH,
   PA2_ROWS,
   calculatePa2FinesTotal,
@@ -164,4 +165,21 @@ test('PA2 destaca a soma das multas em verde e trava a observação quando ambas
   assert.match(script, /\[undefined, undefined, table\.colors\.success\]/);
   assert.match(script, /autuacaoNoteInput\.disabled = bothFinesFilled/);
   assert.match(script, /if \(bothFinesFilled\) autuacaoNoteInput\.value = '';/);
+});
+
+test('PA2 fica atrás de um código de acesso aceito em maiúsculas ou minúsculas', async () => {
+  const [page, script] = await Promise.all([
+    readFile('pa2.html', 'utf8'),
+    readFile('pa2.js', 'utf8'),
+  ]);
+
+  assert.match(page, /<body class="forms-page pa2-page pa2-locked">/);
+  assert.match(page, /id="pa2-gate"/);
+  assert.match(page, /localStorage\.getItem\('pa2-access-granted'\) === 'true'/);
+  assert.doesNotMatch(page, /\srequired(?:\s|>|=)/i);
+  assert.equal(typeof PA2_ACCESS_CODE, 'string');
+  assert.ok(PA2_ACCESS_CODE.trim().length > 0);
+  assert.match(script, /gateInput\.value\.trim\(\)\.toLowerCase\(\)/);
+  assert.match(script, /PA2_ACCESS_CODE\.trim\(\)\.toLowerCase\(\)/);
+  assert.match(script, /localStorage\.setItem\(PA2_ACCESS_STORAGE_KEY, 'true'\)/);
 });
