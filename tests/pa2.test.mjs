@@ -45,6 +45,15 @@ test('PA2 reconhece e formata valores brasileiros', () => {
   assert.equal(formatCurrencyValue(5477.32), 'R$ 5.477,32');
 });
 
+test('PA2 não corrompe valores colados sem centavos ou com múltiplos separadores de milhar', () => {
+  assert.equal(parseCurrencyValue('1.000'), 1000);
+  assert.equal(parseCurrencyValue('12.000'), 12000);
+  assert.equal(parseCurrencyValue('1.234.567'), 1234567);
+  assert.equal(parseCurrencyValue('1.234.567,89'), 1234567.89);
+  assert.equal(parseCurrencyValue('1200.50'), 1200.5);
+  assert.equal(parseCurrencyValue('12.5'), 12.5);
+});
+
 test('PA2 contém as linhas do modelo de despesas', () => {
   assert.equal(PA2_ROWS.length, 18);
   assert.deepEqual(PA2_ROWS, [

@@ -57,7 +57,20 @@ export const parseCurrencyValue = (value) => {
   const cleaned = String(value || '').trim().replace(/[^\d,.-]/g, '');
   if (!cleaned || cleaned === '-' || !/\d/.test(cleaned)) return null;
   let normalized = cleaned;
-  if (cleaned.includes(',')) normalized = cleaned.replace(/\./g, '').replace(',', '.');
+  if (cleaned.includes(',')) {
+    // Vírgula é o separador decimal (padrão BR); pontos são separadores de milhar.
+    normalized = cleaned.replace(/\./g, '').replace(',', '.');
+  } else if ((cleaned.match(/\./g) || []).length > 1) {
+    // Mais de um ponto só pode ser separador de milhar (ex.: "1.234.567").
+    normalized = cleaned.replace(/\./g, '');
+  } else {
+    const dotMatch = cleaned.match(/\.(\d+)$/);
+    if (dotMatch && dotMatch[1].length === 3) {
+      // Um único ponto seguido de exatamente 3 dígitos é separador de milhar
+      // (ex.: "1.000" colado sem os centavos) — valor monetário nunca tem 3 casas decimais.
+      normalized = cleaned.replace(/\./g, '');
+    }
+  }
   const number = Number.parseFloat(normalized);
   return Number.isFinite(number) ? number : null;
 };
