@@ -27,13 +27,14 @@
     </div>
     <script>
       // Evita mostrar o PA2 por um instante antes do JS principal carregar,
-      // para quem já digitou o código de acesso neste aparelho antes.
+      // para quem já digitou o código de acesso nesta aba (sessionStorage:
+      // dura enquanto a aba/navegador ficar aberto, some ao fechar).
       try {
-        if (localStorage.getItem('pa2-access-granted') === 'true') {
+        if (sessionStorage.getItem('pa2-access-granted') === 'true') {
           document.body.classList.remove('pa2-locked');
           document.getElementById('pa2-gate').hidden = true;
         }
-      } catch { /* localStorage indisponível; segue pedindo o código normalmente. */ }
+      } catch { /* sessionStorage indisponível; segue pedindo o código normalmente. */ }
     </script>
     <header class="site-header">
       <div class="container nav-wrap">

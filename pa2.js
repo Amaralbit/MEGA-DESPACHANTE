@@ -362,12 +362,12 @@ const initPa2Gate = () => {
   };
 
   try {
-    if (localStorage.getItem(PA2_ACCESS_STORAGE_KEY) === 'true') {
+    if (sessionStorage.getItem(PA2_ACCESS_STORAGE_KEY) === 'true') {
       unlock();
       return;
     }
   } catch {
-    // localStorage indisponível (modo privado, etc.); segue pedindo o código normalmente.
+    // sessionStorage indisponível (modo privado, etc.); segue pedindo o código normalmente.
   }
 
   gateInput.focus();
@@ -381,9 +381,9 @@ const initPa2Gate = () => {
     const expected = PA2_ACCESS_CODE.trim().toLowerCase();
     if (entered && entered === expected) {
       try {
-        localStorage.setItem(PA2_ACCESS_STORAGE_KEY, 'true');
+        sessionStorage.setItem(PA2_ACCESS_STORAGE_KEY, 'true');
       } catch {
-        // Sem localStorage disponível: libera o acesso só para esta visita.
+        // Sem sessionStorage disponível: libera o acesso só para esta interação.
       }
       unlock();
       return;

@@ -175,11 +175,21 @@ test('PA2 fica atrás de um código de acesso aceito em maiúsculas ou minúscul
 
   assert.match(page, /<body class="forms-page pa2-page pa2-locked">/);
   assert.match(page, /id="pa2-gate"/);
-  assert.match(page, /localStorage\.getItem\('pa2-access-granted'\) === 'true'/);
+  assert.match(page, /sessionStorage\.getItem\('pa2-access-granted'\) === 'true'/);
   assert.doesNotMatch(page, /\srequired(?:\s|>|=)/i);
   assert.equal(typeof PA2_ACCESS_CODE, 'string');
   assert.ok(PA2_ACCESS_CODE.trim().length > 0);
   assert.match(script, /gateInput\.value\.trim\(\)\.toLowerCase\(\)/);
   assert.match(script, /PA2_ACCESS_CODE\.trim\(\)\.toLowerCase\(\)/);
-  assert.match(script, /localStorage\.setItem\(PA2_ACCESS_STORAGE_KEY, 'true'\)/);
+  assert.match(script, /sessionStorage\.setItem\(PA2_ACCESS_STORAGE_KEY, 'true'\)/);
+});
+
+test('PA2 esquece o código quando a aba/navegador fecha, mas não ao trocar de página', async () => {
+  const [page, script] = await Promise.all([
+    readFile('pa2.html', 'utf8'),
+    readFile('pa2.js', 'utf8'),
+  ]);
+
+  assert.doesNotMatch(page, /localStorage/);
+  assert.doesNotMatch(script, /\blocalStorage\b/);
 });
