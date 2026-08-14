@@ -238,7 +238,6 @@ const appendImages = async (document, entries) => {
   let hasImageOnPage = false;
   const contentWidth = A4.width - (PAGE_MARGIN * 2);
   const contentHeight = A4.height - (PAGE_MARGIN * 2);
-  const gap = 12;
 
   for (const entry of entries) {
     const prepared = await prepareImageForPdf(entry, 'high');
@@ -258,7 +257,7 @@ const appendImages = async (document, entries) => {
       hasImageOnPage = false;
     }
     page.drawImage(image, { x: (A4.width - width) / 2, y: cursorY - height, width, height });
-    cursorY -= height + gap;
+    cursorY -= height;
     hasImageOnPage = true;
   }
 };
