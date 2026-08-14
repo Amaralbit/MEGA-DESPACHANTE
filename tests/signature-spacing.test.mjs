@@ -56,7 +56,7 @@ test('residence declaration keeps long addresses and signatures on one A4 page',
   const residenceDeclaration = await readFile('declaracao-residencia.js', 'utf8');
 
   assert.match(residenceDeclaration, /\.declaration \{[^}]*overflow-wrap: anywhere;/);
-  assert.match(residenceDeclaration, /\.signature \{[^}]*margin: 12mm auto 0;/);
+  assert.match(residenceDeclaration, /\.signature \{[^}]*margin: 12mm auto 30mm;/);
   assert.match(residenceDeclaration, /\.signature \.place-date \{[^}]*margin-bottom: 18mm;/);
 });
 
