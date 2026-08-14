@@ -71,5 +71,17 @@ test('vehicle power of attorney lifts the grantor signature above the fixed MEGA
   const vehiclePowerOfAttorney = await readFile('procuracao.js', 'utf8');
 
   assert.match(vehiclePowerOfAttorney, /class="signature-footer vehicle-signature-footer"/);
-  assert.match(vehiclePowerOfAttorney, /\.vehicle-signature-footer \.signature \{ margin-bottom: 224px; \}/);
+  assert.match(vehiclePowerOfAttorney, /\.vehicle-signature-footer \.signature \{ margin-bottom: 320px; \}/);
+});
+
+test('sale intention power of attorney keeps the signature away from the MEGA stamp', async () => {
+  const saleIntentPowerOfAttorney = await readFile('intencao-venda.js', 'utf8');
+
+  assert.match(saleIntentPowerOfAttorney, /\.signature \{ width: 112mm; margin: 0 auto 110px; text-align: center; \}/);
+});
+
+test('particular power of attorney keeps the signature away from the page bottom', async () => {
+  const particularPowerOfAttorney = await readFile('procuracao-particular.js', 'utf8');
+
+  assert.match(particularPowerOfAttorney, /\.signature \{ width: 98mm; margin: 0 auto 100px;/);
 });
