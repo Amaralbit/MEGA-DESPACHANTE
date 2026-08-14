@@ -50,6 +50,19 @@ test('the shared form experience includes every premium workflow capability', as
   assert.match(script, /showStep\(0, true\)/);
 });
 
+test('chassis validation accepts short chassis from older vehicles, not just 17 characters', async () => {
+  const script = await readFile('form-experience.js', 'utf8');
+
+  const [, pattern] = script.match(/if \(\/chassi\/i\.test\(name\) && !\/(\^\[A-HJ-NPR-Z0-9\]\{9,17\}\$)\/i\.test\(value\)\)/) || [];
+  assert.ok(pattern, 'padrão de validação do chassi não encontrado ou ainda exige 17 caracteres fixos');
+
+  const chassiPattern = new RegExp(pattern, 'i');
+  assert.ok(chassiPattern.test('123456789'), 'chassi de 9 caracteres (carro antigo) deveria ser aceito');
+  assert.ok(chassiPattern.test('9BWZZZ377VT004251'.slice(0, 17)), 'chassi de 17 caracteres deveria ser aceito');
+  assert.ok(!chassiPattern.test('12345678'), 'chassi com menos de 9 caracteres deveria ser recusado');
+  assert.ok(!chassiPattern.test('123456789012345678'), 'chassi com mais de 17 caracteres deveria ser recusado');
+});
+
 test('the contact form also offers a confirmed clear-all action', async () => {
   const html = await readFile('index.html', 'utf8');
   const script = await readFile('script.js', 'utf8');

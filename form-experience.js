@@ -76,8 +76,9 @@
     if (mask === 'placa' && !/^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/i.test(value.replace(/[^A-Z0-9]/gi, ''))) {
       return 'Use o formato ABC1234 ou ABC1D23.';
     }
-    if (/chassi/i.test(name) && !/^[A-HJ-NPR-Z0-9]{17}$/i.test(value)) {
-      return 'O chassi deve ter 17 caracteres válidos.';
+    if (/chassi/i.test(name) && !/^[A-HJ-NPR-Z0-9]{9,17}$/i.test(value)) {
+      // Veículos antigos (antes do padrão VIN de 17 caracteres) podem ter chassi com só 9 dígitos.
+      return 'O chassi deve ter entre 9 e 17 caracteres válidos.';
     }
     if (/anoFabricacao|anoModelo/i.test(name)) {
       const year = Number(value);
