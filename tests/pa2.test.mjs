@@ -206,3 +206,20 @@ test('PA2 atualiza a prévia do valor a cada tecla digitada', async () => {
   assert.match(script, /amount\.addEventListener\('input', \(\) => \{/);
   assert.match(script, /amountPreview\.textContent = Number\.isFinite\(parsed\) \? `= \$\{formatCurrencyValue\(parsed\)\}` : '';/);
 });
+
+test('PA2 mostra uma última conferência antes de gerar o PDF, no mesmo padrão dos outros formulários', async () => {
+  const script = await readFile('pa2.js', 'utf8');
+
+  assert.match(script, /premium-modal premium-review-modal/);
+  assert.match(script, /ÚLTIMA CONFERÊNCIA/);
+  assert.match(script, /Revise antes de gerar/);
+  assert.match(script, /premium-review-edit/);
+  assert.match(script, /premium-review-confirm/);
+  assert.match(script, /const generatePa2Pdf = async \(\) => \{/);
+  // O clique em "Confirmar e gerar PDF" precisa fechar o modal e então gerar o PDF.
+  assert.match(script, /closeReview\(\);\s*void generatePa2Pdf\(\);/);
+  // O envio do formulário deve abrir a revisão, não gerar o PDF direto.
+  const submitHandler = script.match(/form\.addEventListener\('submit', \(event\) => \{[\s\S]*?\n {2}\}\);/)?.[0] || '';
+  assert.match(submitHandler, /showReview\(\);/);
+  assert.doesNotMatch(submitHandler, /generatePa2Pdf/);
+});

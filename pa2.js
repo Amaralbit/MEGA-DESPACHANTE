@@ -640,12 +640,7 @@ const initPa2 = () => {
     dropzone.focus();
   });
 
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    if (!isValidPa2ImageCount(entries.length)) {
-      setMessage('Adicione de 1 a 10 imagens antes de gerar o PA2.', 'error');
-      return;
-    }
+  const generatePa2Pdf = async () => {
     generateButton.disabled = true;
     generateButton.innerHTML = '<span class="premium-spinner" aria-hidden="true"></span> Montando o PDF...';
     result.classList.remove('pa2-result--error');
@@ -684,6 +679,135 @@ const initPa2 = () => {
       generateButton.innerHTML = 'Gerar e baixar PA2 <span>→</span>';
       updateState();
     }
+  };
+
+  // Modal de última conferência, no mesmo estilo usado nos demais formulários
+  // do site (classes premium-modal / premium-review-*, já globais no styles.css).
+  const reviewModal = document.createElement('div');
+  reviewModal.className = 'premium-modal premium-review-modal';
+  reviewModal.hidden = true;
+  reviewModal.setAttribute('role', 'dialog');
+  reviewModal.setAttribute('aria-modal', 'true');
+  reviewModal.setAttribute('aria-labelledby', 'pa2-review-title');
+  reviewModal.innerHTML = '<div class="premium-modal-backdrop" data-modal-close></div><div class="premium-modal-panel" role="document"></div>';
+  document.body.append(reviewModal);
+  const reviewPanel = reviewModal.querySelector('.premium-modal-panel');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const closeReview = () => {
+    reviewModal.classList.remove('is-open');
+    document.body.classList.remove('premium-modal-open');
+    window.setTimeout(() => {
+      reviewModal.hidden = true;
+    }, reduceMotion ? 0 : 180);
+  };
+  reviewModal.querySelector('[data-modal-close]').addEventListener('click', closeReview);
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !reviewModal.hidden) closeReview();
+  });
+
+  const buildReviewRows = () => {
+    const rows = PA2_ROWS.map((_, index) => ({
+      amount: form.elements[`amount-${index}`].value.trim(),
+      note: form.elements[`note-${index}`].value.trim(),
+    }));
+    const bothFinesFilled = Number.isFinite(parseCurrencyValue(rows[PA2_ROWS.indexOf('Multas')]?.amount))
+      && Number.isFinite(parseCurrencyValue(rows[PA2_ROWS.indexOf('Multas em estado de autuação')]?.amount));
+    const finesSummaryText = bothFinesFilled
+      ? `SOMA DE MULTAS + MULTAS EM ESTADO DE AUTUAÇÃO: ${formatCurrencyValue(calculatePa2FinesTotal(rows))}`
+      : '';
+    return PA2_ROWS.map((description, index) => {
+      const parsedAmount = parseCurrencyValue(rows[index].amount);
+      const note = description === 'Multas em estado de autuação' && finesSummaryText
+        ? [rows[index].note, finesSummaryText].filter(Boolean).join(' — ')
+        : rows[index].note;
+      return { description, amount: Number.isFinite(parsedAmount) ? formatCurrencyValue(parsedAmount) : '', note };
+    });
+  };
+
+  const showReview = () => {
+    const formattedDate = form.elements.date.value
+      ? form.elements.date.value.split('-').reverse().join('/')
+      : '';
+    const documentItems = [
+      { label: 'Placa', value: form.elements.plate.value.trim().toUpperCase() },
+      { label: 'Tipo de documento', value: form.elements.documentType.value },
+      { label: 'Data', value: formattedDate },
+      { label: 'Nome do arquivo', value: normalizeFilename(form.elements.filename.value) },
+    ].filter((item) => item.value);
+    const expenseItems = buildReviewRows()
+      .filter((row) => row.amount || row.note)
+      .map((row) => ({ label: row.description, value: [row.amount, row.note].filter(Boolean).join(' — ') }));
+    const finalObservationsText = form.elements.finalObservations.value.trim();
+
+    const groups = [
+      { title: 'Imagens', items: [{ label: 'Imagens anexadas', value: `${entries.length} ${entries.length === 1 ? 'imagem' : 'imagens'}` }] },
+      { title: 'Documento', items: documentItems },
+      { title: 'Despesas', items: expenseItems },
+      { title: 'Observações finais', items: finalObservationsText ? [{ label: 'Texto', value: finalObservationsText }] : [] },
+    ].filter((group) => group.items.length);
+
+    reviewPanel.innerHTML = `
+      <div class="premium-modal-header">
+        <span class="premium-modal-icon" aria-hidden="true">✓</span>
+        <div>
+          <span class="premium-kicker">ÚLTIMA CONFERÊNCIA</span>
+          <h2 id="pa2-review-title">Revise antes de gerar</h2>
+          <p>Confira os dados do PA2. Se algo estiver errado, feche e ajuste.</p>
+        </div>
+        <button type="button" class="premium-modal-close" aria-label="Fechar revisão">×</button>
+      </div>
+      <div class="premium-review-groups"></div>
+      <div class="premium-modal-actions">
+        <button type="button" class="premium-nav-button premium-review-edit"><span aria-hidden="true">←</span> Continuar editando</button>
+        <button type="button" class="button button-primary premium-review-confirm">Confirmar e gerar PDF <span aria-hidden="true">→</span></button>
+      </div>
+    `;
+
+    const groupsContainer = reviewPanel.querySelector('.premium-review-groups');
+    groups.forEach((group, groupIndex) => {
+      const section = document.createElement('section');
+      section.className = 'premium-review-group';
+      const heading = document.createElement('h3');
+      heading.innerHTML = `<span>${String(groupIndex + 1).padStart(2, '0')}</span>${group.title}`;
+      section.append(heading);
+      const dl = document.createElement('dl');
+      group.items.forEach((item) => {
+        const wrapper = document.createElement('div');
+        const term = document.createElement('dt');
+        const description = document.createElement('dd');
+        term.textContent = item.label;
+        description.textContent = item.value;
+        wrapper.append(term, description);
+        dl.append(wrapper);
+      });
+      section.append(dl);
+      groupsContainer.append(section);
+    });
+
+    reviewPanel.querySelector('.premium-modal-close').addEventListener('click', closeReview);
+    reviewPanel.querySelector('.premium-review-edit').addEventListener('click', closeReview);
+    const confirmButton = reviewPanel.querySelector('.premium-review-confirm');
+    confirmButton.addEventListener('click', () => {
+      closeReview();
+      void generatePa2Pdf();
+    });
+
+    reviewModal.hidden = false;
+    document.body.classList.add('premium-modal-open');
+    window.requestAnimationFrame(() => {
+      reviewModal.classList.add('is-open');
+      confirmButton.focus();
+    });
+  };
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!isValidPa2ImageCount(entries.length)) {
+      setMessage('Adicione de 1 a 10 imagens antes de gerar o PA2.', 'error');
+      return;
+    }
+    showReview();
   });
 
   window.addEventListener('beforeunload', () => entries.forEach(releaseEntry));
