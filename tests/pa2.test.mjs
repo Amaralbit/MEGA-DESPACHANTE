@@ -155,3 +155,13 @@ test('PA2 só mostra a soma das multas na observação da linha quando ambos os 
   assert.match(script, /const finesSummaryText = bothFinesFilled/);
   assert.match(script, /description === 'Multas em estado de autuação' && finesSummaryText/);
 });
+
+test('PA2 destaca a soma das multas em verde e trava a observação quando ambas as multas estão preenchidas', async () => {
+  const script = await readFile('pa2.js', 'utf8');
+
+  assert.match(script, /success: window\.PDFLib\.rgb\(0\.11, 0\.47, 0\.22\)/);
+  assert.match(script, /cellColors\?\.\[index\] \|\| colors\.ink/);
+  assert.match(script, /\[undefined, undefined, table\.colors\.success\]/);
+  assert.match(script, /autuacaoNoteInput\.disabled = bothFinesFilled/);
+  assert.match(script, /if \(bothFinesFilled\) autuacaoNoteInput\.value = '';/);
+});

@@ -161,7 +161,7 @@ const measureFinalObservationsHeight = (text, font, width) => {
   return Math.max(46, 32 + (lineCount * 10));
 };
 
-const drawGridRow = ({ page, cells, widths, x, y, height, font, size, boldFont, bold = false, fill, colors }) => {
+const drawGridRow = ({ page, cells, widths, x, y, height, font, size, boldFont, bold = false, fill, colors, cellColors }) => {
   let cursorX = x;
   const activeFont = bold ? boldFont : font;
   for (let index = 0; index < cells.length; index += 1) {
@@ -175,7 +175,7 @@ const drawGridRow = ({ page, cells, widths, x, y, height, font, size, boldFont, 
     };
     if (fill) rectangle.color = fill;
     page.drawRectangle(rectangle);
-    drawCellText({ page, text: cells[index], font: activeFont, size, color: colors.ink, x: cursorX, y: y - height, width: widths[index], height });
+    drawCellText({ page, text: cells[index], font: activeFont, size, color: cellColors?.[index] || colors.ink, x: cursorX, y: y - height, width: widths[index], height });
     cursorX += widths[index];
   }
   return y - height;
@@ -237,6 +237,7 @@ const addTablePage = ({ document, font, boldFont, letterheadPage, plate, documen
   const colors = {
     ink: window.PDFLib.rgb(0.08, 0.08, 0.08),
     header: window.PDFLib.rgb(0.93, 0.93, 0.91),
+    success: window.PDFLib.rgb(0.11, 0.47, 0.22),
   };
   const widths = [231, 92, A4.width - (PAGE_MARGIN * 2) - 323];
   let y = A4.height - PAGE_MARGIN;
@@ -317,7 +318,10 @@ export const createPa2Pdf = async ({ entries, plate = '', documentLabel = '', da
     if (table.y - height < bottomLimit) {
       table = addTablePage({ document, font, boldFont, letterheadPage, plate: plate.toUpperCase(), documentLabel: normalizedDocumentLabel, continuation: true });
     }
-    table.y = drawGridRow({ ...table, cells, x: PAGE_MARGIN, height, font, boldFont, size: fontSize });
+    const cellColors = row.description === 'Multas em estado de autuação' && finesSummaryText
+      ? [undefined, undefined, table.colors.success]
+      : undefined;
+    table.y = drawGridRow({ ...table, cells, x: PAGE_MARGIN, height, font, boldFont, size: fontSize, cellColors });
   }
 
   const parsedValues = normalizedRows.map((row) => row.parsedAmount).filter(Number.isFinite);
@@ -356,6 +360,9 @@ const initPa2 = () => {
   if (!form || !input || !dropzone || !list || !tableBody || !generateButton) return;
 
   let entries = [];
+  let multasAmountInput = null;
+  let autuacaoAmountInput = null;
+  let autuacaoNoteInput = null;
 
   PA2_ROWS.forEach((description, index) => {
     const row = document.createElement('tr');
@@ -379,7 +386,25 @@ const initPa2 = () => {
     noteCell.append(note);
     row.append(descriptionCell, amountCell, noteCell);
     tableBody.append(row);
+    if (description === 'Multas') multasAmountInput = amount;
+    if (description === 'Multas em estado de autuação') {
+      autuacaoAmountInput = amount;
+      autuacaoNoteInput = note;
+    }
   });
+
+  const updateFinesNoteLock = () => {
+    if (!multasAmountInput || !autuacaoAmountInput || !autuacaoNoteInput) return;
+    const bothFinesFilled = Number.isFinite(parseCurrencyValue(multasAmountInput.value))
+      && Number.isFinite(parseCurrencyValue(autuacaoAmountInput.value));
+    autuacaoNoteInput.disabled = bothFinesFilled;
+    autuacaoNoteInput.placeholder = bothFinesFilled
+      ? 'Preenchido automaticamente com a soma das multas'
+      : 'Observação';
+    if (bothFinesFilled) autuacaoNoteInput.value = '';
+  };
+  multasAmountInput?.addEventListener('input', updateFinesNoteLock);
+  autuacaoAmountInput?.addEventListener('input', updateFinesNoteLock);
 
   const setMessage = (text = '', type = '') => {
     message.textContent = text;
@@ -555,6 +580,7 @@ const initPa2 = () => {
     result.classList.remove('pa2-result--error');
     setMessage('Todos os dados do PA2 foram limpos.', 'success');
     renderList();
+    updateFinesNoteLock();
     dropzone.focus();
   });
 

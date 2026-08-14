@@ -2057,6 +2057,13 @@ button.premium-clear-button {
   box-shadow: 0 0 0 3px rgba(196, 35, 16, .08);
 }
 
+.pa2-entry-table input:disabled {
+  border-color: #bfe0c8;
+  background: #f1faf3;
+  color: #1c7836;
+  cursor: not-allowed;
+}
+
 .pa2-table-wrap {
   overflow-x: auto;
   border: 1px solid #d7d3c8;
