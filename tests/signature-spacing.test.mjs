@@ -6,7 +6,7 @@ const signatureSpacingByDocument = [
   ['procuracao.js', /\.signature-line \{[^}]*margin: 40px auto 5px;/],
   ['intencao-venda.js', /\.signature p \{[^}]*margin-bottom: 94px;/],
   ['procuracao-particular.js', /\.place-date \{ margin: 1px 0 94px; \}/],
-  ['declaracao-residencia.js', /\.signature \.place-date \{[^}]*margin-bottom: 26mm;/],
+  ['declaracao-residencia.js', /\.signature \.place-date \{[^}]*margin-bottom: 18mm;/],
   ['requerimento-alteracao-caracteristica.js', /\.date \{ margin: 3px 0 100px;/],
   ['requerimento-regravacao-chassi.js', /\.date \{ margin: 3px 0 100px;/],
   ['averbacao-cancelamento-impedimento.js', /\.date \{ margin: 5px 0 100px;/],
@@ -57,7 +57,7 @@ test('residence declaration keeps long addresses and signatures on one A4 page',
 
   assert.match(residenceDeclaration, /\.declaration \{[^}]*overflow-wrap: anywhere;/);
   assert.match(residenceDeclaration, /\.signature \{[^}]*margin: 12mm auto 0;/);
-  assert.match(residenceDeclaration, /\.signature \.place-date \{[^}]*margin-bottom: 26mm;/);
+  assert.match(residenceDeclaration, /\.signature \.place-date \{[^}]*margin-bottom: 18mm;/);
 });
 
 test('residence declaration keeps the place and date joined together', async () => {
