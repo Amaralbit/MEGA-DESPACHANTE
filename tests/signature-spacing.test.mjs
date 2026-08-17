@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const signatureSpacingByDocument = [
-  ['procuracao.js', /\.signature-line \{[^}]*margin: 40px auto 5px;/],
+  ['procuracao.js', /\.signature-line \{[^}]*margin: 70px auto 5px;/],
   ['intencao-venda.js', /\.signature p \{[^}]*margin-bottom: 94px;/],
   ['procuracao-particular.js', /\.place-date \{ margin: 1px 0 94px; \}/],
   ['declaracao-residencia.js', /\.signature \.place-date \{[^}]*margin-bottom: 18mm;/],
