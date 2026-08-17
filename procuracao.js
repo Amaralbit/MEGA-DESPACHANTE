@@ -71,6 +71,10 @@ if (procuracaoForm) {
     const history = [trimmed, ...loadServicoHistory().filter((item) => item !== trimmed)].slice(0, 6);
     localStorage.setItem(servicoHistoryKey, JSON.stringify(history));
   };
+  const removeServicoHistoryItem = (value) => {
+    const history = loadServicoHistory().filter((item) => item !== value);
+    localStorage.setItem(servicoHistoryKey, JSON.stringify(history));
+  };
 
   const servicoSuggestions = document.createElement('div');
   servicoSuggestions.className = 'field-suggestions';
@@ -82,6 +86,9 @@ if (procuracaoForm) {
     const matches = loadServicoHistory().filter((item) => item.toLowerCase() !== query && (!query || item.toLowerCase().includes(query)));
     servicoSuggestions.innerHTML = '';
     matches.forEach((item) => {
+      const row = document.createElement('div');
+      row.className = 'field-suggestion-row';
+
       const option = document.createElement('button');
       option.type = 'button';
       option.className = 'field-suggestion';
@@ -92,7 +99,22 @@ if (procuracaoForm) {
         servicoSuggestions.hidden = true;
         servicoField.dispatchEvent(new Event('input', { bubbles: true }));
       });
-      servicoSuggestions.appendChild(option);
+
+      const removeButton = document.createElement('button');
+      removeButton.type = 'button';
+      removeButton.className = 'field-suggestion-remove';
+      removeButton.textContent = '×';
+      removeButton.setAttribute('aria-label', `Remover sugestão "${item}"`);
+      removeButton.addEventListener('mousedown', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        removeServicoHistoryItem(item);
+        renderServicoSuggestions();
+      });
+
+      row.appendChild(option);
+      row.appendChild(removeButton);
+      servicoSuggestions.appendChild(row);
     });
     servicoSuggestions.hidden = matches.length === 0;
   };
@@ -121,7 +143,11 @@ if (procuracaoForm) {
     const powers = valueOf(data, 'servico');
     saveServicoHistory(String(data.get('servico') || ''));
     const validity = data.get('validade') ? ` Esta procuração terá validade de <strong>${valueOf(data, 'validade')}</strong>.` : '';
-    const address = `${valueOf(data, 'endereco')}, ${valueOf(data, 'numero')}${data.get('complemento') ? ` - ${valueOf(data, 'complemento')}` : ''}, ${valueOf(data, 'bairro')}, ${valueOf(data, 'cidade')}/${valueOf(data, 'estado')} - CEP ${valueOf(data, 'cep')}`;
+    const quadraLote = [
+      data.get('quadra') && `Qd. <strong>${valueOf(data, 'quadra')}</strong>`,
+      data.get('lote') && `Lt. <strong>${valueOf(data, 'lote')}</strong>`,
+    ].filter(Boolean).join(', ');
+    const address = `${valueOf(data, 'endereco')}, ${valueOf(data, 'numero')}${data.get('complemento') ? ` - ${valueOf(data, 'complemento')}` : ''}, ${quadraLote ? `${quadraLote}, ` : ''}${valueOf(data, 'bairro')}, ${valueOf(data, 'cidade')}/${valueOf(data, 'estado')} - CEP ${valueOf(data, 'cep')}`;
     const plate = data.get('placa') ? `placa ${valueOf(data, 'placa')}` : 'veículo novo, ainda sem placa';
     const vehicle = `${valueOf(data, 'marcaModelo')}, ano fabricação/modelo ${valueOf(data, 'anoFabricacao')}/${valueOf(data, 'anoModelo')}, cor ${valueOf(data, 'cor')}, ${plate}, chassi ${valueOf(data, 'chassi')}`;
     const identity = data.get('identidade') ? `, portador(a) do documento de identidade nº ${valueOf(data, 'identidade')}${data.get('orgao') ? ` - ${valueOf(data, 'orgao')}` : ''}` : '';
