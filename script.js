@@ -80,7 +80,7 @@ if (reviewCounters.length && !reduceMotion && 'IntersectionObserver' in window) 
 
       const element = entry.target;
       const isRating = element.hasAttribute('data-count-rating');
-      const target = isRating ? 4.1 : 14;
+      const target = isRating ? 4.2 : 14;
       const duration = 950;
       const start = performance.now();
 
