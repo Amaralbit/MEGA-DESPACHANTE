@@ -52,6 +52,56 @@ if (procuracaoForm) {
     if (onlyNumbers(cepInput.value).length === 8) lookupCep();
   });
 
+  // Sugestões para "Poderes concedidos": como é um <textarea>, o navegador não
+  // guarda histórico sozinho (como faz com endereço, placa etc.), então
+  // guardamos os últimos textos usados neste site e sugerimos ao focar/digitar.
+  const servicoField = procuracaoForm.elements.servico;
+  const servicoHistoryKey = `mega-field-history:v1:${window.location.pathname}:servico`;
+  const loadServicoHistory = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(servicoHistoryKey) || '[]');
+      return Array.isArray(saved) ? saved : [];
+    } catch (error) {
+      return [];
+    }
+  };
+  const saveServicoHistory = (value) => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    const history = [trimmed, ...loadServicoHistory().filter((item) => item !== trimmed)].slice(0, 6);
+    localStorage.setItem(servicoHistoryKey, JSON.stringify(history));
+  };
+
+  const servicoSuggestions = document.createElement('div');
+  servicoSuggestions.className = 'field-suggestions';
+  servicoSuggestions.hidden = true;
+  servicoField.insertAdjacentElement('afterend', servicoSuggestions);
+
+  const renderServicoSuggestions = () => {
+    const query = servicoField.value.trim().toLowerCase();
+    const matches = loadServicoHistory().filter((item) => item.toLowerCase() !== query && (!query || item.toLowerCase().includes(query)));
+    servicoSuggestions.innerHTML = '';
+    matches.forEach((item) => {
+      const option = document.createElement('button');
+      option.type = 'button';
+      option.className = 'field-suggestion';
+      option.textContent = item;
+      option.addEventListener('mousedown', (event) => {
+        event.preventDefault();
+        servicoField.value = item;
+        servicoSuggestions.hidden = true;
+        servicoField.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+      servicoSuggestions.appendChild(option);
+    });
+    servicoSuggestions.hidden = matches.length === 0;
+  };
+  servicoField.addEventListener('focus', renderServicoSuggestions);
+  servicoField.addEventListener('input', renderServicoSuggestions);
+  servicoField.addEventListener('blur', () => {
+    setTimeout(() => { servicoSuggestions.hidden = true; }, 120);
+  });
+
   const escapeHtml = (value) => String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
   const valueOf = (data, key) => escapeHtml(data.get(key));
   const nameOf = (data, key) => escapeHtml(String(data.get(key) || '').toLocaleUpperCase('pt-BR'));
@@ -69,6 +119,7 @@ if (procuracaoForm) {
     const date = formattedDate(data.get('dataAssinatura'));
     const city = valueOf(data, 'cidadeAssinatura');
     const powers = valueOf(data, 'servico');
+    saveServicoHistory(String(data.get('servico') || ''));
     const validity = data.get('validade') ? ` Esta procuração terá validade de <strong>${valueOf(data, 'validade')}</strong>.` : '';
     const address = `${valueOf(data, 'endereco')}, ${valueOf(data, 'numero')}${data.get('complemento') ? ` - ${valueOf(data, 'complemento')}` : ''}, ${valueOf(data, 'bairro')}, ${valueOf(data, 'cidade')}/${valueOf(data, 'estado')} - CEP ${valueOf(data, 'cep')}`;
     const plate = data.get('placa') ? `placa ${valueOf(data, 'placa')}` : 'veículo novo, ainda sem placa';
@@ -92,7 +143,7 @@ if (procuracaoForm) {
         .title { text-align: center; font-size: 14pt; font-weight: 700; margin: 12mm 0 16px; text-transform: uppercase; }
         .text { text-align: justify; }.text p { margin: 0 0 8px; }
         .signature { margin-top: 0; text-align: center; }.signature p { margin: 0; }
-        .signature-line { width: 310px; border-top: 1px solid #222; margin: 70px auto 5px; }
+        .signature-line { width: 310px; border-top: 1px solid #222; margin: 100px auto 5px; }
         .vehicle-signature-footer .signature { margin-bottom: 320px; }
         ${window.MEGA_DECLARATION_CSS}
         .details { margin-top: 14px; border-top: 1px solid #ccc; padding-top: 8px; font-size: 8pt; color: #444; }.details strong { color: #111; }
