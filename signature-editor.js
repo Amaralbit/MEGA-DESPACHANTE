@@ -170,14 +170,23 @@ window.MegaSignatureEditor = (() => {
   };
 
   return {
-    // button: elemento <button> que abre o editor (fica desabilitado até o
-    // primeiro PDF ser gerado). config: { html, documentType, fileName, mode }
-    // onde mode é 'protected' (baixa sozinho via API) ou 'popup' (abre janela
-    // para impressão manual, como a procuração particular).
-    attach(button, config) {
+    // button: elemento <button> que abre o editor. resolveConfig é chamada a
+    // cada clique (não uma vez só), então o HTML sempre reflete os dados mais
+    // recentes do formulário — o usuário não precisa gerar/baixar a versão
+    // original antes de poder ajustar a assinatura. Deve devolver
+    // { html, documentType, fileName, mode } — mode 'protected' baixa sozinho
+    // via API, 'popup' abre janela para impressão manual (procuração
+    // particular) — ou um valor falso para cancelar a abertura (ex.:
+    // formulário inválido; quem resolve já deve ter avisado o usuário/focado
+    // o campo problemático antes de retornar).
+    attach(button, resolveConfig) {
       if (!button) return;
       button.disabled = false;
-      button.onclick = () => openEditor(config);
+      button.onclick = () => {
+        const config = typeof resolveConfig === 'function' ? resolveConfig() : resolveConfig;
+        if (!config) return;
+        openEditor(config);
+      };
     },
   };
 })();

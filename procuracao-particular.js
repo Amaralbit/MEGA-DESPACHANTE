@@ -62,16 +62,9 @@ if (procuracaoParticularForm) {
   setupCepLookup({ cep: procuracaoParticularForm.elements.outorganteCep, address: procuracaoParticularForm.elements.outorganteEndereco, bairro: procuracaoParticularForm.elements.outorganteBairro, city: procuracaoParticularForm.elements.outorganteCidade, state: procuracaoParticularForm.elements.outorganteEstado, feedback: document.getElementById('cep-outorgante-feedback') });
   setupCepLookup({ cep: procuracaoParticularForm.elements.procuradorCep, address: procuracaoParticularForm.elements.procuradorEndereco, bairro: procuracaoParticularForm.elements.procuradorBairro, city: procuracaoParticularForm.elements.procuradorCidade, state: procuracaoParticularForm.elements.procuradorEstado, feedback: document.getElementById('cep-procurador-feedback') });
 
-  procuracaoParticularForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    if (!procuracaoParticularForm.reportValidity()) return;
-    const data = new FormData(procuracaoParticularForm);
-    const preview = window.open('', '_blank', 'width=920,height=760');
-    if (!preview) {
-      window.alert('Não foi possível abrir a visualização. Libere pop-ups para gerar o PDF.');
-      return;
-    }
-    const documentHtml = `<!doctype html>
+  // Extraído do envio do formulário para que o modo editor também consiga
+  // montar o HTML (a partir dos dados atuais) sem precisar gerar o PDF antes.
+  const buildDocumentHtml = (data) => `<!doctype html>
       <html lang="pt-BR"><head><meta charset="UTF-8"><title>Procuração Particular</title>
       <style>
         @page { size: A4 portrait; margin: 0; }* { box-sizing: border-box; }body { margin: 0; background: #eee; color: #111; font-family: Arial, sans-serif; }.document { position: relative; display: flex; flex-direction: column; width: 210mm; min-height: 297mm; margin: 10px auto; padding: 6mm 14mm 5mm; background: #fff; font-size: 8pt; line-height: 1.18; }.header { position: relative; min-height: 17mm; border-bottom: 2px solid #111; }.title { margin: 0 24mm; padding-top: 4mm; text-align: center; font-size: 15pt; }.service-note { position: absolute; top: 0; right: 1mm; width: 20mm; text-align: right; font-size: 7.5pt; }.section-heading { margin: 3px 0 0; font-size: 9.8pt; font-weight: 700; }.grid { display: grid; border: 1px solid #222; border-bottom: 0; }.grid div { min-height: 24px; padding: 3px 4px; border-right: 1px solid #222; border-bottom: 1px solid #222; }.grid div:last-child { border-right: 0; }.grid b { display: block; margin-bottom: 1px; font-size: 7pt; }.full { grid-template-columns: 1fr; }.person-line { grid-template-columns: 1.2fr .9fr .9fr; }.person-address { grid-template-columns: .7fr .9fr .38fr .7fr .88fr; }.contact-line { grid-template-columns: 1.25fr 1fr; }.vehicle-line { grid-template-columns: .55fr 1.5fr .7fr; }.powers { min-height: 72px; padding: 6px; border: 1px solid #222; text-align: justify; font-size: 8.25pt; line-height: 1.3; }.signature-footer { margin-top: auto; break-inside: avoid; }.place-date { margin: 1px 0 94px; }.signature { width: 98mm; margin: 0 auto 100px; border-top: 1px solid #222; padding-top: 3px; text-align: center; }.docs { border-top: 2px solid #111; padding-top: 3px; font-size: 6.35pt; line-height: 1.15; }.docs strong { font-size: 7pt; }.docs ol { margin: 2px 0; padding-left: 15px; }.footer { border-top: 1px solid #111; padding-top: 2px; text-align: center; font-size: 6pt; }.print-hint { position: fixed; z-index: 10; top: 18px; right: 18px; border: 0; background: #b42313; color: #fff; padding: 12px 16px; font-weight: 700; cursor: pointer; }@media print { body { background: #fff; }.document { width: 210mm; min-height: 297mm; margin: 0; }.print-hint { display: none; } }
@@ -85,14 +78,28 @@ if (procuracaoParticularForm) {
         <section class="signature-footer"><p class="place-date">${valueOf(data, 'cidadeAssinatura')}, ${formattedDate(data.get('dataAssinatura'))}.</p><div class="signature" data-drag-signature>Assinatura do(a) Outorgante</div></section>
       </article></body></html>`;
 
-    preview.document.write(documentHtml);
-    preview.document.close();
-
-    window.MegaSignatureEditor?.attach(document.getElementById('signature-editor-trigger'), {
-      html: documentHtml,
+  // Habilitado desde já: o modo editor monta o HTML a partir dos dados atuais
+  // a cada clique, então não é preciso gerar/baixar a versão original antes.
+  window.MegaSignatureEditor?.attach(document.getElementById('signature-editor-trigger'), () => {
+    if (procuracaoParticularForm.megaValidateForEditor && !procuracaoParticularForm.megaValidateForEditor()) return null;
+    return {
+      html: buildDocumentHtml(new FormData(procuracaoParticularForm)),
       documentType: 'procuracao-particular',
       fileName: 'procuracao-particular.pdf',
       mode: 'popup',
-    });
+    };
+  });
+
+  procuracaoParticularForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!procuracaoParticularForm.reportValidity()) return;
+    const data = new FormData(procuracaoParticularForm);
+    const preview = window.open('', '_blank', 'width=920,height=760');
+    if (!preview) {
+      window.alert('Não foi possível abrir a visualização. Libere pop-ups para gerar o PDF.');
+      return;
+    }
+    preview.document.write(buildDocumentHtml(data));
+    preview.document.close();
   });
 }

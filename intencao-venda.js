@@ -62,11 +62,9 @@ if (intencaoVendaForm) {
   setupCepLookup({ cep: intencaoVendaForm.elements.cepVendedor, address: intencaoVendaForm.elements.enderecoVendedor, bairro: intencaoVendaForm.elements.bairroVendedor, city: intencaoVendaForm.elements.cidadeVendedor, state: intencaoVendaForm.elements.estadoVendedor, feedback: document.getElementById('cep-vendedor-feedback') });
   setupCepLookup({ cep: intencaoVendaForm.elements.cepComprador, address: intencaoVendaForm.elements.enderecoComprador, bairro: intencaoVendaForm.elements.bairroComprador, city: intencaoVendaForm.elements.cidadeComprador, state: intencaoVendaForm.elements.estadoComprador, feedback: document.getElementById('cep-comprador-feedback') });
 
-  intencaoVendaForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    if (!intencaoVendaForm.reportValidity()) return;
-
-    const data = new FormData(intencaoVendaForm);
+  // Extraído do envio do formulário para que o modo editor também consiga
+  // montar o HTML (a partir dos dados atuais) sem precisar gerar o PDF antes.
+  const buildDocumentHtml = (data) => {
     const date = formatDate(data.get('dataAssinatura'));
     const quadraLote = [
       data.get('quadraVendedor') && `Qd. ${valueOf(data, 'quadraVendedor')}`,
@@ -79,13 +77,8 @@ if (intencaoVendaForm) {
     ].filter(Boolean).join(', ');
     const buyerAddress = `${valueOf(data, 'enderecoComprador')}, ${valueOf(data, 'numeroComprador')}${data.get('complementoComprador') ? ` - ${valueOf(data, 'complementoComprador')}` : ''}, ${quadraLoteComprador ? `${quadraLoteComprador}, ` : ''}${valueOf(data, 'bairroComprador')}, ${valueOf(data, 'cidadeComprador')}/${valueOf(data, 'estadoComprador')} - CEP ${valueOf(data, 'cepComprador')}`;
     const logoUrl = new URL('assets/logo-mega-transparent.png', window.location.href).href;
-    const preview = window.createProtectedPdfPreview('procuracao-intencao-venda', 'procuracao-intencao-venda.pdf');
-    if (!preview) {
-      window.alert('Não foi possível abrir a visualização. Libere pop-ups para gerar o PDF.');
-      return;
-    }
 
-    const documentHtml = `<!doctype html>
+    return `<!doctype html>
       <html lang="pt-BR"><head><meta charset="UTF-8"><title>Procuração - Intenção de venda</title>
       <style>
         @page { size: A4 portrait; margin: 0; }
@@ -116,15 +109,32 @@ if (intencaoVendaForm) {
         <section class="buyer-grid"><div class="wide"><b>COMPRADOR:</b> <strong>${nameOf(data, 'comprador')}</strong></div><div><b>CPF/CNPJ:</b> ${valueOf(data, 'cpfCnpjComprador')}</div><div><b>E-MAIL:</b> ${valueOf(data, 'emailComprador')}</div><div class="wide"><b>ENDEREÇO:</b> ${buyerAddress}</div><div class="wide"><b>VALOR:</b> R$ ${valueOf(data, 'valorVenda')}</div></section>
         <section class="closing signature-footer"><div class="signature"><p>${valueOf(data, 'cidadeAssinatura')}, ${date}.</p><div class="signature-mark" data-drag-signature><div class="signature-line"></div><strong>${nameOf(data, 'vendedor')}</strong><br>Assinatura do Outorgante (Proprietário Vendedor)</div></div>${window.renderMegaDeclaration(valueOf(data, 'cidadeAssinatura'), date)}</section>
       </article></body></html>`;
+  };
 
-    preview.document.write(documentHtml);
-    preview.document.close();
-
-    window.MegaSignatureEditor?.attach(document.getElementById('signature-editor-trigger'), {
-      html: documentHtml,
+  // Habilitado desde já: o modo editor monta o HTML a partir dos dados atuais
+  // a cada clique, então não é preciso gerar/baixar a versão original antes.
+  window.MegaSignatureEditor?.attach(document.getElementById('signature-editor-trigger'), () => {
+    if (intencaoVendaForm.megaValidateForEditor && !intencaoVendaForm.megaValidateForEditor()) return null;
+    return {
+      html: buildDocumentHtml(new FormData(intencaoVendaForm)),
       documentType: 'procuracao-intencao-venda',
       fileName: 'procuracao-intencao-venda.pdf',
       mode: 'protected',
-    });
+    };
+  });
+
+  intencaoVendaForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!intencaoVendaForm.reportValidity()) return;
+
+    const data = new FormData(intencaoVendaForm);
+    const preview = window.createProtectedPdfPreview('procuracao-intencao-venda', 'procuracao-intencao-venda.pdf');
+    if (!preview) {
+      window.alert('Não foi possível abrir a visualização. Libere pop-ups para gerar o PDF.');
+      return;
+    }
+
+    preview.document.write(buildDocumentHtml(data));
+    preview.document.close();
   });
 }

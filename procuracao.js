@@ -132,11 +132,9 @@ if (procuracaoForm) {
     return `${day}/${month}/${year}`;
   };
 
-  procuracaoForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    if (!procuracaoForm.reportValidity()) return;
-
-    const data = new FormData(procuracaoForm);
+  // Extraído do envio do formulário para que o modo editor também consiga
+  // montar o HTML (a partir dos dados atuais) sem precisar gerar o PDF antes.
+  const buildDocumentHtml = (data) => {
     const outorgante = nameOf(data, 'outorgante');
     const date = formattedDate(data.get('dataAssinatura'));
     const city = valueOf(data, 'cidadeAssinatura');
@@ -152,13 +150,8 @@ if (procuracaoForm) {
     const vehicle = `${valueOf(data, 'marcaModelo')}, ano fabricação/modelo ${valueOf(data, 'anoFabricacao')}/${valueOf(data, 'anoModelo')}, cor ${valueOf(data, 'cor')}, ${plate}, chassi ${valueOf(data, 'chassi')}`;
     const identity = data.get('identidade') ? `, portador(a) do documento de identidade nº ${valueOf(data, 'identidade')}${data.get('orgao') ? ` - ${valueOf(data, 'orgao')}` : ''}` : '';
     const logoUrl = new URL('assets/logo-mega-transparent.png', window.location.href).href;
-    const preview = window.createProtectedPdfPreview('procuracao-veiculo', 'procuracao-veiculo.pdf');
-    if (!preview) {
-      window.alert('Não foi possível abrir a visualização. Libere pop-ups para gerar o PDF.');
-      return;
-    }
 
-    const documentHtml = `<!doctype html>
+    return `<!doctype html>
       <html lang="pt-BR"><head><meta charset="UTF-8"><title>Procuração para veículo</title>
       <style>
         @page { size: A4 portrait; margin: 0; }
@@ -191,15 +184,32 @@ if (procuracaoForm) {
         <section class="signature-footer vehicle-signature-footer"><div class="signature"><p>${city}, ${date}.</p><div class="signature-mark" data-drag-signature><div class="signature-line"></div><strong>${outorgante}</strong><br>Outorgante</div></div>
         ${window.renderMegaDeclaration(city, date)}</section>
       </article></body></html>`;
+  };
 
-    preview.document.write(documentHtml);
-    preview.document.close();
-
-    window.MegaSignatureEditor?.attach(document.getElementById('signature-editor-trigger'), {
-      html: documentHtml,
+  // Habilitado desde já: o modo editor monta o HTML a partir dos dados atuais
+  // a cada clique, então não é preciso gerar/baixar a versão original antes.
+  window.MegaSignatureEditor?.attach(document.getElementById('signature-editor-trigger'), () => {
+    if (procuracaoForm.megaValidateForEditor && !procuracaoForm.megaValidateForEditor()) return null;
+    return {
+      html: buildDocumentHtml(new FormData(procuracaoForm)),
       documentType: 'procuracao-veiculo',
       fileName: 'procuracao-veiculo.pdf',
       mode: 'protected',
-    });
+    };
+  });
+
+  procuracaoForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!procuracaoForm.reportValidity()) return;
+
+    const data = new FormData(procuracaoForm);
+    const preview = window.createProtectedPdfPreview('procuracao-veiculo', 'procuracao-veiculo.pdf');
+    if (!preview) {
+      window.alert('Não foi possível abrir a visualização. Libere pop-ups para gerar o PDF.');
+      return;
+    }
+
+    preview.document.write(buildDocumentHtml(data));
+    preview.document.close();
   });
 }

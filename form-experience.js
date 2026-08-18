@@ -429,6 +429,18 @@
       showToast(`Confira o campo “${fieldLabel(control)}”.`, 'error');
     };
 
+    // Exposto no próprio elemento do formulário para outros módulos (ex.:
+    // signature-editor.js) reaproveitarem essa mesma validação por etapas —
+    // inclusive navegando até a etapa certa — sem duplicar a lógica aqui.
+    form.megaValidateForEditor = () => {
+      const firstInvalid = validateAll();
+      if (firstInvalid) {
+        focusInvalid(firstInvalid);
+        return false;
+      }
+      return true;
+    };
+
     const serializeDraft = () => {
       const values = {};
       controls.forEach((control) => {
