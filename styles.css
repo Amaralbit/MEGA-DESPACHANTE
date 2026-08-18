@@ -2440,8 +2440,32 @@ button.premium-clear-button {
 }
 
 /* Modo editor: permite arrastar a assinatura do outorgante antes de baixar */
-.signature-editor-trigger {
-  margin-top: 10px;
+
+/* .form-actions é "display:flex" sem quebra de linha, pensado para 2 itens
+   (botão + parágrafo). Com o bloco extra do modo editor precisamos permitir
+   quebra, senão os itens ficam todos espremidos em colunas estreitas. */
+.form-actions {
+  flex-wrap: wrap;
+}
+
+/* flex-basis 100% força esse bloco para a própria linha, sempre abaixo do
+   botão de gerar PDF, independente da largura disponível na linha de cima. */
+.signature-editor-actions {
+  display: flex;
+  flex: 1 0 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid #e7e3da;
+}
+
+/* Especificidade "button.signature-editor-trigger" para vencer a regra
+   ".form-actions button{border:0}", no mesmo padrão já usado pelo botão de
+   limpar campos (button.premium-clear-button) mais acima neste arquivo. */
+button.signature-editor-trigger {
+  border: 1px solid var(--ink);
 }
 
 .signature-editor-trigger:disabled {
@@ -2450,9 +2474,12 @@ button.premium-clear-button {
 }
 
 .signature-editor-hint {
-  margin: 6px 0 0;
+  align-self: stretch;
+  max-width: 460px;
+  margin: 0;
   color: var(--muted);
   font-size: 12px;
+  line-height: 1.45;
 }
 
 .signature-editor-stage {
