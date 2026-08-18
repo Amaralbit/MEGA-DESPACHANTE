@@ -150,6 +150,10 @@
     }, reduceMotion ? 0 : 180);
   };
 
+  // Exposto para outros módulos (ex.: signature-editor.js) reaproveitarem o
+  // mesmo visual de modal usado pela revisão e pelo sucesso do formulário.
+  window.MegaModal = { create: createModal, open: openModal, close: closeModal };
+
   const initializeForm = (form) => {
     if (form.dataset.premiumReady === 'true') return;
     form.dataset.premiumReady = 'true';

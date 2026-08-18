@@ -229,6 +229,10 @@ const generateProtectedPdf = async ({ html, documentType, fileName }) => {
   }
 };
 
+// Exposto para o modo editor (signature-editor.js) reaproveitar o mesmo
+// pipeline de geração/download ao baixar a versão com a assinatura reposicionada.
+window.downloadProtectedPdf = ({ html, documentType, fileName }) => generateProtectedPdf({ html, documentType, fileName });
+
 window.createProtectedPdfPreview = (documentType, fileName) => {
   let html = '';
   return {

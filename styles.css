@@ -2438,3 +2438,60 @@ button.premium-clear-button {
     margin: 0 20px 22px;
   }
 }
+
+/* Modo editor: permite arrastar a assinatura do outorgante antes de baixar */
+.signature-editor-trigger {
+  margin-top: 10px;
+}
+
+.signature-editor-trigger:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.signature-editor-hint {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.signature-editor-stage {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+  background: #efece3;
+  overflow: auto;
+  max-height: 56vh;
+}
+
+.signature-editor-scale {
+  position: relative;
+  overflow: hidden;
+  flex: none;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .18);
+}
+
+.signature-editor-frame {
+  display: block;
+  width: 794px;
+  height: 1123px;
+  border: 0;
+  background: #fff;
+  transform-origin: top left;
+}
+
+.signature-editor-status {
+  margin: 0;
+  padding: 10px 30px 0;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+@media (max-width: 800px) {
+  .signature-editor-stage {
+    max-height: 46vh;
+    padding: 12px;
+  }
+}

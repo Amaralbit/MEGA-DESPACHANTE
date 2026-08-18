@@ -158,7 +158,7 @@ if (procuracaoForm) {
       return;
     }
 
-    preview.document.write(`<!doctype html>
+    const documentHtml = `<!doctype html>
       <html lang="pt-BR"><head><meta charset="UTF-8"><title>Procuração para veículo</title>
       <style>
         @page { size: A4 portrait; margin: 0; }
@@ -188,9 +188,18 @@ if (procuracaoForm) {
           <p>Esta procuração é outorgada exclusivamente para os poderes acima descritos, responsabilizando-me pela veracidade das informações prestadas.</p>
         </div>
         <div class="details"><strong>Dados da MEGA Despachante:</strong> Código ${valueOf(data, 'codigoDespachante')} · ${valueOf(data, 'enderecoDespachante')} · ${valueOf(data, 'cidadeDespachante')}/${valueOf(data, 'estadoDespachante')}</div>
-        <section class="signature-footer vehicle-signature-footer"><div class="signature"><p>${city}, ${date}.</p><div class="signature-line"></div><strong>${outorgante}</strong><br>Outorgante</div>
+        <section class="signature-footer vehicle-signature-footer"><div class="signature"><p>${city}, ${date}.</p><div class="signature-mark" data-drag-signature><div class="signature-line"></div><strong>${outorgante}</strong><br>Outorgante</div></div>
         ${window.renderMegaDeclaration(city, date)}</section>
-      </article></body></html>`);
+      </article></body></html>`;
+
+    preview.document.write(documentHtml);
     preview.document.close();
+
+    window.MegaSignatureEditor?.attach(document.getElementById('signature-editor-trigger'), {
+      html: documentHtml,
+      documentType: 'procuracao-veiculo',
+      fileName: 'procuracao-veiculo.pdf',
+      mode: 'protected',
+    });
   });
 }

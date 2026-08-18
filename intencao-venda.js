@@ -85,7 +85,7 @@ if (intencaoVendaForm) {
       return;
     }
 
-    preview.document.write(`<!doctype html>
+    const documentHtml = `<!doctype html>
       <html lang="pt-BR"><head><meta charset="UTF-8"><title>Procuração - Intenção de venda</title>
       <style>
         @page { size: A4 portrait; margin: 0; }
@@ -114,8 +114,17 @@ if (intencaoVendaForm) {
         <h2 class="buyer-title">Dados comprador</h2>
         <p>Declaro ainda que os dados abaixo são a expressão da verdade, tendo sido captados e informados por mim, assumindo a inteira responsabilidade perante eles e isentando o despachante contratado de qualquer infortúnio:</p>
         <section class="buyer-grid"><div class="wide"><b>COMPRADOR:</b> <strong>${nameOf(data, 'comprador')}</strong></div><div><b>CPF/CNPJ:</b> ${valueOf(data, 'cpfCnpjComprador')}</div><div><b>E-MAIL:</b> ${valueOf(data, 'emailComprador')}</div><div class="wide"><b>ENDEREÇO:</b> ${buyerAddress}</div><div class="wide"><b>VALOR:</b> R$ ${valueOf(data, 'valorVenda')}</div></section>
-        <section class="closing signature-footer"><div class="signature"><p>${valueOf(data, 'cidadeAssinatura')}, ${date}.</p><div class="signature-line"></div><strong>${nameOf(data, 'vendedor')}</strong><br>Assinatura do Outorgante (Proprietário Vendedor)</div>${window.renderMegaDeclaration(valueOf(data, 'cidadeAssinatura'), date)}</section>
-      </article></body></html>`);
+        <section class="closing signature-footer"><div class="signature"><p>${valueOf(data, 'cidadeAssinatura')}, ${date}.</p><div class="signature-mark" data-drag-signature><div class="signature-line"></div><strong>${nameOf(data, 'vendedor')}</strong><br>Assinatura do Outorgante (Proprietário Vendedor)</div></div>${window.renderMegaDeclaration(valueOf(data, 'cidadeAssinatura'), date)}</section>
+      </article></body></html>`;
+
+    preview.document.write(documentHtml);
     preview.document.close();
+
+    window.MegaSignatureEditor?.attach(document.getElementById('signature-editor-trigger'), {
+      html: documentHtml,
+      documentType: 'procuracao-intencao-venda',
+      fileName: 'procuracao-intencao-venda.pdf',
+      mode: 'protected',
+    });
   });
 }
