@@ -3,7 +3,7 @@ const requerimentoRegravacaoForm = document.getElementById('requerimento-regrava
 if (requerimentoRegravacaoForm) {
   const onlyNumbers = (value) => value.replace(/\D/g, '');
   const escapeHtml = (value) => String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
-  const valueOf = (data, key) => escapeHtml(data.get(key));
+  const valueOf = (data, key) => escapeHtml(String(data.get(key) || '').toLocaleUpperCase('pt-BR'));
   const nameOf = (data, key) => escapeHtml(String(data.get(key) || '').toLocaleUpperCase('pt-BR'));
   const formatCpfCnpj = (value) => { const digits = onlyNumbers(value).slice(0, 14); if (digits.length <= 11) return digits.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2'); return digits.replace(/(\d{2})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1/$2').replace(/(\d{4})(\d{1,2})$/, '$1-$2'); };
   const formatPhone = (value) => onlyNumbers(value).slice(0, 11).replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d)/, '$1-$2');

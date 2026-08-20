@@ -14,7 +14,7 @@ if (requerimentoSegundaViaForm) {
     return `${day} de ${months[Number(month) - 1]} de ${year}`;
   };
   const escapeHtml = (value) => String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
-  const valueOf = (data, key) => escapeHtml(data.get(key));
+  const valueOf = (data, key) => escapeHtml(String(data.get(key) || '').toLocaleUpperCase('pt-BR'));
   const nameOf = (data, key) => escapeHtml(String(data.get(key) || '').toLocaleUpperCase('pt-BR'));
 
   requerimentoSegundaViaForm.elements.dataAssinatura.value = new Date().toISOString().slice(0, 10);

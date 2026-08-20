@@ -3,7 +3,7 @@ const impedimentoLicenciamentoForm = document.getElementById('impedimento-licenc
 if (impedimentoLicenciamentoForm) {
   const onlyNumbers = (value) => value.replace(/\D/g, '');
   const escapeHtml = (value) => String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
-  const valueOf = (data, key) => escapeHtml(data.get(key));
+  const valueOf = (data, key) => escapeHtml(String(data.get(key) || '').toLocaleUpperCase('pt-BR'));
   const nameOf = (data, key) => escapeHtml(String(data.get(key) || '').toLocaleUpperCase('pt-BR'));
   const formatCpfCnpj = (value) => { const digits = onlyNumbers(value).slice(0, 14); if (digits.length <= 11) return digits.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2'); return digits.replace(/(\d{2})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1/$2').replace(/(\d{4})(\d{1,2})$/, '$1-$2'); };
   const formattedDate = (value) => { const [year, month, day] = value.split('-'); const months = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']; return `${day} de ${months[Number(month) - 1]} de ${year}`; };

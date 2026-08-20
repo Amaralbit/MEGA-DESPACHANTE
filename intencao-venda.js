@@ -13,8 +13,10 @@ if (intencaoVendaForm) {
     return `${day}/${month}/${year}`;
   };
   const escapeHtml = (value) => String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
-  const valueOf = (data, key) => escapeHtml(data.get(key));
+  const valueOf = (data, key) => escapeHtml(String(data.get(key) || '').toLocaleUpperCase('pt-BR'));
   const nameOf = (data, key) => escapeHtml(String(data.get(key) || '').toLocaleUpperCase('pt-BR'));
+  // E-mail mantém a caixa digitada pelo usuário; deixá-lo maiúsculo só ficaria estranho.
+  const emailOf = (data, key) => escapeHtml(data.get(key));
 
   intencaoVendaForm.elements.dataAssinatura.value = new Date().toISOString().slice(0, 10);
 
@@ -100,13 +102,13 @@ if (intencaoVendaForm) {
       <article class="document">
         <img class="logo-symbol" src="${logoUrl}" alt="MEGA Despachante">
         <h1 class="heading">Procuração<span>Intenção de venda e emissão ATPV-E</span></h1>
-        <p class="lead">Pelo presente instrumento de procuração, o(a) <strong>PROPRIETÁRIO(A) VENDEDOR(A)</strong>, <strong>${nameOf(data, 'vendedor')}</strong>, inscrito(a) no CPF/CNPJ sob nº ${valueOf(data, 'cpfCnpjVendedor')}, residente e domiciliado(a) em ${vendorAddress}, e-mail ${valueOf(data, 'emailVendedor')}${data.get('telefoneVendedor') ? `, celular ${valueOf(data, 'telefoneVendedor')}` : ''}.</p>
+        <p class="lead">Pelo presente instrumento de procuração, o(a) <strong>PROPRIETÁRIO(A) VENDEDOR(A)</strong>, <strong>${nameOf(data, 'vendedor')}</strong>, inscrito(a) no CPF/CNPJ sob nº ${valueOf(data, 'cpfCnpjVendedor')}, residente e domiciliado(a) em ${vendorAddress}, e-mail ${emailOf(data, 'emailVendedor')}${data.get('telefoneVendedor') ? `, celular ${valueOf(data, 'telefoneVendedor')}` : ''}.</p>
         <p>Nomeia e constitui seu bastante procurador, o Escritório de <strong>MEGA DESPACHANTE</strong>, código <strong>2009</strong>, com sede à <strong>Rua T-37, Nº 2695, Setor Bueno, na cidade de Goiânia</strong>, para como se presente fosse, representá-lo junto ao DETRAN/GO, para solicitação dos serviços de <strong>INCLUSÃO DE INTENÇÃO DE VENDA</strong> ou <strong>CANCELAMENTO DE INTENÇÃO DE VENDA</strong> e/ou <strong>EMISSÃO DA ATPV-E</strong>, do veículo abaixo discriminado:</p>
         <section class="vehicle"><div><strong>Marca / modelo:</strong> ${valueOf(data, 'marcaModelo')}</div><div><strong>Ano fabricação/modelo:</strong> ${valueOf(data, 'anoFabricacao')}/${valueOf(data, 'anoModelo')}</div><div><strong>Cor:</strong> ${valueOf(data, 'cor')}</div><div><strong>Placa:</strong> ${valueOf(data, 'placa')}</div><div><strong>Chassi:</strong> ${valueOf(data, 'chassi')}</div></section>
         <p>Podendo, para tanto, requerer e assinar o que necessário for, efetuar pagamentos, receber e dar quitações, alegar, concordar, discordar, prestar declarações e informações, enfim, praticar quaisquer outros atos que se fizerem necessários para o fiel cumprimento deste mandato, o que desde já fica dado por firme e valioso.</p>
         <h2 class="buyer-title">Dados comprador</h2>
         <p>Declaro ainda que os dados abaixo são a expressão da verdade, tendo sido captados e informados por mim, assumindo a inteira responsabilidade perante eles e isentando o despachante contratado de qualquer infortúnio:</p>
-        <section class="buyer-grid"><div class="wide"><b>COMPRADOR:</b> <strong>${nameOf(data, 'comprador')}</strong></div><div><b>CPF/CNPJ:</b> ${valueOf(data, 'cpfCnpjComprador')}</div><div><b>E-MAIL:</b> ${valueOf(data, 'emailComprador')}</div><div class="wide"><b>ENDEREÇO:</b> ${buyerAddress}</div><div class="wide"><b>VALOR:</b> R$ ${valueOf(data, 'valorVenda')}</div></section>
+        <section class="buyer-grid"><div class="wide"><b>COMPRADOR:</b> <strong>${nameOf(data, 'comprador')}</strong></div><div><b>CPF/CNPJ:</b> ${valueOf(data, 'cpfCnpjComprador')}</div><div><b>E-MAIL:</b> ${emailOf(data, 'emailComprador')}</div><div class="wide"><b>ENDEREÇO:</b> ${buyerAddress}</div><div class="wide"><b>VALOR:</b> R$ ${valueOf(data, 'valorVenda')}</div></section>
         <section class="closing signature-footer"><div class="signature"><p>${valueOf(data, 'cidadeAssinatura')}, ${date}.</p><div class="signature-mark" data-drag-signature><div class="signature-line"></div><strong>${nameOf(data, 'vendedor')}</strong><br>Assinatura do Outorgante (Proprietário Vendedor)</div></div>${window.renderMegaDeclaration(valueOf(data, 'cidadeAssinatura'), date)}</section>
       </article></body></html>`;
   };
