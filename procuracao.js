@@ -121,8 +121,12 @@ if (procuracaoForm) {
   servicoField.addEventListener('focus', renderServicoSuggestions);
   servicoField.addEventListener('input', renderServicoSuggestions);
   servicoField.addEventListener('blur', () => {
+    // Salva mesmo que a pessoa apenas preencha o formulário e saia da página,
+    // sem chegar a gerar o PDF.
+    saveServicoHistory(servicoField.value);
     setTimeout(() => { servicoSuggestions.hidden = true; }, 120);
   });
+  window.addEventListener('pagehide', () => saveServicoHistory(servicoField.value));
 
   const escapeHtml = (value) => String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
   const valueOf = (data, key) => escapeHtml(String(data.get(key) || '').toLocaleUpperCase('pt-BR'));
