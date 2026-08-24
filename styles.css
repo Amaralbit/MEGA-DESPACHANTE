@@ -2522,3 +2522,8 @@ button.signature-editor-trigger {
     padding: 12px;
   }
 }
+
+.catalog-icon-procuracao svg {
+  width: 31px;
+  height: 31px;
+}
