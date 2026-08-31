@@ -504,6 +504,40 @@
       });
     });
 
+    // Em um formulário com botões de envio, Enter em um campo de texto pode
+    // acionar o submit implícito do navegador. Como as demais etapas ainda
+    // estão ocultas e vazias, isso fazia o usuário receber erros de campos que
+    // sequer havia alcançado. Aqui Enter passa a ter o comportamento esperado
+    // de um preenchimento guiado: seguir para a próxima caixinha da etapa atual.
+    // Textareas ficam de fora para preservar a criação de novas linhas.
+    form.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' || event.isComposing || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return;
+
+      const control = event.target;
+      if (!(control instanceof HTMLElement) || !controls.includes(control)) return;
+      if (control.tagName === 'TEXTAREA' || ['checkbox', 'radio', 'file'].includes(control.type)) return;
+
+      event.preventDefault();
+
+      const currentControls = controls.filter((item) => (
+        panels[currentStep].contains(item)
+        && !item.disabled
+        && !item.readOnly
+        && item.type !== 'hidden'
+        && item.tabIndex >= 0
+      ));
+      const nextControl = currentControls[currentControls.indexOf(control) + 1];
+
+      if (nextControl) {
+        nextControl.focus();
+        return;
+      }
+
+      // No último campo, levar o foco ao botão Continuar mantém a validação
+      // explícita e evita que Enter envie o documento antes da revisão final.
+      panels[currentStep].querySelector('.premium-nav-button:not(.premium-nav-button--back)')?.focus();
+    });
+
     clearButton.addEventListener('click', () => {
       const shouldClear = window.confirm('Limpar todos os campos? Os dados preenchidos e o rascunho salvo neste dispositivo serão apagados.');
       if (!shouldClear) return;
