@@ -2448,49 +2448,6 @@ button.premium-clear-button {
   font-weight: 800;
 }
 
-.pa2-mobile-service-choice {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px;
-  min-height: 48px;
-  padding: 10px 12px;
-  border: 1px solid #dfdbd1;
-  border-radius: 4px;
-  background: #fff;
-  color: #48453f;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.pa2-mobile-service-choice input {
-  width: 17px;
-  height: 17px;
-  margin: 0;
-  accent-color: var(--red);
-}
-
-.pa2-mobile-service-choice strong {
-  color: #9c280f;
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-.pa2-mobile-service-choice:has(input:checked) {
-  border-color: #bc563f;
-  background: #fff5f0;
-}
-
-.pa2-mobile-variable-services-heading {
-  margin: 10px 0 2px;
-  padding-top: 16px;
-  border-top: 1px solid #e5e1d9;
-  color: #55524b;
-  font-size: 11px;
-  font-weight: 800;
-}
-
 .pa2-mobile-cnd {
   display: grid;
   grid-template-columns: minmax(190px, 1fr) minmax(0, 1fr);

@@ -103,22 +103,20 @@ test('PA2 soma multas normais e multas em estado de autuação', () => {
   assert.equal(calculatePa2FinesTotal(rows), 350.5);
 });
 
-test('PA2 Mobile mantém os blocos da tabela e calcula o total sem somar a quantidade de honorários', () => {
+test('PA2 Mobile registra um único total de serviços no cálculo', () => {
   assert.deepEqual(MOBILE_PA2_VALUE_ROWS.find((row) => row.name === 'gravame'), {
     name: 'gravame', label: 'Baixa do gravame', group: 'debts',
   });
   assert.ok(MOBILE_PA2_VALUE_ROWS.some((row) => row.name === 'ipva'));
-  assert.deepEqual(MOBILE_PA2_VALUE_ROWS.find((row) => row.name === 'placas'), {
-    name: 'placas', label: 'Placas', group: 'services', referenceAmount: 299,
+  assert.deepEqual(MOBILE_PA2_VALUE_ROWS.find((row) => row.name === 'totalServicos'), {
+    name: 'totalServicos', label: 'Total de serviços', group: 'services',
   });
-  assert.ok(MOBILE_PA2_VALUE_ROWS.some((row) => row.name === 'vistoriaCautelar3Visao'));
+  assert.equal(MOBILE_PA2_VALUE_ROWS.filter((row) => row.group === 'services').length, 1);
   assert.equal(calculateMobilePa2Total({
     ipva: '1.000,00',
     licenciamento: '150,50',
-    placas: '299,00',
-    honorariosDespachante: '300',
-    quantidadeHonorarios: '5',
-  }), 1749.5);
+    totalServicos: '299,00',
+  }), 1449.5);
 });
 
 test('PA2 aceita somente as marcações de documento previstas', () => {
@@ -248,13 +246,13 @@ test('PA2 Mobile traz colinha de valores e campos de baixa e validade do gravame
 
   assert.match(page, /Colinha de valores da Mobile/);
   assert.match(page, /Baixa de gravame<\/td><td>R\$ 274,61/);
+  assert.match(page, /Emissão de ATPV de veículo de outro UF<\/td><td>R\$ 300,00/);
   assert.match(page, /Transferência de município<\/td><td>R\$ 83,46/);
   assert.match(script, /gravameAtivoAte/);
   assert.match(script, /GRAVAME ATIVO ATÉ/);
   assert.match(script, /\['Ativo', 'Baixado'\]\.includes\(status\)/);
-  assert.match(script, /referenceAmount/);
-  assert.match(script, /Selected`\]\?\.checked/);
-  assert.match(script, /checkbox\.addEventListener\('change', \(\) => updateTotal\(\)\)/);
+  assert.match(script, /name: 'totalServicos', label: 'Total de serviços', group: 'services'/);
+  assert.doesNotMatch(script, /referenceAmount/);
 });
 
 test('PA2 esquece o código quando a aba/navegador fecha, mas não ao trocar de página', async () => {

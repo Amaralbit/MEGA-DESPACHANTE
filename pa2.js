@@ -41,19 +41,7 @@ export const MOBILE_PA2_VALUE_ROWS = Object.freeze([
   { name: 'licenciamento', label: 'Licenciamento', group: 'debts' },
   { name: 'multasEmitidas', label: 'Multas emitidas', group: 'debts', statusName: 'multasEmitidasNc', statusLabel: 'N/C' },
   { name: 'multasNaoEmitidas', label: 'Multas não emitidas', group: 'debts', statusName: 'multasNaoEmitidasNc', statusLabel: 'N/C' },
-  { name: 'placas', label: 'Placas', group: 'services', referenceAmount: 299 },
-  { name: 'autorizacaoPlacas', label: 'Autorização de placas', group: 'services', referenceAmount: 42.23 },
-  { name: 'vistoriaTransferencia', label: 'Vistoria de transferência', group: 'services', referenceAmount: 129.6 },
-  { name: 'taxaTransferenciaUf', label: 'Taxa de transferência PROP/UF', group: 'services', referenceAmount: 465.11 },
-  { name: 'transferenciaPropriedade', label: 'Transferência de propriedade', group: 'services', referenceAmount: 58.42 },
-  { name: 'emissaoAtpve', label: 'Emissão de ATPV-E', group: 'services', referenceAmount: 120 },
-  { name: 'transferenciaMunicipio', label: 'Transferência de município', group: 'services', referenceAmount: 83.46 },
-  { name: 'baixaBeneficioTributario', label: 'Baixa de benefício tributário', group: 'services', referenceAmount: 316.07 },
-  { name: 'segundaViaCrv', label: 'Segunda via de CRV', group: 'services', referenceAmount: 599 },
-  { name: 'honorariosDespachante', label: 'Honorários despachante', group: 'services' },
-  { name: 'quantidadeHonorarios', label: 'Quantidade de honorários', group: 'services', type: 'number', isTotal: false },
-  { name: 'vistoriaCautelar', label: 'Vistoria cautelar', group: 'services' },
-  { name: 'vistoriaCautelar3Visao', label: 'Vistoria cautelar 3ª visão', group: 'services' },
+  { name: 'totalServicos', label: 'Total de serviços', group: 'services' },
 ]);
 
 const MOBILE_PA2_TEXT_FIELDS = Object.freeze([
@@ -555,14 +543,8 @@ export const createMobilePa2Pdf = async ({ data = {} } = {}) => {
   });
 
   table = addMobilePdfSection(table, 'SERVIÇOS DETRAN');
-  MOBILE_PA2_VALUE_ROWS.filter((row) => row.group === 'services' && row.referenceAmount && data[row.name]).forEach((row) => {
+  MOBILE_PA2_VALUE_ROWS.filter((row) => row.group === 'services').forEach((row) => {
     table = addMobilePdfRow(table, [row.label.toUpperCase(), mobileAmount(data[row.name]), '']);
-  });
-
-  table = addMobilePdfSection(table, 'HONORÁRIOS DESPACHANTE');
-  MOBILE_PA2_VALUE_ROWS.filter((row) => ['honorariosDespachante', 'quantidadeHonorarios'].includes(row.name)).forEach((row) => {
-    const value = row.type === 'number' ? String(data[row.name] || '') : mobileAmount(data[row.name]);
-    table = addMobilePdfRow(table, [row.label.toUpperCase(), value, '']);
   });
 
   table = addMobilePdfSection(table, 'CND');
@@ -571,11 +553,6 @@ export const createMobilePa2Pdf = async ({ data = {} } = {}) => {
     formatPa2MobileDate(data.cndValidade),
     data.cndNaoConsta ? 'NÃO CONSTA CND EMITIDA / VÁLIDA' : '',
   ]);
-
-  table = addMobilePdfSection(table, 'VISTORIA CAUTELAR');
-  MOBILE_PA2_VALUE_ROWS.filter((row) => ['vistoriaCautelar', 'vistoriaCautelar3Visao'].includes(row.name)).forEach((row) => {
-    table = addMobilePdfRow(table, [row.label.toUpperCase(), mobileAmount(data[row.name]), '']);
-  });
 
   table = addMobilePdfRow(table, ['TOTAL GERAL DO PA2', formatCurrencyValue(calculateMobilePa2Total(data)), ''], {
     bold: true,
@@ -1118,9 +1095,7 @@ const readMobilePa2Data = (form) => {
     data[field.name] = form.querySelector(`input[name="${field.name}"]:checked`)?.value || '';
   });
   MOBILE_PA2_VALUE_ROWS.forEach((row) => {
-    data[row.name] = row.referenceAmount
-      ? (form.elements[`${row.name}Selected`]?.checked ? String(row.referenceAmount) : '')
-      : (form.elements[row.name]?.value.trim() || '');
+    data[row.name] = form.elements[row.name]?.value.trim() || '';
   });
   data.gravameAtivoAte = form.elements.gravameAtivoAte?.value || '';
   if (!['Ativo', 'Baixado'].includes(data.gravameStatus)) data.gravame = '';
@@ -1230,31 +1205,8 @@ const initMobilePa2 = () => {
     container.append(wrapper);
   };
 
-  const addReferenceServiceField = (container, row) => {
-    const label = document.createElement('label');
-    label.className = 'pa2-mobile-service-choice';
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.name = `${row.name}Selected`;
-    const service = document.createElement('span');
-    service.textContent = row.label;
-    const amount = document.createElement('strong');
-    amount.textContent = formatCurrencyValue(row.referenceAmount);
-    label.append(checkbox, service, amount);
-    checkbox.addEventListener('change', () => updateTotal());
-    container.append(label);
-  };
-
   MOBILE_PA2_VALUE_ROWS.filter((row) => row.group === 'debts' && row.name !== 'gravame').forEach((row) => addValueField(debtFields, row));
-  MOBILE_PA2_VALUE_ROWS.filter((row) => row.group === 'services' && row.referenceAmount).forEach((row) => addReferenceServiceField(serviceFields, row));
-  const variableServices = MOBILE_PA2_VALUE_ROWS.filter((row) => row.group === 'services' && !row.referenceAmount);
-  if (variableServices.length) {
-    const heading = document.createElement('p');
-    heading.className = 'pa2-mobile-variable-services-heading';
-    heading.textContent = 'Outros itens (preencha o valor quando houver)';
-    serviceFields.append(heading);
-    variableServices.forEach((row) => addValueField(serviceFields, row));
-  }
+  MOBILE_PA2_VALUE_ROWS.filter((row) => row.group === 'services').forEach((row) => addValueField(serviceFields, row));
 
   const gravameDetails = document.createElement('div');
   gravameDetails.className = 'pa2-mobile-gravame-details';
