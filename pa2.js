@@ -36,7 +36,7 @@ export const PA2_ROWS = Object.freeze([
 ]);
 
 export const MOBILE_PA2_VALUE_ROWS = Object.freeze([
-  { name: 'gravame', label: 'Gravame', group: 'debts' },
+  { name: 'gravame', label: 'Baixa do gravame', group: 'debts' },
   { name: 'ipva', label: 'IPVA', group: 'debts', statusName: 'ipvaParcelado', statusLabel: 'Parcelado' },
   { name: 'licenciamento', label: 'Licenciamento', group: 'debts' },
   { name: 'multasEmitidas', label: 'Multas emitidas', group: 'debts', statusName: 'multasEmitidasNc', statusLabel: 'N/C' },
@@ -538,6 +538,9 @@ export const createMobilePa2Pdf = async ({ data = {} } = {}) => {
   table = addMobilePdfSection(table, 'GRAVAME');
   const gravame = MOBILE_PA2_VALUE_ROWS.find((row) => row.name === 'gravame');
   table = addMobilePdfRow(table, [gravame.label.toUpperCase(), mobileAmount(data[gravame.name]), String(data.gravameStatus || '').toUpperCase()]);
+  if (data.gravameStatus === 'Ativo') {
+    table = addMobilePdfRow(table, ['GRAVAME ATIVO ATÉ', formatPa2MobileDate(data.gravameAtivoAte), '']);
+  }
 
   table = addMobilePdfSection(table, 'IPVA / LICENCIAMENTO');
   MOBILE_PA2_VALUE_ROWS.filter((row) => ['ipva', 'licenciamento'].includes(row.name)).forEach((row) => {
@@ -1115,6 +1118,9 @@ const readMobilePa2Data = (form) => {
   MOBILE_PA2_VALUE_ROWS.forEach((row) => {
     data[row.name] = form.elements[row.name]?.value.trim() || '';
   });
+  data.gravameAtivoAte = form.elements.gravameAtivoAte?.value || '';
+  if (!['Ativo', 'Baixado'].includes(data.gravameStatus)) data.gravame = '';
+  if (data.gravameStatus !== 'Ativo') data.gravameAtivoAte = '';
   data.cndValidade = form.elements.cndValidade?.value || '';
   data.cndNaoConsta = Boolean(form.elements.cndNaoConsta?.checked);
   data.mobileObservations = form.elements.mobileObservations?.value.trim() || '';
@@ -1146,6 +1152,7 @@ const initMobilePa2 = () => {
     vehicleFields.append(label);
   });
 
+  let gravameChoiceGroup;
   MOBILE_PA2_DOCUMENT_FIELDS.filter((field) => !['ipvaParcelado', 'multasEmitidasNc', 'multasNaoEmitidasNc'].includes(field.name)).forEach((field) => {
     if (field.type === 'checkbox') {
       const label = document.createElement('label');
@@ -1178,6 +1185,7 @@ const initMobilePa2 = () => {
     });
     group.append(legend, options);
     documentFields.append(group);
+    if (field.name === 'gravameStatus') gravameChoiceGroup = group;
   });
 
   const addValueField = (container, row) => {
@@ -1218,8 +1226,36 @@ const initMobilePa2 = () => {
     container.append(wrapper);
   };
 
-  MOBILE_PA2_VALUE_ROWS.filter((row) => row.group === 'debts').forEach((row) => addValueField(debtFields, row));
+  MOBILE_PA2_VALUE_ROWS.filter((row) => row.group === 'debts' && row.name !== 'gravame').forEach((row) => addValueField(debtFields, row));
   MOBILE_PA2_VALUE_ROWS.filter((row) => row.group === 'services').forEach((row) => addValueField(serviceFields, row));
+
+  const gravameDetails = document.createElement('div');
+  gravameDetails.className = 'pa2-mobile-gravame-details';
+  gravameDetails.hidden = true;
+  const gravameHint = document.createElement('p');
+  gravameHint.textContent = 'Use o valor de referência de R$ 274,61 quando houver baixa de gravame.';
+  const gravame = MOBILE_PA2_VALUE_ROWS.find((row) => row.name === 'gravame');
+  addValueField(gravameDetails, gravame);
+  const gravameUntilLabel = document.createElement('label');
+  gravameUntilLabel.className = 'pa2-mobile-gravame-until';
+  gravameUntilLabel.textContent = 'Gravame ativo até';
+  const gravameUntil = document.createElement('input');
+  gravameUntil.name = 'gravameAtivoAte';
+  gravameUntil.type = 'date';
+  gravameUntilLabel.append(gravameUntil);
+  gravameDetails.append(gravameHint, gravameUntilLabel);
+  documentFields.append(gravameDetails);
+
+  const updateGravameFields = () => {
+    const status = form.querySelector('input[name="gravameStatus"]:checked')?.value || '';
+    const hasGravame = ['Ativo', 'Baixado'].includes(status);
+    gravameDetails.hidden = !hasGravame;
+    gravameUntilLabel.hidden = status !== 'Ativo';
+  };
+  gravameChoiceGroup?.querySelectorAll('input[name="gravameStatus"]').forEach((input) => {
+    input.addEventListener('change', updateGravameFields);
+  });
+  updateGravameFields();
 
   const cndDateLabel = document.createElement('label');
   cndDateLabel.textContent = 'CND emitida válida até';
@@ -1255,6 +1291,7 @@ const initMobilePa2 = () => {
     form.querySelectorAll('.pa2-amount-preview').forEach((preview) => {
       preview.textContent = '';
     });
+    updateGravameFields();
     updateTotal();
   });
 

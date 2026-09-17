@@ -104,7 +104,9 @@ test('PA2 soma multas normais e multas em estado de autuação', () => {
 });
 
 test('PA2 Mobile mantém os blocos da tabela e calcula o total sem somar a quantidade de honorários', () => {
-  assert.ok(MOBILE_PA2_VALUE_ROWS.some((row) => row.name === 'gravame'));
+  assert.deepEqual(MOBILE_PA2_VALUE_ROWS.find((row) => row.name === 'gravame'), {
+    name: 'gravame', label: 'Baixa do gravame', group: 'debts',
+  });
   assert.ok(MOBILE_PA2_VALUE_ROWS.some((row) => row.name === 'ipva'));
   assert.ok(MOBILE_PA2_VALUE_ROWS.some((row) => row.name === 'servicoDetran'));
   assert.ok(MOBILE_PA2_VALUE_ROWS.some((row) => row.name === 'vistoriaCautelar3Visao'));
@@ -224,6 +226,20 @@ test('PA2 pede a escolha entre os padrões Saga e Mobile após liberar o acesso'
   assert.match(script, /const showModelSelector = \(\) =>/);
   assert.match(script, /const selectPa2Model = \(model\) =>/);
   assert.match(script, /createMobilePa2Pdf/);
+});
+
+test('PA2 Mobile traz colinha de valores e campos de baixa e validade do gravame', async () => {
+  const [page, script] = await Promise.all([
+    readFile('pa2.html', 'utf8'),
+    readFile('pa2.js', 'utf8'),
+  ]);
+
+  assert.match(page, /Colinha de valores da Mobile/);
+  assert.match(page, /Baixa de gravame<\/td><td>R\$ 274,61/);
+  assert.match(page, /Transferência de município<\/td><td>R\$ 83,46/);
+  assert.match(script, /gravameAtivoAte/);
+  assert.match(script, /GRAVAME ATIVO ATÉ/);
+  assert.match(script, /\['Ativo', 'Baixado'\]\.includes\(status\)/);
 });
 
 test('PA2 esquece o código quando a aba/navegador fecha, mas não ao trocar de página', async () => {
