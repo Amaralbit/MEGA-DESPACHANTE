@@ -245,6 +245,7 @@ test('PA2 Mobile traz colinha de valores e campos de baixa e validade do gravame
   assert.match(script, /\['Ativo', 'Baixado'\]\.includes\(status\)/);
   assert.match(script, /referenceAmount/);
   assert.match(script, /Selected`\]\?\.checked/);
+  assert.match(script, /checkbox\.addEventListener\('change', \(\) => updateTotal\(\)\)/);
 });
 
 test('PA2 esquece o código quando a aba/navegador fecha, mas não ao trocar de página', async () => {

@@ -1238,7 +1238,7 @@ const initMobilePa2 = () => {
     const amount = document.createElement('strong');
     amount.textContent = formatCurrencyValue(row.referenceAmount);
     label.append(checkbox, service, amount);
-    checkbox.addEventListener('change', updateTotal);
+    checkbox.addEventListener('change', () => updateTotal());
     container.append(label);
   };
 
