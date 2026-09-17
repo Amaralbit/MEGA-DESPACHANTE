@@ -103,7 +103,7 @@ test('PA2 soma multas normais e multas em estado de autuação', () => {
   assert.equal(calculatePa2FinesTotal(rows), 350.5);
 });
 
-test('PA2 Mobile registra um único total de serviços no cálculo', () => {
+test('PA2 Mobile registra o total de serviços e a vistoria cautelar no cálculo', () => {
   assert.deepEqual(MOBILE_PA2_VALUE_ROWS.find((row) => row.name === 'gravame'), {
     name: 'gravame', label: 'Baixa do gravame', group: 'debts',
   });
@@ -111,12 +111,17 @@ test('PA2 Mobile registra um único total de serviços no cálculo', () => {
   assert.deepEqual(MOBILE_PA2_VALUE_ROWS.find((row) => row.name === 'totalServicos'), {
     name: 'totalServicos', label: 'Total de serviços', group: 'services',
   });
-  assert.equal(MOBILE_PA2_VALUE_ROWS.filter((row) => row.group === 'services').length, 1);
-  assert.equal(calculateMobilePa2Total({
+  assert.deepEqual(MOBILE_PA2_VALUE_ROWS.find((row) => row.name === 'vistoriaCautelar'), {
+    name: 'vistoriaCautelar', label: 'Vistoria cautelar', group: 'services',
+  });
+  assert.equal(MOBILE_PA2_VALUE_ROWS.filter((row) => row.group === 'services').length, 2);
+  assert.equal(formatCurrencyValue(calculateMobilePa2Total({
+    gravame: '274,61',
     ipva: '1.000,00',
     licenciamento: '150,50',
     totalServicos: '299,00',
-  }), 1449.5);
+    vistoriaCautelar: '120,00',
+  })), 'R$ 1.844,11');
 });
 
 test('PA2 aceita somente as marcações de documento previstas', () => {
@@ -250,8 +255,11 @@ test('PA2 Mobile traz colinha de valores e campos de baixa e validade do gravame
   assert.match(page, /Transferência de município<\/td><td>R\$ 83,46/);
   assert.match(script, /gravameAtivoAte/);
   assert.match(script, /GRAVAME ATIVO ATÉ/);
-  assert.match(script, /\['Ativo', 'Baixado'\]\.includes\(status\)/);
+  assert.match(script, /gravameUntilLabel\.hidden = status !== 'Ativo'/);
   assert.match(script, /name: 'totalServicos', label: 'Total de serviços', group: 'services'/);
+  assert.match(script, /name: 'vistoriaCautelar', label: 'Vistoria cautelar', group: 'services'/);
+  assert.match(script, /gravameDetails\.hidden = false/);
+  assert.doesNotMatch(script, /data\.gravame = ''/);
   assert.doesNotMatch(script, /referenceAmount/);
 });
 

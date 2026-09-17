@@ -42,6 +42,7 @@ export const MOBILE_PA2_VALUE_ROWS = Object.freeze([
   { name: 'multasEmitidas', label: 'Multas emitidas', group: 'debts', statusName: 'multasEmitidasNc', statusLabel: 'N/C' },
   { name: 'multasNaoEmitidas', label: 'Multas não emitidas', group: 'debts', statusName: 'multasNaoEmitidasNc', statusLabel: 'N/C' },
   { name: 'totalServicos', label: 'Total de serviços', group: 'services' },
+  { name: 'vistoriaCautelar', label: 'Vistoria cautelar', group: 'services' },
 ]);
 
 const MOBILE_PA2_TEXT_FIELDS = Object.freeze([
@@ -1098,7 +1099,6 @@ const readMobilePa2Data = (form) => {
     data[row.name] = form.elements[row.name]?.value.trim() || '';
   });
   data.gravameAtivoAte = form.elements.gravameAtivoAte?.value || '';
-  if (!['Ativo', 'Baixado'].includes(data.gravameStatus)) data.gravame = '';
   if (data.gravameStatus !== 'Ativo') data.gravameAtivoAte = '';
   data.cndValidade = form.elements.cndValidade?.value || '';
   data.cndNaoConsta = Boolean(form.elements.cndNaoConsta?.checked);
@@ -1227,12 +1227,14 @@ const initMobilePa2 = () => {
 
   const updateGravameFields = () => {
     const status = form.querySelector('input[name="gravameStatus"]:checked')?.value || '';
-    const hasGravame = ['Ativo', 'Baixado'].includes(status);
-    gravameDetails.hidden = !hasGravame;
+    gravameDetails.hidden = false;
     gravameUntilLabel.hidden = status !== 'Ativo';
   };
   gravameChoiceGroup?.querySelectorAll('input[name="gravameStatus"]').forEach((input) => {
-    input.addEventListener('change', updateGravameFields);
+    input.addEventListener('change', () => {
+      updateGravameFields();
+      updateTotal();
+    });
   });
   updateGravameFields();
 
