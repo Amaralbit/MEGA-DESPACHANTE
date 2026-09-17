@@ -108,14 +108,17 @@ test('PA2 Mobile mantém os blocos da tabela e calcula o total sem somar a quant
     name: 'gravame', label: 'Baixa do gravame', group: 'debts',
   });
   assert.ok(MOBILE_PA2_VALUE_ROWS.some((row) => row.name === 'ipva'));
-  assert.ok(MOBILE_PA2_VALUE_ROWS.some((row) => row.name === 'servicoDetran'));
+  assert.deepEqual(MOBILE_PA2_VALUE_ROWS.find((row) => row.name === 'placas'), {
+    name: 'placas', label: 'Placas', group: 'services', referenceAmount: 299,
+  });
   assert.ok(MOBILE_PA2_VALUE_ROWS.some((row) => row.name === 'vistoriaCautelar3Visao'));
   assert.equal(calculateMobilePa2Total({
     ipva: '1.000,00',
     licenciamento: '150,50',
+    placas: '299,00',
     honorariosDespachante: '300',
     quantidadeHonorarios: '5',
-  }), 1450.5);
+  }), 1749.5);
 });
 
 test('PA2 aceita somente as marcações de documento previstas', () => {
@@ -240,6 +243,8 @@ test('PA2 Mobile traz colinha de valores e campos de baixa e validade do gravame
   assert.match(script, /gravameAtivoAte/);
   assert.match(script, /GRAVAME ATIVO ATÉ/);
   assert.match(script, /\['Ativo', 'Baixado'\]\.includes\(status\)/);
+  assert.match(script, /referenceAmount/);
+  assert.match(script, /Selected`\]\?\.checked/);
 });
 
 test('PA2 esquece o código quando a aba/navegador fecha, mas não ao trocar de página', async () => {
