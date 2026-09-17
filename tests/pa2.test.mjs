@@ -137,6 +137,15 @@ test('PA2 usa o papel timbrado da MEGA atrás da tabela e identifica a empresa',
   assert.match(script, /'MEGA DESPACHANTE \(CONT\.\)'/);
 });
 
+test('PA2 Mobile também aplica a marca-d’água da MEGA em todas as páginas da tabela', async () => {
+  const script = await readFile('pa2.js', 'utf8');
+
+  assert.match(script, /const addMobileTablePage = \(\{ document, font, boldFont, letterheadPage, continuation = false \}\) =>/);
+  assert.match(script, /drawLetterheadWatermark\(page, letterheadPage\);/);
+  assert.match(script, /letterheadPage: activeTable\.letterheadPage/);
+  assert.match(script, /const letterheadPage = await loadLetterheadPage\(document\);[\s\S]*?addMobileTablePage\(\{ document, font, boldFont, letterheadPage \}\)/);
+});
+
 test('PA2 fica entre Formulários e A MEGA, aceita imagens coladas e não exige campos da tabela', async () => {
   const [home, page, script] = await Promise.all([
     readFile('index.html', 'utf8'),

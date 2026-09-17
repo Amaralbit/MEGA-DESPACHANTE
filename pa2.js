@@ -426,9 +426,10 @@ const measureCompactRowHeight = (cells, widths, font, size) => {
   return Math.max(17, (lineCount * (size + 1.5)) + 6);
 };
 
-const addMobileTablePage = ({ document, font, boldFont, continuation = false }) => {
+const addMobileTablePage = ({ document, font, boldFont, letterheadPage, continuation = false }) => {
   const page = document.addPage();
   page.setSize(A4.width, A4.height);
+  drawLetterheadWatermark(page, letterheadPage);
   const colors = {
     ink: window.PDFLib.rgb(0.07, 0.07, 0.07),
     header: window.PDFLib.rgb(0.91, 0.91, 0.89),
@@ -463,7 +464,7 @@ const addMobileTablePage = ({ document, font, boldFont, continuation = false }) 
     fill: colors.header,
     colors,
   });
-  return { page, y, widths, colors, document, font, boldFont };
+  return { page, y, widths, colors, document, font, boldFont, letterheadPage };
 };
 
 const addMobilePdfRow = (table, cells, { bold = false, fill, size = 7.5 } = {}) => {
@@ -474,6 +475,7 @@ const addMobilePdfRow = (table, cells, { bold = false, fill, size = 7.5 } = {}) 
       document: activeTable.document,
       font: activeTable.font,
       boldFont: activeTable.boldFont,
+      letterheadPage: activeTable.letterheadPage,
       continuation: true,
     });
   }
@@ -517,7 +519,8 @@ export const createMobilePa2Pdf = async ({ data = {} } = {}) => {
   document.setCreator('MEGA Despachante');
   const font = await document.embedFont(StandardFonts.Helvetica);
   const boldFont = await document.embedFont(StandardFonts.HelveticaBold);
-  let table = addMobileTablePage({ document, font, boldFont });
+  const letterheadPage = await loadLetterheadPage(document);
+  let table = addMobileTablePage({ document, font, boldFont, letterheadPage });
 
   table = addMobilePdfSection(table, 'DADOS DO VEÍCULO');
   MOBILE_PA2_TEXT_FIELDS.forEach((field) => {
