@@ -4,9 +4,11 @@ import { readFile } from 'node:fs/promises';
 import {
   MAX_PA2_IMAGES,
   MIN_PA2_IMAGES,
+  MOBILE_PA2_VALUE_ROWS,
   PA2_ACCESS_CODE,
   PA2_LETTERHEAD_PATH,
   PA2_ROWS,
+  calculateMobilePa2Total,
   calculatePa2FinesTotal,
   formatCurrencyValue,
   getPa2ClipboardImages,
@@ -101,6 +103,19 @@ test('PA2 soma multas normais e multas em estado de autuação', () => {
   assert.equal(calculatePa2FinesTotal(rows), 350.5);
 });
 
+test('PA2 Mobile mantém os blocos da tabela e calcula o total sem somar a quantidade de honorários', () => {
+  assert.ok(MOBILE_PA2_VALUE_ROWS.some((row) => row.name === 'gravame'));
+  assert.ok(MOBILE_PA2_VALUE_ROWS.some((row) => row.name === 'ipva'));
+  assert.ok(MOBILE_PA2_VALUE_ROWS.some((row) => row.name === 'servicoDetran'));
+  assert.ok(MOBILE_PA2_VALUE_ROWS.some((row) => row.name === 'vistoriaCautelar3Visao'));
+  assert.equal(calculateMobilePa2Total({
+    ipva: '1.000,00',
+    licenciamento: '150,50',
+    honorariosDespachante: '300',
+    quantidadeHonorarios: '5',
+  }), 1450.5);
+});
+
 test('PA2 aceita somente as marcações de documento previstas', () => {
   assert.equal(normalizePa2DocumentLabel('doc digital'), 'DOC DIGITAL');
   assert.equal(normalizePa2DocumentLabel('DOC FÍSICO'), 'DOC FÍSICO');
@@ -193,6 +208,22 @@ test('PA2 fica atrás de um código de acesso aceito em maiúsculas ou minúscul
   assert.match(script, /gateInput\.value\.trim\(\)\.toLowerCase\(\)/);
   assert.match(script, /PA2_ACCESS_CODE\.trim\(\)\.toLowerCase\(\)/);
   assert.match(script, /sessionStorage\.setItem\(PA2_ACCESS_STORAGE_KEY, 'true'\)/);
+});
+
+test('PA2 pede a escolha entre os padrões Saga e Mobile após liberar o acesso', async () => {
+  const [page, script] = await Promise.all([
+    readFile('pa2.html', 'utf8'),
+    readFile('pa2.js', 'utf8'),
+  ]);
+
+  assert.match(page, /data-pa2-choice="saga"/);
+  assert.match(page, /PA2 padrão Saga/);
+  assert.match(page, /data-pa2-choice="mobile"/);
+  assert.match(page, /PA2 padrão Mobile/);
+  assert.match(page, /id="pa2-mobile-form"/);
+  assert.match(script, /const showModelSelector = \(\) =>/);
+  assert.match(script, /const selectPa2Model = \(model\) =>/);
+  assert.match(script, /createMobilePa2Pdf/);
 });
 
 test('PA2 esquece o código quando a aba/navegador fecha, mas não ao trocar de página', async () => {

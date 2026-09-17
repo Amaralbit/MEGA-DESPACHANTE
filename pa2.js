@@ -35,6 +35,51 @@ export const PA2_ROWS = Object.freeze([
   'Restrições',
 ]);
 
+export const MOBILE_PA2_VALUE_ROWS = Object.freeze([
+  { name: 'gravame', label: 'Gravame', group: 'debts' },
+  { name: 'ipva', label: 'IPVA', group: 'debts', statusName: 'ipvaParcelado', statusLabel: 'Parcelado' },
+  { name: 'licenciamento', label: 'Licenciamento', group: 'debts' },
+  { name: 'multasEmitidas', label: 'Multas emitidas', group: 'debts', statusName: 'multasEmitidasNc', statusLabel: 'N/C' },
+  { name: 'multasNaoEmitidas', label: 'Multas não emitidas', group: 'debts', statusName: 'multasNaoEmitidasNc', statusLabel: 'N/C' },
+  { name: 'servicoDetran', label: 'Serviços / taxa transferência DETRAN', group: 'services' },
+  { name: 'autorizacaoPlacas', label: 'Autorização de placas', group: 'services' },
+  { name: 'vistoriaTransferencia', label: 'Vistoria de transferência', group: 'services' },
+  { name: 'taxaTransferenciaUf', label: 'Taxa de transferência prop. / UF', group: 'services' },
+  { name: 'transferenciaPropriedade', label: 'Transferência de propriedade', group: 'services' },
+  { name: 'emissaoAtpve', label: 'Emissão de ATPV-e', group: 'services' },
+  { name: 'transferenciaMunicipio', label: 'Transferência de município', group: 'services' },
+  { name: 'baixaBeneficioTributario', label: 'Baixa de benefício tributário', group: 'services' },
+  { name: 'segundaViaCrv', label: 'Segunda via de CRV', group: 'services' },
+  { name: 'transferenciaUf', label: 'Transferência de UF', group: 'services' },
+  { name: 'honorariosDespachante', label: 'Honorários despachante', group: 'services' },
+  { name: 'quantidadeHonorarios', label: 'Quantidade de honorários', group: 'services', type: 'number', isTotal: false },
+  { name: 'vistoriaCautelar', label: 'Vistoria cautelar', group: 'services' },
+  { name: 'vistoriaCautelar3Visao', label: 'Vistoria cautelar 3ª visão', group: 'services' },
+]);
+
+const MOBILE_PA2_TEXT_FIELDS = Object.freeze([
+  { name: 'cliente', label: 'Cliente' },
+  { name: 'placa', label: 'Placa', uppercase: true },
+  { name: 'uf', label: 'UF', maxlength: 2, uppercase: true },
+  { name: 'marcaModelo', label: 'Marca / modelo' },
+  { name: 'anoModeloFab', label: 'Ano modelo / fabricação' },
+  { name: 'dataTransferencia', label: 'Data da transf. / inclusão', type: 'date' },
+  { name: 'dataSolicitacao', label: 'Data da solicitação', type: 'date' },
+]);
+
+const MOBILE_PA2_DOCUMENT_FIELDS = Object.freeze([
+  { name: 'procuracaoPublica', label: 'Procuração pública', type: 'checkbox' },
+  { name: 'rgCpfEndereco', label: 'RG / CPF / endereço', type: 'checkbox' },
+  { name: 'contratoSocial', label: 'Contrato social', type: 'checkbox' },
+  { name: 'crvAtpv', label: 'CRV / ATPV', type: 'checkbox' },
+  { name: 'crlv', label: 'CRLV', type: 'checkbox' },
+  { name: 'documentoFormato', label: 'Documento', type: 'radio', options: ['Físico', 'Digital'] },
+  { name: 'gravameStatus', label: 'Situação do gravame', type: 'radio', options: ['Ativo', 'Baixado', 'Sem reserva de domínio'] },
+  { name: 'ipvaParcelado', label: 'IPVA parcelado', type: 'checkbox' },
+  { name: 'multasEmitidasNc', label: 'Multas emitidas: N/C', type: 'checkbox' },
+  { name: 'multasNaoEmitidasNc', label: 'Multas não emitidas: N/C', type: 'checkbox' },
+]);
+
 const PA2_FINE_DESCRIPTIONS = new Set(['Multas', 'Multas em estado de autuação']);
 
 export const PA2_DOCUMENT_OPTIONS = Object.freeze(['DOC DIGITAL', 'DOC FÍSICO']);
@@ -107,14 +152,20 @@ export const calculatePa2FinesTotal = (rows = []) => PA2_ROWS.reduce((total, des
   return total + (Number.isFinite(amount) ? amount : 0);
 }, 0);
 
-const normalizeFilename = (value) => {
-  const base = String(value || '')
+export const calculateMobilePa2Total = (values = {}) => MOBILE_PA2_VALUE_ROWS.reduce((total, row) => {
+  if (row.isTotal === false) return total;
+  const amount = parseCurrencyValue(values[row.name]);
+  return total + (Number.isFinite(amount) ? amount : 0);
+}, 0);
+
+const normalizeFilename = (value, fallback = 'PA2') => {
+  const base = String(value || fallback)
     .trim()
     .replace(/\.pdf$/i, '')
     .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-')
     .replace(/\s+/g, ' ')
     .slice(0, 70);
-  return `${base || 'PA2'}.pdf`;
+  return `${base || fallback}.pdf`;
 };
 
 const createBrowserImage = async (file, url) => {
@@ -363,21 +414,241 @@ export const createPa2Pdf = async ({ entries, plate = '', documentLabel = '', da
   return document.save({ useObjectStreams: true });
 };
 
+const formatPa2MobileDate = (value) => (
+  /^\d{4}-\d{2}-\d{2}$/.test(String(value || ''))
+    ? String(value).split('-').reverse().join('/')
+    : ''
+);
+
+const measureCompactRowHeight = (cells, widths, font, size) => {
+  const lineCount = Math.max(1, ...cells.map((cell, index) => (
+    wrapText(cell, font, size, widths[index] - 8).length
+  )));
+  return Math.max(17, (lineCount * (size + 1.5)) + 6);
+};
+
+const addMobileTablePage = ({ document, font, boldFont, continuation = false }) => {
+  const page = document.addPage();
+  page.setSize(A4.width, A4.height);
+  const colors = {
+    ink: window.PDFLib.rgb(0.07, 0.07, 0.07),
+    header: window.PDFLib.rgb(0.91, 0.91, 0.89),
+  };
+  const widths = [247, 114, A4.width - (PAGE_MARGIN * 2) - 361];
+  let y = A4.height - PAGE_MARGIN;
+  y = drawGridRow({
+    page,
+    cells: [continuation ? 'PA2 MOBILE - MEGA DESPACHANTE (CONT.)' : 'PA2 MOBILE - MEGA DESPACHANTE', '', ''],
+    widths,
+    x: PAGE_MARGIN,
+    y,
+    height: 27,
+    font,
+    boldFont,
+    bold: true,
+    size: 10,
+    fill: colors.header,
+    colors,
+  });
+  y = drawGridRow({
+    page,
+    cells: ['INFORMAÇÃO', 'VALOR', 'STATUS / OBSERVAÇÃO'],
+    widths,
+    x: PAGE_MARGIN,
+    y,
+    height: 18,
+    font,
+    boldFont,
+    bold: true,
+    size: 7.5,
+    fill: colors.header,
+    colors,
+  });
+  return { page, y, widths, colors, document, font, boldFont };
+};
+
+const addMobilePdfRow = (table, cells, { bold = false, fill, size = 7.5 } = {}) => {
+  const height = measureCompactRowHeight(cells, table.widths, table.font, size);
+  let activeTable = table;
+  if (activeTable.y - height < PAGE_MARGIN) {
+    activeTable = addMobileTablePage({
+      document: activeTable.document,
+      font: activeTable.font,
+      boldFont: activeTable.boldFont,
+      continuation: true,
+    });
+  }
+  activeTable.y = drawGridRow({
+    ...activeTable,
+    cells,
+    x: PAGE_MARGIN,
+    height,
+    font: activeTable.font,
+    boldFont: activeTable.boldFont,
+    bold,
+    size,
+    fill,
+  });
+  return activeTable;
+};
+
+const addMobilePdfSection = (table, title) => addMobilePdfRow(table, [title, '', ''], {
+  bold: true,
+  fill: table.colors.header,
+  size: 7.5,
+});
+
+const mobileChecked = (value) => (value ? 'X' : '');
+
+const mobileAmount = (value) => {
+  const parsed = parseCurrencyValue(value);
+  return Number.isFinite(parsed) ? formatCurrencyValue(parsed) : '';
+};
+
+const mobileStatus = (data, row) => (
+  row.statusName && data[row.statusName] ? row.statusLabel : ''
+);
+
+export const createMobilePa2Pdf = async ({ data = {} } = {}) => {
+  if (!window.PDFLib?.PDFDocument) throw new Error('Biblioteca de PDF indisponível. Atualize a página e tente novamente.');
+
+  const { PDFDocument, StandardFonts } = window.PDFLib;
+  const document = await PDFDocument.create();
+  document.setTitle('PA2 Mobile - MEGA Despachante');
+  document.setCreator('MEGA Despachante');
+  const font = await document.embedFont(StandardFonts.Helvetica);
+  const boldFont = await document.embedFont(StandardFonts.HelveticaBold);
+  let table = addMobileTablePage({ document, font, boldFont });
+
+  table = addMobilePdfSection(table, 'DADOS DO VEÍCULO');
+  MOBILE_PA2_TEXT_FIELDS.forEach((field) => {
+    const value = field.type === 'date' ? formatPa2MobileDate(data[field.name]) : String(data[field.name] || '');
+    table = addMobilePdfRow(table, [field.label.toUpperCase(), value.toUpperCase(), '']);
+  });
+
+  table = addMobilePdfSection(table, 'DOCUMENTAÇÃO');
+  const documentRows = MOBILE_PA2_DOCUMENT_FIELDS.filter((field) => (
+    !['ipvaParcelado', 'multasEmitidasNc', 'multasNaoEmitidasNc', 'gravameStatus'].includes(field.name)
+  ));
+  documentRows.forEach((field) => {
+    const value = field.type === 'radio' ? String(data[field.name] || '') : mobileChecked(data[field.name]);
+    table = addMobilePdfRow(table, [field.label.toUpperCase(), value.toUpperCase(), field.type === 'checkbox' && value ? 'MARCADO' : '']);
+  });
+
+  table = addMobilePdfSection(table, 'GRAVAME');
+  const gravame = MOBILE_PA2_VALUE_ROWS.find((row) => row.name === 'gravame');
+  table = addMobilePdfRow(table, [gravame.label.toUpperCase(), mobileAmount(data[gravame.name]), String(data.gravameStatus || '').toUpperCase()]);
+
+  table = addMobilePdfSection(table, 'IPVA / LICENCIAMENTO');
+  MOBILE_PA2_VALUE_ROWS.filter((row) => ['ipva', 'licenciamento'].includes(row.name)).forEach((row) => {
+    table = addMobilePdfRow(table, [row.label.toUpperCase(), mobileAmount(data[row.name]), mobileStatus(data, row).toUpperCase()]);
+  });
+
+  table = addMobilePdfSection(table, 'MULTAS');
+  MOBILE_PA2_VALUE_ROWS.filter((row) => ['multasEmitidas', 'multasNaoEmitidas'].includes(row.name)).forEach((row) => {
+    table = addMobilePdfRow(table, [row.label.toUpperCase(), mobileAmount(data[row.name]), mobileStatus(data, row).toUpperCase()]);
+  });
+
+  table = addMobilePdfSection(table, 'SERVIÇOS DETRAN');
+  MOBILE_PA2_VALUE_ROWS.filter((row) => row.group === 'services' && !['honorariosDespachante', 'quantidadeHonorarios', 'vistoriaCautelar', 'vistoriaCautelar3Visao'].includes(row.name)).forEach((row) => {
+    table = addMobilePdfRow(table, [row.label.toUpperCase(), mobileAmount(data[row.name]), '']);
+  });
+
+  table = addMobilePdfSection(table, 'HONORÁRIOS DESPACHANTE');
+  MOBILE_PA2_VALUE_ROWS.filter((row) => ['honorariosDespachante', 'quantidadeHonorarios'].includes(row.name)).forEach((row) => {
+    const value = row.type === 'number' ? String(data[row.name] || '') : mobileAmount(data[row.name]);
+    table = addMobilePdfRow(table, [row.label.toUpperCase(), value, '']);
+  });
+
+  table = addMobilePdfSection(table, 'CND');
+  table = addMobilePdfRow(table, [
+    'EMITIDA VÁLIDA ATÉ',
+    formatPa2MobileDate(data.cndValidade),
+    data.cndNaoConsta ? 'NÃO CONSTA CND EMITIDA / VÁLIDA' : '',
+  ]);
+
+  table = addMobilePdfSection(table, 'VISTORIA CAUTELAR');
+  MOBILE_PA2_VALUE_ROWS.filter((row) => ['vistoriaCautelar', 'vistoriaCautelar3Visao'].includes(row.name)).forEach((row) => {
+    table = addMobilePdfRow(table, [row.label.toUpperCase(), mobileAmount(data[row.name]), '']);
+  });
+
+  table = addMobilePdfRow(table, ['TOTAL GERAL DO PA2', formatCurrencyValue(calculateMobilePa2Total(data)), ''], {
+    bold: true,
+    fill: table.colors.header,
+    size: 8.5,
+  });
+  table = addMobilePdfRow(table, ['OBSERVAÇÕES', String(data.mobileObservations || ''), ''], { bold: true });
+
+  return document.save({ useObjectStreams: true });
+};
+
+const PA2_MODE_COPY = Object.freeze({
+  saga: {
+    kicker: 'PA2 PADRÃO SAGA',
+    title: 'Imagens e despesas.<br /><em>Um único PDF organizado.</em>',
+    description: 'Adicione de 1 a 10 imagens, organize a sequência e preencha somente as informações que desejar. Os campos não preenchidos ficarão em branco.',
+  },
+  mobile: {
+    kicker: 'PA2 PADRÃO MOBILE',
+    title: 'Ficha completa do veículo.<br /><em>Pronta para o atendimento.</em>',
+    description: 'Preencha os dados do veículo, documentação, débitos e serviços. O PDF seguirá o padrão da tabela PA2 Mobile.',
+  },
+});
+
+const selectPa2Model = (model) => {
+  const activeModel = PA2_MODE_COPY[model] ? model : 'saga';
+  const copy = PA2_MODE_COPY[activeModel];
+  document.body.dataset.pa2Mode = activeModel;
+  document.querySelectorAll('[data-pa2-model]').forEach((panel) => {
+    panel.hidden = panel.dataset.pa2Model !== activeModel;
+  });
+  document.querySelectorAll('[data-pa2-guide]').forEach((guide) => {
+    guide.hidden = guide.dataset.pa2Guide !== activeModel;
+  });
+  const kicker = document.getElementById('pa2-model-kicker');
+  const title = document.getElementById('pa2-model-title');
+  const description = document.getElementById('pa2-model-description');
+  if (kicker) kicker.innerHTML = `<span></span> ${copy.kicker}`;
+  if (title) title.innerHTML = copy.title;
+  if (description) description.textContent = copy.description;
+};
+
 const initPa2Gate = () => {
   const gate = document.getElementById('pa2-gate');
   const gateForm = document.getElementById('pa2-gate-form');
   const gateInput = document.getElementById('pa2-gate-input');
   const gateError = document.getElementById('pa2-gate-error');
+  const passwordPanel = document.getElementById('pa2-gate-password');
+  const modelSelector = document.getElementById('pa2-model-selector');
+  const changeModelButton = document.getElementById('pa2-change-model');
   if (!gate || !gateForm || !gateInput) return;
 
-  const unlock = () => {
+  const showModelSelector = () => {
+    if (passwordPanel) passwordPanel.hidden = true;
+    if (modelSelector) modelSelector.hidden = false;
+    const firstChoice = modelSelector?.querySelector('[data-pa2-choice]');
+    firstChoice?.focus();
+  };
+
+  const unlock = (model) => {
+    selectPa2Model(model);
     document.body.classList.remove('pa2-locked');
     gate.hidden = true;
   };
 
+  modelSelector?.querySelectorAll('[data-pa2-choice]').forEach((choice) => {
+    choice.addEventListener('click', () => unlock(choice.dataset.pa2Choice));
+  });
+
+  changeModelButton?.addEventListener('click', () => {
+    document.body.classList.add('pa2-locked');
+    gate.hidden = false;
+    showModelSelector();
+  });
+
   try {
-    if (sessionStorage.getItem(PA2_ACCESS_STORAGE_KEY) === 'true') {
-      unlock();
+    if (document.body.dataset.pa2AccessGranted === 'true' || sessionStorage.getItem(PA2_ACCESS_STORAGE_KEY) === 'true') {
+      showModelSelector();
       return;
     }
   } catch {
@@ -399,7 +670,7 @@ const initPa2Gate = () => {
       } catch {
         // Sem sessionStorage disponível: libera o acesso só para esta interação.
       }
-      unlock();
+      showModelSelector();
       return;
     }
     if (gateError) gateError.hidden = false;
@@ -407,7 +678,7 @@ const initPa2Gate = () => {
   });
 };
 
-const initPa2 = () => {
+const initSagaPa2 = () => {
   const form = document.getElementById('pa2-form');
   const input = document.getElementById('pa2-image-input');
   const dropzone = document.getElementById('pa2-dropzone');
@@ -620,6 +891,7 @@ const initPa2 = () => {
   }));
   dropzone.addEventListener('drop', (event) => void addFiles(event.dataTransfer.files));
   document.addEventListener('paste', (event) => {
+    if (document.body.dataset.pa2Mode !== 'saga') return;
     const clipboardImages = getPa2ClipboardImages(event.clipboardData);
     if (!clipboardImages.length) return;
     event.preventDefault();
@@ -828,5 +1100,196 @@ const initPa2 = () => {
   updateState();
 };
 
+const readMobilePa2Data = (form) => {
+  const data = {};
+  MOBILE_PA2_TEXT_FIELDS.forEach((field) => {
+    data[field.name] = form.elements[field.name]?.value.trim() || '';
+  });
+  MOBILE_PA2_DOCUMENT_FIELDS.forEach((field) => {
+    if (field.type === 'checkbox') {
+      data[field.name] = Boolean(form.elements[field.name]?.checked);
+      return;
+    }
+    data[field.name] = form.querySelector(`input[name="${field.name}"]:checked`)?.value || '';
+  });
+  MOBILE_PA2_VALUE_ROWS.forEach((row) => {
+    data[row.name] = form.elements[row.name]?.value.trim() || '';
+  });
+  data.cndValidade = form.elements.cndValidade?.value || '';
+  data.cndNaoConsta = Boolean(form.elements.cndNaoConsta?.checked);
+  data.mobileObservations = form.elements.mobileObservations?.value.trim() || '';
+  return data;
+};
+
+const initMobilePa2 = () => {
+  const form = document.getElementById('pa2-mobile-form');
+  const vehicleFields = document.getElementById('pa2-mobile-vehicle-fields');
+  const documentFields = document.getElementById('pa2-mobile-document-fields');
+  const debtFields = document.getElementById('pa2-mobile-debt-fields');
+  const serviceFields = document.getElementById('pa2-mobile-service-fields');
+  const cndFields = document.getElementById('pa2-mobile-cnd-fields');
+  const generateButton = document.getElementById('pa2-mobile-generate');
+  const clearButton = document.getElementById('pa2-mobile-clear-data');
+  const result = document.getElementById('pa2-mobile-result');
+  if (!form || !vehicleFields || !documentFields || !debtFields || !serviceFields || !cndFields || !generateButton) return;
+
+  MOBILE_PA2_TEXT_FIELDS.forEach((field) => {
+    const label = document.createElement('label');
+    label.textContent = field.label;
+    const input = document.createElement('input');
+    input.name = field.name;
+    input.type = field.type || 'text';
+    input.maxLength = field.maxlength || 100;
+    input.autocomplete = 'off';
+    if (field.uppercase) input.className = 'pa2-mobile-uppercase';
+    label.append(input);
+    vehicleFields.append(label);
+  });
+
+  MOBILE_PA2_DOCUMENT_FIELDS.filter((field) => !['ipvaParcelado', 'multasEmitidasNc', 'multasNaoEmitidasNc'].includes(field.name)).forEach((field) => {
+    if (field.type === 'checkbox') {
+      const label = document.createElement('label');
+      label.className = 'pa2-mobile-check';
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.name = field.name;
+      const text = document.createElement('span');
+      text.textContent = field.label;
+      label.append(input, text);
+      documentFields.append(label);
+      return;
+    }
+    const group = document.createElement('fieldset');
+    group.className = 'pa2-mobile-choice-group';
+    const legend = document.createElement('legend');
+    legend.textContent = field.label;
+    const options = document.createElement('div');
+    field.options.forEach((option) => {
+      const label = document.createElement('label');
+      label.className = 'pa2-mobile-check';
+      const input = document.createElement('input');
+      input.type = 'radio';
+      input.name = field.name;
+      input.value = option;
+      const text = document.createElement('span');
+      text.textContent = option;
+      label.append(input, text);
+      options.append(label);
+    });
+    group.append(legend, options);
+    documentFields.append(group);
+  });
+
+  const addValueField = (container, row) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'pa2-mobile-value-row';
+    const label = document.createElement('label');
+    label.textContent = row.label;
+    const input = document.createElement('input');
+    input.name = row.name;
+    input.type = row.type === 'number' ? 'number' : 'text';
+    input.inputMode = row.type === 'number' ? 'numeric' : 'decimal';
+    input.min = row.type === 'number' ? '0' : '';
+    input.maxLength = row.type === 'number' ? 4 : 18;
+    input.autocomplete = 'off';
+    input.placeholder = row.type === 'number' ? '0' : 'R$ 0,00';
+    const preview = document.createElement('small');
+    preview.className = 'pa2-amount-preview';
+    preview.setAttribute('aria-live', 'polite');
+    label.append(input, preview);
+    wrapper.append(label);
+    if (row.statusName) {
+      const status = document.createElement('label');
+      status.className = 'pa2-mobile-check pa2-mobile-inline-check';
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.name = row.statusName;
+      const text = document.createElement('span');
+      text.textContent = row.statusLabel;
+      status.append(checkbox, text);
+      wrapper.append(status);
+    }
+    input.addEventListener('input', () => {
+      preview.textContent = row.type === 'number'
+        ? ''
+        : (Number.isFinite(parseCurrencyValue(input.value)) ? `= ${formatCurrencyValue(parseCurrencyValue(input.value))}` : '');
+      updateTotal();
+    });
+    container.append(wrapper);
+  };
+
+  MOBILE_PA2_VALUE_ROWS.filter((row) => row.group === 'debts').forEach((row) => addValueField(debtFields, row));
+  MOBILE_PA2_VALUE_ROWS.filter((row) => row.group === 'services').forEach((row) => addValueField(serviceFields, row));
+
+  const cndDateLabel = document.createElement('label');
+  cndDateLabel.textContent = 'CND emitida válida até';
+  const cndDate = document.createElement('input');
+  cndDate.name = 'cndValidade';
+  cndDate.type = 'date';
+  cndDateLabel.append(cndDate);
+  const cndMissingLabel = document.createElement('label');
+  cndMissingLabel.className = 'pa2-mobile-check';
+  const cndMissing = document.createElement('input');
+  cndMissing.type = 'checkbox';
+  cndMissing.name = 'cndNaoConsta';
+  const cndMissingText = document.createElement('span');
+  cndMissingText.textContent = 'Não consta CND emitida / válida';
+  cndMissingLabel.append(cndMissing, cndMissingText);
+  const totalPreview = document.createElement('output');
+  totalPreview.id = 'pa2-mobile-live-total';
+  totalPreview.className = 'pa2-mobile-total-preview';
+  cndFields.append(cndDateLabel, cndMissingLabel, totalPreview);
+
+  const updateTotal = () => {
+    const data = readMobilePa2Data(form);
+    totalPreview.textContent = `Total geral: ${formatCurrencyValue(calculateMobilePa2Total(data))}`;
+  };
+  updateTotal();
+
+  clearButton?.addEventListener('click', () => {
+    if (!window.confirm('Limpar todos os dados do PA2 Mobile?')) return;
+    form.reset();
+    result.hidden = true;
+    result.textContent = '';
+    result.classList.remove('pa2-result--error');
+    form.querySelectorAll('.pa2-amount-preview').forEach((preview) => {
+      preview.textContent = '';
+    });
+    updateTotal();
+  });
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    generateButton.disabled = true;
+    generateButton.innerHTML = '<span class="premium-spinner" aria-hidden="true"></span> Montando o PDF...';
+    result.hidden = true;
+    result.classList.remove('pa2-result--error');
+    try {
+      const data = readMobilePa2Data(form);
+      const pdfBytes = await createMobilePa2Pdf({ data });
+      const filename = normalizeFilename(data.placa ? `PA2 Mobile ${data.placa}` : 'PA2 Mobile', 'PA2 Mobile');
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const download = document.createElement('a');
+      download.href = url;
+      download.download = filename;
+      document.body.append(download);
+      download.click();
+      download.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+      result.textContent = `${filename} foi criado no padrão Mobile.`;
+      result.hidden = false;
+    } catch (error) {
+      result.textContent = error?.message || 'Não foi possível gerar o PA2 Mobile. Tente novamente.';
+      result.classList.add('pa2-result--error');
+      result.hidden = false;
+    } finally {
+      generateButton.disabled = false;
+      generateButton.innerHTML = 'Gerar e baixar PA2 Mobile <span>→</span>';
+    }
+  });
+};
+
 if (typeof document !== 'undefined') initPa2Gate();
-if (typeof document !== 'undefined') initPa2();
+if (typeof document !== 'undefined') initSagaPa2();
+if (typeof document !== 'undefined') initMobilePa2();

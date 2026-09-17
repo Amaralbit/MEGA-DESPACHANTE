@@ -14,15 +14,32 @@
   <body class="forms-page pa2-page pa2-locked">
     <div id="pa2-gate" class="pa2-gate">
       <div class="pa2-gate-card">
-        <p class="eyebrow"><span></span> ACESSO RESTRITO</p>
-        <h2>Código de acesso</h2>
-        <p>Digite o código para acessar o PA2.</p>
-        <form id="pa2-gate-form" class="pa2-gate-form" autocomplete="off">
-          <label for="pa2-gate-input">Código de acesso</label>
-          <input id="pa2-gate-input" name="pa2-gate-code" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Código de acesso" />
-          <button class="button button-primary" type="submit">Entrar <span>→</span></button>
-        </form>
-        <p id="pa2-gate-error" class="pa2-gate-error" role="alert" hidden>Código incorreto. Tente novamente.</p>
+        <div id="pa2-gate-password">
+          <p class="eyebrow"><span></span> ACESSO RESTRITO</p>
+          <h2>Código de acesso</h2>
+          <p>Digite o código para acessar o PA2.</p>
+          <form id="pa2-gate-form" class="pa2-gate-form" autocomplete="off">
+            <label for="pa2-gate-input">Código de acesso</label>
+            <input id="pa2-gate-input" name="pa2-gate-code" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Código de acesso" />
+            <button class="button button-primary" type="submit">Entrar <span>→</span></button>
+          </form>
+          <p id="pa2-gate-error" class="pa2-gate-error" role="alert" hidden>Código incorreto. Tente novamente.</p>
+        </div>
+        <div id="pa2-model-selector" class="pa2-model-selector" hidden>
+          <p class="eyebrow"><span></span> PA2</p>
+          <h2>Escolha o modelo</h2>
+          <p>Selecione o padrão que será usado para montar o documento.</p>
+          <div class="pa2-model-options" role="group" aria-label="Modelos de PA2">
+            <button class="pa2-model-option" type="button" data-pa2-choice="saga">
+              <strong>PA2 padrão Saga</strong>
+              <span>Imagens do documento e tabela de despesas.</span>
+            </button>
+            <button class="pa2-model-option" type="button" data-pa2-choice="mobile">
+              <strong>PA2 padrão Mobile</strong>
+              <span>Ficha completa de veículo, documentação, débitos e serviços.</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
     <script>
@@ -31,8 +48,7 @@
       // dura enquanto a aba/navegador ficar aberto, some ao fechar).
       try {
         if (sessionStorage.getItem('pa2-access-granted') === 'true') {
-          document.body.classList.remove('pa2-locked');
-          document.getElementById('pa2-gate').hidden = true;
+          document.body.dataset.pa2AccessGranted = 'true';
         }
       } catch { /* sessionStorage indisponível; segue pedindo o código normalmente. */ }
     </script>
@@ -49,9 +65,10 @@
         <div class="container pa2-hero-grid">
           <div>
             <a class="back-link" href="index.html">← Voltar para o site</a>
-            <p class="eyebrow"><span></span> DOCUMENTO PA2</p>
-            <h1>Imagens e despesas.<br /><em>Um único PDF organizado.</em></h1>
-            <p>Adicione de 1 a 10 imagens, organize a sequência e preencha somente as informações que desejar. Os campos não preenchidos ficarão em branco.</p>
+            <button id="pa2-change-model" class="pa2-change-model" type="button">Trocar modelo</button>
+            <p id="pa2-model-kicker" class="eyebrow"><span></span> PA2 PADRÃO SAGA</p>
+            <h1 id="pa2-model-title">Imagens e despesas.<br /><em>Um único PDF organizado.</em></h1>
+            <p id="pa2-model-description">Adicione de 1 a 10 imagens, organize a sequência e preencha somente as informações que desejar. Os campos não preenchidos ficarão em branco.</p>
           </div>
           <aside class="pa2-local-card" aria-label="Privacidade e formato do documento">
             <span aria-hidden="true">PA2</span>
@@ -62,7 +79,7 @@
 
       <section class="pa2-section section">
         <div class="container pa2-layout">
-          <aside class="pa2-guide">
+          <aside class="pa2-guide" data-pa2-guide="saga">
             <p class="eyebrow"><span></span> COMO FUNCIONA</p>
             <ol>
               <li><span>01</span><div><strong>Anexe as imagens</strong><small>Escolha ou cole entre 1 e 10 imagens JPG ou PNG.</small></div></li>
@@ -72,7 +89,7 @@
             <div class="pa2-guide-note"><strong>Dica para fotos legíveis</strong><p>Use imagens nítidas, sem reflexos e com todo o conteúdo enquadrado.</p></div>
           </aside>
 
-          <form id="pa2-form" class="pa2-tool" novalidate>
+          <form id="pa2-form" class="pa2-tool" data-pa2-model="saga" novalidate>
             <section class="pa2-form-section" aria-labelledby="pa2-images-title">
               <div class="pa2-section-heading">
                 <div><span>ETAPA 1</span><h2 id="pa2-images-title">Imagens do documento</h2><p>JPG ou PNG · mínimo de 1 e máximo de 10 imagens.</p></div>
@@ -127,6 +144,60 @@
               <p id="pa2-action-note">Adicione pelo menos 3 imagens para gerar o documento.</p>
             </div>
             <div id="pa2-result" class="pa2-result" role="status" aria-live="polite" hidden></div>
+          </form>
+
+          <aside class="pa2-guide" data-pa2-guide="mobile" hidden>
+            <p class="eyebrow"><span></span> COMO FUNCIONA</p>
+            <ol>
+              <li><span>01</span><div><strong>Preencha a ficha</strong><small>Informe os dados do veículo, da documentação e do cliente.</small></div></li>
+              <li><span>02</span><div><strong>Informe os valores</strong><small>Débitos e serviços ficam em branco quando não forem preenchidos.</small></div></li>
+              <li><span>03</span><div><strong>Baixe o documento</strong><small>O PDF seguirá a estrutura do PA2 Mobile.</small></div></li>
+            </ol>
+            <div class="pa2-guide-note"><strong>Campos opcionais</strong><p>Preencha somente o que for necessário para este atendimento.</p></div>
+          </aside>
+
+          <form id="pa2-mobile-form" class="pa2-tool pa2-mobile-tool" data-pa2-model="mobile" novalidate hidden>
+            <section class="pa2-form-section" aria-labelledby="pa2-mobile-vehicle-title">
+              <div class="pa2-section-heading">
+                <div><span>ETAPA 1</span><h2 id="pa2-mobile-vehicle-title">Dados do veículo</h2><p>Os campos seguem o cabeçalho do PA2 Mobile.</p></div>
+                <span class="pa2-optional-badge">Tudo opcional</span>
+              </div>
+              <div id="pa2-mobile-vehicle-fields" class="pa2-mobile-field-grid"></div>
+            </section>
+
+            <section class="pa2-form-section" aria-labelledby="pa2-mobile-document-title">
+              <div class="pa2-section-heading">
+                <div><span>ETAPA 2</span><h2 id="pa2-mobile-document-title">Documentação e débitos</h2><p>Marque a documentação recebida e informe os valores quando houver.</p></div>
+              </div>
+              <div class="pa2-mobile-columns">
+                <section class="pa2-mobile-group" aria-labelledby="pa2-mobile-documents-heading">
+                  <h3 id="pa2-mobile-documents-heading">Documentação</h3>
+                  <div id="pa2-mobile-document-fields" class="pa2-mobile-check-list"></div>
+                </section>
+                <section class="pa2-mobile-group" aria-labelledby="pa2-mobile-debts-heading">
+                  <h3 id="pa2-mobile-debts-heading">Débitos</h3>
+                  <div id="pa2-mobile-debt-fields" class="pa2-mobile-value-list"></div>
+                </section>
+              </div>
+            </section>
+
+            <section class="pa2-form-section" aria-labelledby="pa2-mobile-services-title">
+              <div class="pa2-section-heading">
+                <div><span>ETAPA 3</span><h2 id="pa2-mobile-services-title">Serviços e observações</h2><p>Inclua os serviços do DETRAN, honorários e informações complementares.</p></div>
+              </div>
+              <div id="pa2-mobile-service-fields" class="pa2-mobile-value-list"></div>
+              <div id="pa2-mobile-cnd-fields" class="pa2-mobile-cnd"></div>
+              <label class="pa2-final-observations">Observações<textarea name="mobileObservations" maxlength="700" placeholder="Informações adicionais que aparecerão no fim do PA2 Mobile"></textarea></label>
+            </section>
+
+            <div class="pa2-actions">
+              <div class="pa2-action-buttons">
+                <button id="pa2-mobile-generate" class="button button-primary" type="submit">Gerar e baixar PA2 Mobile <span>→</span></button>
+                <button id="pa2-mobile-clear-data" class="pa2-clear-button" type="button">Limpar dados</button>
+              </div>
+              <p>O total é calculado automaticamente pelos valores informados.</p>
+            </div>
+            <div id="pa2-mobile-result" class="pa2-result" role="status" aria-live="polite" hidden></div>
           </form>
         </div>
       </section>
