@@ -176,7 +176,7 @@ window.renderMegaDeclaration = (city, date) => `
 
 const protectedPdfApiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:3000/api/generate-pdf'
-  : 'https://mega-despachante-seguro.vercel.app/api/generate-pdf';
+  : '/api/generate-pdf';
 
 const protectedPdfErrorMessage = (status, fallback) => {
   return fallback || 'Não foi possível gerar o PDF agora. Tente novamente.';

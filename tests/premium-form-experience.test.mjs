@@ -85,6 +85,8 @@ test('the contact form also offers a confirmed clear-all action', async () => {
 test('the protected download emits lifecycle events and keeps the PDF available for sharing', async () => {
   const script = await readFile('script.js', 'utf8');
 
+  assert.match(script, /: '\/api\/generate-pdf';/);
+  assert.doesNotMatch(script, /mega-despachante-seguro\.vercel\.app/);
   assert.match(script, /new CustomEvent\('mega:pdf-start'/);
   assert.match(script, /window\.MEGA_LAST_DOCUMENT = new File/);
   assert.match(script, /new CustomEvent\('mega:pdf-success'/);
