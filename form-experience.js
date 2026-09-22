@@ -4,6 +4,11 @@
 
   const WHATSAPP_NUMBER = '556299712947';
   const DRAFT_MAX_AGE = 1000 * 60 * 60 * 24 * 30;
+  // Os históricos pertencem ao site, não à página em que foram preenchidos.
+  // Mantemos a chave original de CPF/CNPJ para aproveitar os dados já salvos.
+  const CPF_CNPJ_HISTORY_KEY = 'mega-field-history:v1:cpf-cnpj';
+  const FIELD_HISTORY_STORAGE_PREFIX = 'mega-field-history:v2:';
+  const FIELD_HISTORY_LIMIT = 8;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const onlyNumbers = (value) => String(value || '').replace(/\D/g, '');
@@ -39,6 +44,76 @@
     };
 
     return calculateDigit(12) === Number(digits[12]) && calculateDigit(13) === Number(digits[13]);
+  };
+
+  const formatCpfCnpjHistoryValue = (value) => {
+    const digits = onlyNumbers(value).slice(0, 14);
+    if (digits.length <= 11) {
+      return digits
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    }
+    return digits
+      .replace(/(\d{2})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1/$2')
+      .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+  };
+
+  const isValidCpfCnpjHistoryValue = (value) => {
+    const digits = onlyNumbers(value);
+    return (digits.length === 11 && isValidCpf(digits)) || (digits.length === 14 && isValidCnpj(digits));
+  };
+
+  const normalizeHistoryCategory = (value) => String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  const getGlobalHistoryCategory = (field) => {
+    if (field.dataset.globalHistoryCategory) return field.dataset.globalHistoryCategory;
+    const mask = field.dataset.mask;
+    if (mask === 'cpf' || mask === 'cpf-cnpj') return 'cpf-cnpj';
+    if (mask) return `mask-${mask}`;
+
+    const autocomplete = String(field.getAttribute('autocomplete') || '').toLowerCase();
+    if (['name', 'email', 'postal-code', 'tel'].includes(autocomplete)) return `autocomplete-${autocomplete}`;
+
+    const name = normalizeHistoryCategory(field.name);
+    if (!name) return '';
+    if (/(^|-)cpf/.test(name)) return 'cpf-cnpj';
+    if (/(endereco|logradouro)/.test(name)) return 'address';
+    if (/(bairro|setor)/.test(name)) return 'neighborhood';
+    if (/(cidade|municipio)/.test(name)) return 'city';
+    if (/(^|-)uf($|-)|estado/.test(name)) return 'state';
+    if (/(identidade|(^|-)rg($|-))/.test(name)) return 'identity';
+    if (/orgao/.test(name)) return 'issuing-agency';
+    if (/(^|-)email/.test(name)) return 'autocomplete-email';
+    if (/(^|-)nome($|-)|outorgante|procurador|vendedor|comprador|proprietario|requerente/.test(name)) return 'autocomplete-name';
+    return `field-${name}`;
+  };
+
+  const normalizeHistoryValue = (field, value) => {
+    const mask = field.dataset.mask;
+    if (['cpf', 'cpf-cnpj', 'cep', 'telefone'].includes(mask)) return onlyNumbers(value);
+    if (mask === 'placa') return String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    return cleanText(value);
+  };
+
+  const formatPhoneHistoryValue = (value) => {
+    const digits = onlyNumbers(value).slice(0, 11);
+    if (digits.length <= 10) return digits.replace(/^(\d{2})(\d)/, '($1) $2').replace(/(\d{4})(\d{1,4})$/, '$1-$2');
+    return digits.replace(/^(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d{1,4})$/, '$1-$2');
+  };
+
+  const formatHistoryValue = (field, category, value) => {
+    if (category === 'cpf-cnpj') return formatCpfCnpjHistoryValue(value);
+    if (field.dataset.mask === 'cep') return onlyNumbers(value).replace(/(\d{5})(\d)/, '$1-$2');
+    if (field.dataset.mask === 'telefone') return formatPhoneHistoryValue(value);
+    return value;
   };
 
   const fieldLabel = (control) => {
@@ -313,6 +388,132 @@
       && control.type !== 'submit'
       && control.type !== 'button'
     ));
+    const historyFields = controls.filter((control) => (
+      control.tagName === 'INPUT'
+      && !control.readOnly
+      && !['checkbox', 'radio', 'file', 'date', 'month', 'week', 'time', 'color', 'range'].includes(control.type)
+      && Boolean(getGlobalHistoryCategory(control))
+    ));
+
+    const getHistoryStorageKey = (category) => (
+      category === 'cpf-cnpj' ? CPF_CNPJ_HISTORY_KEY : `${FIELD_HISTORY_STORAGE_PREFIX}${category}`
+    );
+
+    const isValidHistoryValue = (field, category, value) => {
+      if (!value) return false;
+      if (category === 'cpf-cnpj') return isValidCpfCnpjHistoryValue(value);
+      if (field.dataset.mask === 'cep') return /^\d{8}$/.test(value);
+      if (field.dataset.mask === 'telefone') return /^\d{10,11}$/.test(value);
+      if (field.dataset.mask === 'placa') return /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/.test(value);
+      return true;
+    };
+
+    const loadFieldHistory = (field, category) => {
+      try {
+        const saved = JSON.parse(localStorage.getItem(getHistoryStorageKey(category)) || '[]');
+        if (!Array.isArray(saved)) return [];
+        return [...new Set(saved
+          .map((value) => normalizeHistoryValue(field, value))
+          .filter((value) => isValidHistoryValue(field, category, value)))];
+      } catch {
+        return [];
+      }
+    };
+
+    const saveFieldHistory = (field, category) => {
+      const value = normalizeHistoryValue(field, field.value);
+      if (!isValidHistoryValue(field, category, value) || validationMessage(field)) return;
+
+      try {
+        const history = [value, ...loadFieldHistory(field, category).filter((item) => item !== value)]
+          .slice(0, FIELD_HISTORY_LIMIT);
+        localStorage.setItem(getHistoryStorageKey(category), JSON.stringify(history));
+      } catch {
+        // O preenchimento continua funcionando quando o navegador bloqueia o armazenamento local.
+      }
+    };
+
+    const removeFieldHistoryItem = (field, category, value) => {
+      try {
+        localStorage.setItem(
+          getHistoryStorageKey(category),
+          JSON.stringify(loadFieldHistory(field, category).filter((item) => item !== value)),
+        );
+      } catch {
+        // Sem histórico persistente, não há sugestão a remover.
+      }
+    };
+
+    historyFields.forEach((field) => {
+      const category = getGlobalHistoryCategory(field);
+      field.dataset.globalHistoryCategory = category;
+      // Evita que o navegador exiba outro histórico, limitado ao name do campo,
+      // por cima da lista compartilhada pelo site.
+      field.autocomplete = 'off';
+
+      const suggestions = document.createElement('div');
+      suggestions.className = 'field-suggestions';
+      suggestions.hidden = true;
+      field.insertAdjacentElement('afterend', suggestions);
+
+      const renderSuggestions = () => {
+        const query = normalizeHistoryValue(field, field.value).toLocaleLowerCase('pt-BR');
+        const matches = loadFieldHistory(field, category).filter((item) => {
+          const isCompatible = category !== 'cpf-cnpj' || field.dataset.mask !== 'cpf' || item.length === 11;
+          return isCompatible && item.toLocaleLowerCase('pt-BR') !== query && (!query || item.toLocaleLowerCase('pt-BR').includes(query));
+        });
+
+        suggestions.innerHTML = '';
+        matches.forEach((item) => {
+          const formattedValue = formatHistoryValue(field, category, item);
+          const row = document.createElement('div');
+          row.className = 'field-suggestion-row';
+
+          const option = document.createElement('button');
+          option.type = 'button';
+          option.className = 'field-suggestion';
+          option.textContent = formattedValue;
+          option.addEventListener('mousedown', (event) => {
+            event.preventDefault();
+            field.value = formattedValue;
+            suggestions.hidden = true;
+            field.dispatchEvent(new Event('input', { bubbles: true }));
+            field.dispatchEvent(new Event('change', { bubbles: true }));
+          });
+
+          const removeButton = document.createElement('button');
+          removeButton.type = 'button';
+          removeButton.className = 'field-suggestion-remove';
+          removeButton.textContent = '×';
+          removeButton.setAttribute('aria-label', `Remover sugestão ${formattedValue}`);
+          removeButton.addEventListener('mousedown', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            removeFieldHistoryItem(field, category, item);
+            renderSuggestions();
+          });
+
+          row.append(option, removeButton);
+          suggestions.append(row);
+        });
+
+        suggestions.hidden = matches.length === 0;
+      };
+
+      field.addEventListener('focus', renderSuggestions);
+      field.addEventListener('input', renderSuggestions);
+      field.addEventListener('blur', () => {
+        saveFieldHistory(field, category);
+        window.setTimeout(() => { suggestions.hidden = true; }, 120);
+      });
+      document.addEventListener('mousedown', (event) => {
+        if (event.target !== field && !suggestions.contains(event.target)) suggestions.hidden = true;
+      });
+    });
+
+    const saveFormHistory = () => historyFields.forEach((field) => saveFieldHistory(field, getGlobalHistoryCategory(field)));
+    form.addEventListener('submit', saveFormHistory, true);
+    window.addEventListener('pagehide', saveFormHistory);
 
     const setSaveStatus = (message, state = '') => {
       saveStatus.className = `premium-save-status${state ? ` premium-save-status--${state}` : ''}`;

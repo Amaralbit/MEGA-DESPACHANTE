@@ -50,6 +50,16 @@ test('the shared form experience includes every premium workflow capability', as
   assert.match(script, /showStep\(0, true\)/);
 });
 
+test('field suggestions are shared by all document forms', async () => {
+  const script = await readFile('form-experience.js', 'utf8');
+
+  assert.match(script, /mega-field-history:v1:cpf-cnpj/);
+  assert.match(script, /mega-field-history:v2:/);
+  assert.match(script, /mask === 'cpf' \|\| mask === 'cpf-cnpj'/);
+  assert.match(script, /field\.dataset\.mask === 'cep'/);
+  assert.match(script, /form\.addEventListener\('submit', saveFormHistory, true\)/);
+});
+
 test('chassis validation accepts short chassis from older vehicles, not just 17 characters', async () => {
   const script = await readFile('form-experience.js', 'utf8');
 
