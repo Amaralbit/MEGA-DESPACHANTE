@@ -460,7 +460,7 @@
         const query = normalizeHistoryValue(field, field.value).toLocaleLowerCase('pt-BR');
         const matches = loadFieldHistory(field, category).filter((item) => {
           const isCompatible = category !== 'cpf-cnpj' || field.dataset.mask !== 'cpf' || item.length === 11;
-          return isCompatible && item.toLocaleLowerCase('pt-BR') !== query && (!query || item.toLocaleLowerCase('pt-BR').includes(query));
+          return isCompatible && (!query || item.toLocaleLowerCase('pt-BR').includes(query));
         });
 
         suggestions.innerHTML = '';

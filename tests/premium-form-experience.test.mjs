@@ -58,6 +58,8 @@ test('field suggestions are shared by all document forms', async () => {
   assert.match(script, /mask === 'cpf' \|\| mask === 'cpf-cnpj'/);
   assert.match(script, /field\.dataset\.mask === 'cep'/);
   assert.match(script, /form\.addEventListener\('submit', saveFormHistory, true\)/);
+  assert.match(script, /return isCompatible && \(!query \|\| item\.toLocaleLowerCase\('pt-BR'\)\.includes\(query\)\);/);
+  assert.doesNotMatch(script, /item\.toLocaleLowerCase\('pt-BR'\) !== query/);
 });
 
 test('chassis validation accepts short chassis from older vehicles, not just 17 characters', async () => {
