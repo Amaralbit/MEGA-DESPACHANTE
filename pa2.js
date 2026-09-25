@@ -49,6 +49,8 @@ const MOBILE_PA2_NOTE_TARGETS = Object.freeze({
   general: 'Observações gerais',
   ipva: 'IPVA',
   licenciamento: 'Licenciamento',
+  multasEmitidas: 'Multas emitidas',
+  multasNaoEmitidas: 'Multas não emitidas',
 });
 
 export const normalizeMobilePa2Notes = (notes) => {
@@ -573,7 +575,7 @@ export const createMobilePa2Pdf = async ({ data = {} } = {}) => {
 
   table = addMobilePdfSection(table, 'MULTAS');
   MOBILE_PA2_VALUE_ROWS.filter((row) => ['multasEmitidas', 'multasNaoEmitidas'].includes(row.name)).forEach((row) => {
-    table = addMobilePdfRow(table, [row.label.toUpperCase(), mobileAmount(data[row.name]), mobileStatus(data, row).toUpperCase()]);
+    table = addMobilePdfRow(table, [row.label.toUpperCase(), mobileAmount(data[row.name]), mobileStatusAndNotes(data, row).toUpperCase()]);
   });
 
   table = addMobilePdfSection(table, 'SERVIÇOS DETRAN');

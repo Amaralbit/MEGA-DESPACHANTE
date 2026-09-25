@@ -130,6 +130,8 @@ test('PA2 Mobile salva observações para IPVA, licenciamento ou o campo geral',
   const notes = normalizeMobilePa2Notes([
     { target: 'ipva', text: 'Parcelamento em três vezes' },
     { target: 'licenciamento', text: 'Vencimento em outubro' },
+    { target: 'multasEmitidas', text: 'Aguardando baixa do sistema' },
+    { target: 'multasNaoEmitidas', text: 'Conferir o órgão autuador' },
     { target: 'general', text: 'Cliente avisado' },
     { target: 'outro', text: 'Não deve entrar no PDF' },
     { target: 'ipva', text: '  ' },
@@ -138,10 +140,14 @@ test('PA2 Mobile salva observações para IPVA, licenciamento ou o campo geral',
   assert.deepEqual(notes, [
     { target: 'ipva', text: 'Parcelamento em três vezes' },
     { target: 'licenciamento', text: 'Vencimento em outubro' },
+    { target: 'multasEmitidas', text: 'Aguardando baixa do sistema' },
+    { target: 'multasNaoEmitidas', text: 'Conferir o órgão autuador' },
     { target: 'general', text: 'Cliente avisado' },
   ]);
   assert.equal(getMobilePa2NotesForTarget({ mobileNotes: notes }, 'ipva'), 'Parcelamento em três vezes');
   assert.equal(getMobilePa2NotesForTarget({ mobileNotes: notes }, 'licenciamento'), 'Vencimento em outubro');
+  assert.equal(getMobilePa2NotesForTarget({ mobileNotes: notes }, 'multasEmitidas'), 'Aguardando baixa do sistema');
+  assert.equal(getMobilePa2NotesForTarget({ mobileNotes: notes }, 'multasNaoEmitidas'), 'Conferir o órgão autuador');
   assert.equal(getMobilePa2NotesForTarget({ mobileNotes: notes }, 'general'), 'Cliente avisado');
 });
 
@@ -294,6 +300,8 @@ test('PA2 Mobile permite salvar várias observações antes de gerar o PDF', asy
   assert.match(page, /id="pa2-mobile-note-target"/);
   assert.match(page, /value="ipva">IPVA/);
   assert.match(page, /value="licenciamento">Licenciamento/);
+  assert.match(page, /value="multasEmitidas">Multas emitidas/);
+  assert.match(page, /value="multasNaoEmitidas">Multas não emitidas/);
   assert.match(page, /id="pa2-mobile-add-note"[^>]*>Salvar observação<\/button>/);
   assert.match(script, /mobileStatusAndNotes\(data, row\)/);
   assert.match(script, /getMobilePa2NotesForTarget\(data, 'general'\)/);
