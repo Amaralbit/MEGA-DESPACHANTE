@@ -12,7 +12,9 @@ import {
   calculatePa2FinesTotal,
   formatCurrencyValue,
   getPa2ClipboardImages,
+  getMobilePa2NotesForTarget,
   isValidPa2ImageCount,
+  normalizeMobilePa2Notes,
   normalizePa2DocumentLabel,
   parseCurrencyValue,
 } from '../pa2.js';
@@ -122,6 +124,25 @@ test('PA2 Mobile registra o total de serviços e a vistoria cautelar no cálculo
     totalServicos: '299,00',
     vistoriaCautelar: '120,00',
   })), 'R$ 1.844,11');
+});
+
+test('PA2 Mobile salva observações para IPVA, licenciamento ou o campo geral', () => {
+  const notes = normalizeMobilePa2Notes([
+    { target: 'ipva', text: 'Parcelamento em três vezes' },
+    { target: 'licenciamento', text: 'Vencimento em outubro' },
+    { target: 'general', text: 'Cliente avisado' },
+    { target: 'outro', text: 'Não deve entrar no PDF' },
+    { target: 'ipva', text: '  ' },
+  ]);
+
+  assert.deepEqual(notes, [
+    { target: 'ipva', text: 'Parcelamento em três vezes' },
+    { target: 'licenciamento', text: 'Vencimento em outubro' },
+    { target: 'general', text: 'Cliente avisado' },
+  ]);
+  assert.equal(getMobilePa2NotesForTarget({ mobileNotes: notes }, 'ipva'), 'Parcelamento em três vezes');
+  assert.equal(getMobilePa2NotesForTarget({ mobileNotes: notes }, 'licenciamento'), 'Vencimento em outubro');
+  assert.equal(getMobilePa2NotesForTarget({ mobileNotes: notes }, 'general'), 'Cliente avisado');
 });
 
 test('PA2 aceita somente as marcações de documento previstas', () => {
@@ -261,6 +282,21 @@ test('PA2 Mobile traz colinha de valores e campos de baixa e validade do gravame
   assert.match(script, /gravameDetails\.hidden = false/);
   assert.doesNotMatch(script, /data\.gravame = ''/);
   assert.doesNotMatch(script, /referenceAmount/);
+});
+
+test('PA2 Mobile permite salvar várias observações antes de gerar o PDF', async () => {
+  const [page, script] = await Promise.all([
+    readFile('pa2.html', 'utf8'),
+    readFile('pa2.js', 'utf8'),
+  ]);
+
+  assert.match(page, /id="pa2-mobile-note-text"/);
+  assert.match(page, /id="pa2-mobile-note-target"/);
+  assert.match(page, /value="ipva">IPVA/);
+  assert.match(page, /value="licenciamento">Licenciamento/);
+  assert.match(page, /id="pa2-mobile-add-note"[^>]*>Salvar observação<\/button>/);
+  assert.match(script, /mobileStatusAndNotes\(data, row\)/);
+  assert.match(script, /getMobilePa2NotesForTarget\(data, 'general'\)/);
 });
 
 test('PA2 esquece o código quando a aba/navegador fecha, mas não ao trocar de página', async () => {

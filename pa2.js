@@ -45,6 +45,34 @@ export const MOBILE_PA2_VALUE_ROWS = Object.freeze([
   { name: 'vistoriaCautelar', label: 'Vistoria cautelar', group: 'services' },
 ]);
 
+const MOBILE_PA2_NOTE_TARGETS = Object.freeze({
+  general: 'Observações gerais',
+  ipva: 'IPVA',
+  licenciamento: 'Licenciamento',
+});
+
+export const normalizeMobilePa2Notes = (notes) => {
+  if (!Array.isArray(notes)) return [];
+  return notes.reduce((validNotes, note) => {
+    const target = String(note?.target || '');
+    const text = String(note?.text || '').trim();
+    if (MOBILE_PA2_NOTE_TARGETS[target] && text) {
+      validNotes.push({ target, text: text.slice(0, 300) });
+    }
+    return validNotes;
+  }, []);
+};
+
+export const getMobilePa2NotesForTarget = (data, target) => {
+  const savedNotes = normalizeMobilePa2Notes(data?.mobileNotes)
+    .filter((note) => note.target === target)
+    .map((note) => note.text);
+  if (target === 'general' && !savedNotes.length && data?.mobileObservations) {
+    savedNotes.push(String(data.mobileObservations).trim());
+  }
+  return savedNotes.filter(Boolean).join(' • ');
+};
+
 const MOBILE_PA2_TEXT_FIELDS = Object.freeze([
   { name: 'cliente', label: 'Cliente' },
   { name: 'placa', label: 'Placa', uppercase: true },
@@ -499,6 +527,11 @@ const mobileStatus = (data, row) => (
   row.statusName && data[row.statusName] ? row.statusLabel : ''
 );
 
+const mobileStatusAndNotes = (data, row) => [
+  mobileStatus(data, row),
+  getMobilePa2NotesForTarget(data, row.name),
+].filter(Boolean).join(' • ');
+
 export const createMobilePa2Pdf = async ({ data = {} } = {}) => {
   if (!window.PDFLib?.PDFDocument) throw new Error('Biblioteca de PDF indisponível. Atualize a página e tente novamente.');
 
@@ -535,7 +568,7 @@ export const createMobilePa2Pdf = async ({ data = {} } = {}) => {
 
   table = addMobilePdfSection(table, 'IPVA / LICENCIAMENTO');
   MOBILE_PA2_VALUE_ROWS.filter((row) => ['ipva', 'licenciamento'].includes(row.name)).forEach((row) => {
-    table = addMobilePdfRow(table, [row.label.toUpperCase(), mobileAmount(data[row.name]), mobileStatus(data, row).toUpperCase()]);
+    table = addMobilePdfRow(table, [row.label.toUpperCase(), mobileAmount(data[row.name]), mobileStatusAndNotes(data, row).toUpperCase()]);
   });
 
   table = addMobilePdfSection(table, 'MULTAS');
@@ -560,7 +593,7 @@ export const createMobilePa2Pdf = async ({ data = {} } = {}) => {
     fill: table.colors.header,
     size: 8.5,
   });
-  table = addMobilePdfRow(table, ['OBSERVAÇÕES', String(data.mobileObservations || ''), ''], { bold: true });
+  table = addMobilePdfRow(table, ['OBSERVAÇÕES', '', getMobilePa2NotesForTarget(data, 'general')], { bold: true });
 
   return document.save({ useObjectStreams: true });
 };
@@ -1102,7 +1135,11 @@ const readMobilePa2Data = (form) => {
   if (data.gravameStatus !== 'Ativo') data.gravameAtivoAte = '';
   data.cndValidade = form.elements.cndValidade?.value || '';
   data.cndNaoConsta = Boolean(form.elements.cndNaoConsta?.checked);
-  data.mobileObservations = form.elements.mobileObservations?.value.trim() || '';
+  try {
+    data.mobileNotes = normalizeMobilePa2Notes(JSON.parse(form.elements.mobileNotes?.value || '[]'));
+  } catch {
+    data.mobileNotes = [];
+  }
   return data;
 };
 
@@ -1116,7 +1153,58 @@ const initMobilePa2 = () => {
   const generateButton = document.getElementById('pa2-mobile-generate');
   const clearButton = document.getElementById('pa2-mobile-clear-data');
   const result = document.getElementById('pa2-mobile-result');
-  if (!form || !vehicleFields || !documentFields || !debtFields || !serviceFields || !cndFields || !generateButton) return;
+  const notesData = document.getElementById('pa2-mobile-notes-data');
+  const noteText = document.getElementById('pa2-mobile-note-text');
+  const noteTarget = document.getElementById('pa2-mobile-note-target');
+  const addNoteButton = document.getElementById('pa2-mobile-add-note');
+  const notesFeedback = document.getElementById('pa2-mobile-notes-feedback');
+  const notesList = document.getElementById('pa2-mobile-notes-list');
+  if (!form || !vehicleFields || !documentFields || !debtFields || !serviceFields || !cndFields || !generateButton || !notesData || !noteText || !noteTarget || !addNoteButton || !notesFeedback || !notesList) return;
+
+  let mobileNotes = [];
+  const setNotesFeedback = (message = '') => {
+    notesFeedback.textContent = message;
+    notesFeedback.hidden = !message;
+  };
+  const renderMobileNotes = () => {
+    notesData.value = JSON.stringify(mobileNotes);
+    notesList.replaceChildren();
+    mobileNotes.forEach((note, index) => {
+      const item = document.createElement('li');
+      const copy = document.createElement('span');
+      const target = document.createElement('strong');
+      target.textContent = MOBILE_PA2_NOTE_TARGETS[note.target];
+      const text = document.createElement('span');
+      text.textContent = note.text;
+      copy.append(target, text);
+      const removeButton = document.createElement('button');
+      removeButton.type = 'button';
+      removeButton.textContent = 'Remover';
+      removeButton.setAttribute('aria-label', `Remover observação de ${MOBILE_PA2_NOTE_TARGETS[note.target]}`);
+      removeButton.addEventListener('click', () => {
+        mobileNotes.splice(index, 1);
+        renderMobileNotes();
+        setNotesFeedback('Observação removida.');
+      });
+      item.append(copy, removeButton);
+      notesList.append(item);
+    });
+  };
+  addNoteButton.addEventListener('click', () => {
+    const text = noteText.value.trim();
+    const target = noteTarget.value;
+    if (!text) {
+      setNotesFeedback('Digite uma observação antes de salvar.');
+      noteText.focus();
+      return;
+    }
+    mobileNotes.push({ target, text: text.slice(0, 300) });
+    renderMobileNotes();
+    noteText.value = '';
+    setNotesFeedback(`Observação salva em ${MOBILE_PA2_NOTE_TARGETS[target]}.`);
+    noteText.focus();
+  });
+  renderMobileNotes();
 
   MOBILE_PA2_TEXT_FIELDS.forEach((field) => {
     const label = document.createElement('label');
@@ -1266,6 +1354,9 @@ const initMobilePa2 = () => {
   clearButton?.addEventListener('click', () => {
     if (!window.confirm('Limpar todos os dados do PA2 Mobile?')) return;
     form.reset();
+    mobileNotes = [];
+    renderMobileNotes();
+    setNotesFeedback('');
     result.hidden = true;
     result.textContent = '';
     result.classList.remove('pa2-result--error');

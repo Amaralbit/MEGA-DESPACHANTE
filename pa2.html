@@ -211,7 +211,26 @@
               </details>
               <div id="pa2-mobile-service-fields" class="pa2-mobile-value-list"></div>
               <div id="pa2-mobile-cnd-fields" class="pa2-mobile-cnd"></div>
-              <label class="pa2-final-observations">Observações<textarea name="mobileObservations" maxlength="700" placeholder="Informações adicionais que aparecerão no fim do PA2 Mobile"></textarea></label>
+              <section class="pa2-mobile-notes" aria-labelledby="pa2-mobile-notes-title">
+                <div class="pa2-mobile-notes__heading">
+                  <h3 id="pa2-mobile-notes-title">Observações</h3>
+                  <p>Escreva uma observação, escolha onde ela deve aparecer no PDF e salve. Você pode adicionar quantas observações precisar.</p>
+                </div>
+                <input id="pa2-mobile-notes-data" name="mobileNotes" type="hidden" value="[]" />
+                <label for="pa2-mobile-note-text">Nova observação</label>
+                <textarea id="pa2-mobile-note-text" maxlength="300" placeholder="Digite a observação"></textarea>
+                <div class="pa2-mobile-notes__controls">
+                  <label for="pa2-mobile-note-target">Exibir no campo</label>
+                  <select id="pa2-mobile-note-target">
+                    <option value="general">Observações gerais</option>
+                    <option value="ipva">IPVA</option>
+                    <option value="licenciamento">Licenciamento</option>
+                  </select>
+                  <button id="pa2-mobile-add-note" class="pa2-mobile-note-add" type="button">Salvar observação</button>
+                </div>
+                <p id="pa2-mobile-notes-feedback" class="pa2-mobile-notes__feedback" role="status" aria-live="polite" hidden></p>
+                <ul id="pa2-mobile-notes-list" class="pa2-mobile-notes__list" aria-label="Observações salvas"></ul>
+              </section>
             </section>
 
             <div class="pa2-actions">
