@@ -68,12 +68,20 @@ if (procuracaoForm) {
   const saveServicoHistory = (value) => {
     const trimmed = value.trim();
     if (!trimmed) return;
-    const history = [trimmed, ...loadServicoHistory().filter((item) => item !== trimmed)].slice(0, 6);
-    localStorage.setItem(servicoHistoryKey, JSON.stringify(history));
+    try {
+      const history = [trimmed, ...loadServicoHistory().filter((item) => item !== trimmed)].slice(0, 6);
+      localStorage.setItem(servicoHistoryKey, JSON.stringify(history));
+    } catch {
+      // O PDF continua podendo ser gerado quando o navegador bloqueia o histórico local.
+    }
   };
   const removeServicoHistoryItem = (value) => {
-    const history = loadServicoHistory().filter((item) => item !== value);
-    localStorage.setItem(servicoHistoryKey, JSON.stringify(history));
+    try {
+      const history = loadServicoHistory().filter((item) => item !== value);
+      localStorage.setItem(servicoHistoryKey, JSON.stringify(history));
+    } catch {
+      // Sem armazenamento disponível, não há histórico persistente a remover.
+    }
   };
 
   const servicoSuggestions = document.createElement('div');

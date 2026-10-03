@@ -9,6 +9,9 @@
   const CPF_CNPJ_HISTORY_KEY = 'mega-field-history:v1:cpf-cnpj';
   const FIELD_HISTORY_STORAGE_PREFIX = 'mega-field-history:v2:';
   const FIELD_HISTORY_LIMIT = 8;
+  // Nomes antigos continuam pesquisáveis, sem abrir uma lista enorme ao focar o campo.
+  const NAME_HISTORY_LIMIT = 500;
+  const VISIBLE_SUGGESTIONS_LIMIT = 8;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const onlyNumbers = (value) => String(value || '').replace(/\D/g, '');
@@ -425,8 +428,9 @@
       if (!isValidHistoryValue(field, category, value) || validationMessage(field)) return;
 
       try {
+        const historyLimit = category === 'autocomplete-name' ? NAME_HISTORY_LIMIT : FIELD_HISTORY_LIMIT;
         const history = [value, ...loadFieldHistory(field, category).filter((item) => item !== value)]
-          .slice(0, FIELD_HISTORY_LIMIT);
+          .slice(0, historyLimit);
         localStorage.setItem(getHistoryStorageKey(category), JSON.stringify(history));
       } catch {
         // O preenchimento continua funcionando quando o navegador bloqueia o armazenamento local.
@@ -461,7 +465,7 @@
         const matches = loadFieldHistory(field, category).filter((item) => {
           const isCompatible = category !== 'cpf-cnpj' || field.dataset.mask !== 'cpf' || item.length === 11;
           return isCompatible && (!query || item.toLocaleLowerCase('pt-BR').includes(query));
-        });
+        }).slice(0, VISIBLE_SUGGESTIONS_LIMIT);
 
         suggestions.innerHTML = '';
         matches.forEach((item) => {
@@ -473,24 +477,36 @@
           option.type = 'button';
           option.className = 'field-suggestion';
           option.textContent = formattedValue;
-          option.addEventListener('mousedown', (event) => {
-            event.preventDefault();
+          const chooseSuggestion = () => {
             field.value = formattedValue;
-            suggestions.hidden = true;
+            saveFieldHistory(field, category);
             field.dispatchEvent(new Event('input', { bubbles: true }));
             field.dispatchEvent(new Event('change', { bubbles: true }));
+            suggestions.hidden = true;
+          };
+          option.addEventListener('mousedown', (event) => {
+            event.preventDefault();
+            chooseSuggestion();
           });
+          option.addEventListener('click', chooseSuggestion);
 
           const removeButton = document.createElement('button');
           removeButton.type = 'button';
           removeButton.className = 'field-suggestion-remove';
           removeButton.textContent = '×';
           removeButton.setAttribute('aria-label', `Remover sugestão ${formattedValue}`);
+          const removeSuggestion = () => {
+            removeFieldHistoryItem(field, category, item);
+            renderSuggestions();
+          };
           removeButton.addEventListener('mousedown', (event) => {
             event.preventDefault();
             event.stopPropagation();
-            removeFieldHistoryItem(field, category, item);
-            renderSuggestions();
+            removeSuggestion();
+          });
+          removeButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            removeSuggestion();
           });
 
           row.append(option, removeButton);
@@ -656,7 +672,7 @@
         localStorage.setItem(storageKey, JSON.stringify(serializeDraft()));
         setSaveStatus('Rascunho salvo agora', 'saved');
       } catch {
-        setSaveStatus('Salvamento indisponível', 'error');
+        setSaveStatus('O navegador não permitiu salvar neste dispositivo', 'error');
       }
     };
 
@@ -689,7 +705,11 @@
         setSaveStatus('Rascunho restaurado', 'restored');
         showToast('Seu preenchimento anterior foi restaurado.');
       } catch {
-        localStorage.removeItem(storageKey);
+        try {
+          localStorage.removeItem(storageKey);
+        } catch {
+          setSaveStatus('O navegador não permitiu salvar neste dispositivo', 'error');
+        }
       }
     };
 
